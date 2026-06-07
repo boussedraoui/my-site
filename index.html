@@ -282,6 +282,51 @@
         .gt-protection-popup .gt-message { font-size: 1rem; line-height: 1.6; margin-bottom: 24px; }
         .gt-btn { padding: 12px 26px; font-size: 1rem; }
         .gt-btn-return-red { width: 26px; height: 26px; background: red !important; padding: 0 !important; margin: 0 !important; font-size: 0 !important; border-radius: 6px; display: inline-block; cursor: pointer; }
+        
+        /* --- تحسينات احترافية إضافية --- */
+        .section-header {
+            font-size: 1.8rem;
+            font-weight: 800;
+            margin: 2rem 0 1.2rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 3px solid var(--primary);
+            display: inline-block;
+            letter-spacing: -0.3px;
+        }
+        .premium-sections-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 28px;
+            margin: 32px 0;
+        }
+        .premium-sections-grid .tool-card.large {
+            margin: 0;
+            width: 100%;
+            transition: transform 0.25s ease, box-shadow 0.25s;
+        }
+        .premium-sections-grid .tool-card.large:hover {
+            transform: translateY(-6px);
+            box-shadow: var(--shadow-lg);
+        }
+        .action-buttons-group {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+            margin: 20px 0;
+        }
+        .footer-widget {
+            margin-top: 80px;
+        }
+        @media (max-width: 740px) {
+            .premium-sections-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            .section-header {
+                font-size: 1.4rem;
+            }
+        }
     </style>
 </head>
 <body>
@@ -350,32 +395,45 @@
         <div class="love-phrase"><div class="premium-container"><span class="premium-ribbon">💎 100% FREE PREMIUM</span><div class="orbiting-love"><div class="love-text">I 💗 TOOLS</div></div></div></div>
     </div>
     <div class="search-container"><input type="text" id="globalSearch" class="search-input" placeholder="🔍 Search any tool... calculator, world clock, translator..."><div id="searchResults" class="search-results" style="display:none;"></div></div>
+    
+    <!-- شبكة الأدوات الأساسية (يتم تعبئتها بواسطة JavaScript) -->
     <div class="tools-grid" id="toolsGrid"></div>
-    <div style="display:flex;justify-content:center;margin:20px 0 30px;"><button class="sites-wide-btn" style="background:linear-gradient(135deg,#ff7e5f,#feb47b);" onclick="openMediaOverlay()">📺 MEDIA (Video Platforms)</button></div>
-    <div class="flex-buttons"><button class="tool-btn" onclick="openOtherTools()">🧰 All other tools</button><button class="tool-btn" onclick="openAiTools()">🤖 AI Hub</button><button class="tool-btn" onclick="openSearchOverlay()">🔍 Search engines</button></div>
-    <div style="display:flex;justify-content:center;margin:20px 0 30px;"><button class="sites-wide-btn" onclick="openSitesOverlay()">🌐 SITES (Popular Websites)</button></div>
-    <div style="display:flex;justify-content:center;margin:20px 0 30px;"><button class="sites-wide-btn" style="background:linear-gradient(135deg,#0f3443,#34e89e);" onclick="openTvRadioOverlay()">📺📻 TV / RADIO</button></div>
-    <div style="display:flex;justify-content:center;margin:20px 0 30px;"><div class="tool-card browsers-card" onclick="openBrowsersOverlay()" style="max-width:100%;width:100%;"><div style="font-size:2.8rem;">🌐🧭</div><div class="tool-name">Browsers</div><div style="font-size:1rem;margin-top:8px;">Browse websites inside the app · All major browsers</div></div></div>
-    <div style="display:flex;justify-content:center;margin:20px 0 30px;"><div class="tool-card large" onclick="openConvertOverlay()" style="max-width:100%;width:100%;background:linear-gradient(135deg,#fa8231,#f7b731);"><div style="font-size:2.8rem;">🔄📄🖼️</div><div class="tool-name">CONVERT Edit Word, Image, PDF...</div><div style="font-size:1rem;margin-top:8px;">All‑in‑one conversion & editing tools</div></div></div>
-    <div style="display:flex;justify-content:center;margin:20px 0 30px;"><div class="tool-card large" onclick="openAllAiTranslatorOverlay()" style="max-width:100%;width:100%;background:linear-gradient(135deg,#00b894,#00cec9);"><div style="font-size:2.8rem;">🌐🔤🤖</div><div class="tool-name">All AI Translator</div><div style="font-size:1rem;margin-top:8px;">Best AI translation tools & apps</div></div></div>
-    <div style="display:flex;justify-content:center;margin:20px 0 30px;"><div class="tool-card large" onclick="openGamesOverlay()" style="max-width:100%;width:100%;background:linear-gradient(135deg,#e84393,#fd79a8);"><div style="font-size:2.8rem;">🎮🕹️👾</div><div class="tool-name">GAMES</div><div style="font-size:1rem;margin-top:8px;">All gaming websites & platforms</div></div></div>
-    <div style="display:flex;justify-content:center;margin:20px 0 30px;"><div class="tool-card large" onclick="openMoneyOverlay()" style="max-width:100%;width:100%;background:linear-gradient(135deg,#1abc9c,#2ecc71);"><div style="font-size:2.8rem;">💵📈💰</div><div class="tool-name">MONEY & INVESTMENTS</div><div style="font-size:1rem;margin-top:8px;">Insurance, Loans, Finance & Investment Sites</div></div></div>
-    <div style="display:flex;justify-content:center;margin:20px 0 30px;"><div class="tool-card large" onclick="openRemoteToolsOverlay()" style="max-width:100%;width:100%;background:linear-gradient(135deg,#8e44ad,#c0392b);"><div style="font-size:2.8rem;">🖥️🔒📱</div><div class="tool-name">RDP, VPN & Web Preview</div><div style="font-size:1rem;margin-top:8px;">Remote Desktop, Proxy, Device Preview – open in new tab</div></div></div>
-    <div style="display:flex;justify-content:center;margin:20px 0 30px;"><div class="tool-card large" onclick="openFreeEmailsOverlay()" style="max-width:100%;width:100%;background:linear-gradient(135deg,#1e3c72,#2a5298);"><div style="font-size:2.8rem;">📧</div><div class="tool-name">Free Emails</div><div style="font-size:1rem;margin-top:8px;">Secure & free email providers</div></div></div>
-    <div style="display:flex;justify-content:center;margin:20px 0 30px;"><div class="tool-card large" onclick="openHealthSportsOverlay()" style="max-width:100%;width:100%;background:linear-gradient(135deg,#43c6ac,#191654);"><div style="font-size:2.8rem;">🏋️🥗</div><div class="tool-name">Health and Sports</div><div style="font-size:1rem;margin-top:8px;">Fitness, nutrition, weightlifting, swimming, yoga</div></div></div>
-    <div style="display:flex;justify-content:center;margin:20px 0 30px;"><div class="tool-card large" onclick="openMiscOverlay()" style="max-width:100%;width:100%;background:linear-gradient(135deg,#f7971e,#ffd200);"><div style="font-size:2.8rem;">🎵💘🎨</div><div class="tool-name">Miscellaneous</div><div style="font-size:1rem;margin-top:8px;">Music, dating, art, podcasts, and more</div></div></div>
-    <div style="display:flex;justify-content:center;margin:20px 0 30px;"><div class="tool-card large" onclick="openTravelBooksOverlay()" style="max-width:100%;width:100%;background:linear-gradient(135deg,#0ba360,#3cba92);"><div style="font-size:2.8rem;">✈️📚</div><div class="tool-name">Travel and Books</div><div style="font-size:1rem;margin-top:8px;">Free books, travel guides, flights</div></div></div>
-    <div style="display:flex;justify-content:center;margin:20px 0 30px;"><div class="tool-card large" onclick="openMoviesSeriesOverlay()" style="max-width:100%;width:100%;background:linear-gradient(135deg,#ff4b2b,#ff416c);"><div style="font-size:2.8rem;">🎬🍿</div><div class="tool-name">Movies, Series and Shows</div><div style="font-size:1rem;margin-top:8px;">Free streaming platforms, all languages</div></div></div>
-    <div style="display:flex;justify-content:center;margin:20px 0 30px;"><div class="tool-card large" onclick="openCultureFashionOverlay()" style="max-width:100%;width:100%;background:linear-gradient(135deg,#bc4e9c,#f80759);"><div style="font-size:2.8rem;">👗🎭</div><div class="tool-name">Culture and Fashion</div><div style="font-size:1rem;margin-top:8px;">Fashion, art, culture magazines</div></div></div>
-    <div style="display:flex;justify-content:center;margin:20px 0 30px;"><div class="tool-card large" onclick="openJobsOverlay()" style="max-width:100%;width:100%;background:linear-gradient(135deg,#0099ff,#6a11cb);"><div style="font-size:2.8rem;">💼📌</div><div class="tool-name">Jobs</div><div style="font-size:1rem;margin-top:8px;">Job portals, remote work, freelance</div></div></div>
-    <div style="display:flex;justify-content:center;margin:20px 0 30px;"><div class="tool-card large" onclick="openTechOverlay()" style="max-width:100%;width:100%;background:linear-gradient(135deg,#00c6fb,#005bea);"><div style="font-size:2.8rem;">💻📱</div><div class="tool-name">TECH</div><div style="font-size:1rem;margin-top:8px;">Tech news, reviews, gadgets, programming</div></div></div>
-    <div style="display:flex;justify-content:center;margin:20px 0 30px;"><div class="tool-card large" onclick="openBuildingHomeOverlay()" style="max-width:100%;width:100%;background:linear-gradient(135deg,#a8c0ff,#3f2b96);"><div style="font-size:2.8rem;">🏠🔨</div><div class="tool-name">Building & Home Life</div><div style="font-size:1rem;margin-top:8px;">DIY, home improvement, gardening</div></div></div>
-    <div style="display:flex;justify-content:center;margin:20px 0 30px;"><div class="tool-card large" onclick="openSurfInternetOverlay()" style="max-width:100%;width:100%;background:linear-gradient(135deg,#00d2ff,#3a7bd5);"><div style="font-size:2.8rem;">🌊📡</div><div class="tool-name">SURF Internet</div><div style="font-size:1rem;margin-top:8px;">Speed test, IP tools, network utilities</div></div></div>
-    <div style="display:flex;justify-content:center;margin:20px 0 30px;"><div class="tool-card large" onclick="openCookingKitchenOverlay()" style="max-width:100%;width:100%;background:linear-gradient(135deg,#ffb88c,#de6262);"><div style="font-size:2.8rem;">🍳🥘</div><div class="tool-name">Cooking & Kitchen</div><div style="font-size:1rem;margin-top:8px;">Recipes, meal planning, cooking tips</div></div></div>
-    <div style="display:flex;justify-content:center;margin:20px 0 30px;"><div class="tool-card large" onclick="openWildernessOceansOverlay()" style="max-width:100%;width:100%;background:linear-gradient(135deg,#11998e,#38ef7d);"><div style="font-size:2.8rem;">🐋🌿</div><div class="tool-name">Wilderness and Oceans</div><div style="font-size:1rem;margin-top:8px;">Wildlife, marine life, nature conservation</div></div></div>
-    <div style="display:flex;justify-content:center;margin:20px 0 30px;"><div class="tool-card large" onclick="openCryptoOverlay()" style="max-width:100%;width:100%;background:linear-gradient(135deg,#f2994a,#f2c94c);"><div style="font-size:2.8rem;">₿📈</div><div class="tool-name">Crypto</div><div style="font-size:1rem;margin-top:8px;">Crypto exchanges, news, portfolio trackers</div></div></div>
-    <div style="display:flex;justify-content:center;margin:20px 0 30px;"><div class="tool-card large" onclick="openNewsOverlay()" style="max-width:100%;width:100%;background:linear-gradient(135deg,#1c92d2,#f2fcfe);"><div style="font-size:2.8rem;">📰🌍</div><div class="tool-name">NEWS</div><div style="font-size:1rem;margin-top:8px;">World news, politics, technology, business</div></div></div>
-
+    
+    <!-- أزرار سريعة منسقة -->
+    <div class="action-buttons-group">
+        <button class="tool-btn" onclick="openOtherTools()">🧰 All other tools</button>
+        <button class="tool-btn" onclick="openAiTools()">🤖 AI Hub</button>
+        <button class="tool-btn" onclick="openSearchOverlay()">🔍 Search engines</button>
+    </div>
+    
+    <!-- تجميع الأقسام الكبيرة (البطاقات) في شبكة احترافية -->
+    <div class="premium-sections-grid">
+        <!-- تم نقل كل البطاقات الكبيرة إلى هنا مع الحفاظ على ترتيبها الأصلي ووظائفها -->
+        <div class="tool-card large" onclick="openMediaOverlay()" style="max-width:100%;width:100%; background:linear-gradient(135deg,#ff7e5f,#feb47b);"><div style="font-size:2.8rem;">📺</div><div class="tool-name">MEDIA (Video Platforms)</div><div style="font-size:1rem;margin-top:8px;">YouTube, Netflix, Twitch & more</div></div>
+        <div class="tool-card large" onclick="openSitesOverlay()" style="max-width:100%;width:100%; background:linear-gradient(135deg,#2193b0,#6dd5ed);"><div style="font-size:2.8rem;">🌐</div><div class="tool-name">SITES (Popular Websites)</div><div style="font-size:1rem;margin-top:8px;">Reddit, Pinterest, Telegram, WhatsApp Web, etc.</div></div>
+        <div class="tool-card large" onclick="openTvRadioOverlay()" style="max-width:100%;width:100%; background:linear-gradient(135deg,#0f3443,#34e89e);"><div style="font-size:2.8rem;">📺📻</div><div class="tool-name">TV / RADIO</div><div style="font-size:1rem;margin-top:8px;">Live TV channels & radio stations worldwide</div></div>
+        <div class="tool-card browsers-card" onclick="openBrowsersOverlay()" style="max-width:100%;width:100%; background:linear-gradient(135deg,#00b4db,#0083b0);"><div style="font-size:2.8rem;">🌐🧭</div><div class="tool-name">Browsers</div><div style="font-size:1rem;margin-top:8px;">Browse websites inside the app · All major browsers</div></div>
+        <div class="tool-card large" onclick="openConvertOverlay()" style="max-width:100%;width:100%; background:linear-gradient(135deg,#fa8231,#f7b731);"><div style="font-size:2.8rem;">🔄📄🖼️</div><div class="tool-name">CONVERT Edit Word, Image, PDF...</div><div style="font-size:1rem;margin-top:8px;">All‑in‑one conversion & editing tools</div></div>
+        <div class="tool-card large" onclick="openAllAiTranslatorOverlay()" style="max-width:100%;width:100%; background:linear-gradient(135deg,#00b894,#00cec9);"><div style="font-size:2.8rem;">🌐🔤🤖</div><div class="tool-name">All AI Translator</div><div style="font-size:1rem;margin-top:8px;">Best AI translation tools & apps</div></div>
+        <div class="tool-card large" onclick="openGamesOverlay()" style="max-width:100%;width:100%; background:linear-gradient(135deg,#e84393,#fd79a8);"><div style="font-size:2.8rem;">🎮🕹️👾</div><div class="tool-name">GAMES</div><div style="font-size:1rem;margin-top:8px;">All gaming websites & platforms</div></div>
+        <div class="tool-card large" onclick="openMoneyOverlay()" style="max-width:100%;width:100%; background:linear-gradient(135deg,#1abc9c,#2ecc71);"><div style="font-size:2.8rem;">💵📈💰</div><div class="tool-name">MONEY & INVESTMENTS</div><div style="font-size:1rem;margin-top:8px;">Insurance, Loans, Finance & Investment Sites</div></div>
+        <div class="tool-card large" onclick="openRemoteToolsOverlay()" style="max-width:100%;width:100%; background:linear-gradient(135deg,#8e44ad,#c0392b);"><div style="font-size:2.8rem;">🖥️🔒📱</div><div class="tool-name">RDP, VPN & Web Preview</div><div style="font-size:1rem;margin-top:8px;">Remote Desktop, Proxy, Device Preview – open in new tab</div></div>
+        <div class="tool-card large" onclick="openFreeEmailsOverlay()" style="max-width:100%;width:100%; background:linear-gradient(135deg,#1e3c72,#2a5298);"><div style="font-size:2.8rem;">📧</div><div class="tool-name">Free Emails</div><div style="font-size:1rem;margin-top:8px;">Secure & free email providers</div></div>
+        <div class="tool-card large" onclick="openHealthSportsOverlay()" style="max-width:100%;width:100%; background:linear-gradient(135deg,#43c6ac,#191654);"><div style="font-size:2.8rem;">🏋️🥗</div><div class="tool-name">Health and Sports</div><div style="font-size:1rem;margin-top:8px;">Fitness, nutrition, weightlifting, swimming, yoga</div></div>
+        <div class="tool-card large" onclick="openMiscOverlay()" style="max-width:100%;width:100%; background:linear-gradient(135deg,#f7971e,#ffd200);"><div style="font-size:2.8rem;">🎵💘🎨</div><div class="tool-name">Miscellaneous</div><div style="font-size:1rem;margin-top:8px;">Music, dating, art, podcasts, and more</div></div>
+        <div class="tool-card large" onclick="openTravelBooksOverlay()" style="max-width:100%;width:100%; background:linear-gradient(135deg,#0ba360,#3cba92);"><div style="font-size:2.8rem;">✈️📚</div><div class="tool-name">Travel and Books</div><div style="font-size:1rem;margin-top:8px;">Free books, travel guides, flights</div></div>
+        <div class="tool-card large" onclick="openMoviesSeriesOverlay()" style="max-width:100%;width:100%; background:linear-gradient(135deg,#ff4b2b,#ff416c);"><div style="font-size:2.8rem;">🎬🍿</div><div class="tool-name">Movies, Series and Shows</div><div style="font-size:1rem;margin-top:8px;">Free streaming platforms, all languages</div></div>
+        <div class="tool-card large" onclick="openCultureFashionOverlay()" style="max-width:100%;width:100%; background:linear-gradient(135deg,#bc4e9c,#f80759);"><div style="font-size:2.8rem;">👗🎭</div><div class="tool-name">Culture and Fashion</div><div style="font-size:1rem;margin-top:8px;">Fashion, art, culture magazines</div></div>
+        <div class="tool-card large" onclick="openJobsOverlay()" style="max-width:100%;width:100%; background:linear-gradient(135deg,#0099ff,#6a11cb);"><div style="font-size:2.8rem;">💼📌</div><div class="tool-name">Jobs</div><div style="font-size:1rem;margin-top:8px;">Job portals, remote work, freelance</div></div>
+        <div class="tool-card large" onclick="openTechOverlay()" style="max-width:100%;width:100%; background:linear-gradient(135deg,#00c6fb,#005bea);"><div style="font-size:2.8rem;">💻📱</div><div class="tool-name">TECH</div><div style="font-size:1rem;margin-top:8px;">Tech news, reviews, gadgets, programming</div></div>
+        <div class="tool-card large" onclick="openBuildingHomeOverlay()" style="max-width:100%;width:100%; background:linear-gradient(135deg,#a8c0ff,#3f2b96);"><div style="font-size:2.8rem;">🏠🔨</div><div class="tool-name">Building & Home Life</div><div style="font-size:1rem;margin-top:8px;">DIY, home improvement, gardening</div></div>
+        <div class="tool-card large" onclick="openSurfInternetOverlay()" style="max-width:100%;width:100%; background:linear-gradient(135deg,#00d2ff,#3a7bd5);"><div style="font-size:2.8rem;">🌊📡</div><div class="tool-name">SURF Internet</div><div style="font-size:1rem;margin-top:8px;">Speed test, IP tools, network utilities</div></div>
+        <div class="tool-card large" onclick="openCookingKitchenOverlay()" style="max-width:100%;width:100%; background:linear-gradient(135deg,#ffb88c,#de6262);"><div style="font-size:2.8rem;">🍳🥘</div><div class="tool-name">Cooking & Kitchen</div><div style="font-size:1rem;margin-top:8px;">Recipes, meal planning, cooking tips</div></div>
+        <div class="tool-card large" onclick="openWildernessOceansOverlay()" style="max-width:100%;width:100%; background:linear-gradient(135deg,#11998e,#38ef7d);"><div style="font-size:2.8rem;">🐋🌿</div><div class="tool-name">Wilderness and Oceans</div><div style="font-size:1rem;margin-top:8px;">Wildlife, marine life, nature conservation</div></div>
+        <div class="tool-card large" onclick="openCryptoOverlay()" style="max-width:100%;width:100%; background:linear-gradient(135deg,#f2994a,#f2c94c);"><div style="font-size:2.8rem;">₿📈</div><div class="tool-name">Crypto</div><div style="font-size:1rem;margin-top:8px;">Crypto exchanges, news, portfolio trackers</div></div>
+        <div class="tool-card large" onclick="openNewsOverlay()" style="max-width:100%;width:100%; background:linear-gradient(135deg,#1c92d2,#f2fcfe);"><div style="font-size:2.8rem;">📰🌍</div><div class="tool-name">NEWS</div><div style="font-size:1rem;margin-top:8px;">World news, politics, technology, business</div></div>
+    </div>
+    
     <div class="tool-panel" id="toolPanel"><h2 id="toolPanelTitle" style="font-size:1.8rem; margin-bottom:16px;">✨ Select a tool</h2><div id="toolContent"></div></div>
     <div class="rate-us-container"><button class="tool-btn" onclick="rateApp()" style="font-size:1.2rem;">⭐ Rate us</button></div>
 </main>
