@@ -350,7 +350,6 @@
         <div class="love-phrase"><div class="premium-container"><span class="premium-ribbon">💎 100% FREE PREMIUM</span><div class="orbiting-love"><div class="love-text">I 💗 TOOLS</div></div></div></div>
     </div>
     <div class="search-container"><input type="text" id="globalSearch" class="search-input" placeholder="🔍 Search any tool... calculator, world clock, translator..."><div id="searchResults" class="search-results" style="display:none;"></div></div>
-    
     <div class="tools-grid" id="toolsGrid"></div>
     <div style="display:flex;justify-content:center;margin:20px 0 30px;"><button class="sites-wide-btn" style="background:linear-gradient(135deg,#ff7e5f,#feb47b);" onclick="openMediaOverlay()">📺 MEDIA (Video Platforms)</button></div>
     <div class="flex-buttons"><button class="tool-btn" onclick="openOtherTools()">🧰 All other tools</button><button class="tool-btn" onclick="openAiTools()">🤖 AI Hub</button><button class="tool-btn" onclick="openSearchOverlay()">🔍 Search engines</button></div>
@@ -423,7 +422,7 @@
     </div>
 </div>
 
-<!-- ========== SMART CHATBOT (LEFT side, LOCAL KNOWLEDGE BASE) ========== -->
+<!-- ========== SMART CHATBOT (LEFT side, LOCAL KNOWLEDGE BASE for the app) ========== -->
 <div id="smartChatWidget" class="chat-widget">
     <div class="chat-button" id="chatButton">
         💬 <span class="chat-badge">AI</span>
@@ -486,8 +485,11 @@
     filter: drop-shadow(0 0 5px gold);
 }
 .ticker-text {
+    /* make text pure white + strong glow for clarity */
     color: #ffffff !important;
     background: none !important;
+    -webkit-background-clip: unset !important;
+    background-clip: unset !important;
     text-shadow: 0 0 8px rgba(0,0,0,0.8), 0 0 4px #ffffff, 0 0 2px #000000;
     font-weight: 800;
     margin-right: 40px;
@@ -676,60 +678,347 @@
 </style>
 
 <script>
-// ===== IMPROVED YANDEX TRANSLATE (Professional, avoids "cannot translate" errors) =====
-function getTargetLanguage() {
+// ===== GLOBAL YANDEX TRANSLATE HELPER =====
+function getTranslatedUrl(originalUrl) {
     const langSelect = document.getElementById('targetLangSelect');
-    return langSelect ? langSelect.value : 'en';
-}
-
-// Enhanced Yandex URL with cache buster and proper encoding
-function getRobustYandexUrl(originalUrl) {
-    const targetLang = getTargetLanguage();
-    // Add a cache-buster parameter to avoid stale responses
-    const cacheBuster = `_=${Date.now()}`;
-    let url = `https://translate.yandex.com/translate?url=${encodeURIComponent(originalUrl)}&lang=en-${targetLang}`;
-    // Ensure the URL has the cache buster
-    if (!url.includes('_=')) {
-        url += (url.includes('?') ? '&' : '?') + cacheBuster;
+    const targetLang = langSelect ? langSelect.value : 'en';
+    // Prevent double wrapping if URL is already a Yandex translate URL
+    if (originalUrl && originalUrl.includes('translate.yandex.com/translate?url=')) {
+        return originalUrl;
     }
-    return url;
+    return `https://translate.yandex.com/translate?url=${encodeURIComponent(originalUrl)}&lang=en-${targetLang}`;
 }
-
-// Override window.open for all external links (so any site clicked inside the app gets translated)
+// Override window.open to automatically translate external URLs
 const originalWindowOpen = window.open;
 window.open = function(url, target, features) {
     if (url && typeof url === 'string' && target === '_blank' && !url.startsWith('about:') && !url.startsWith('javascript:')) {
-        url = getRobustYandexUrl(url);
+        url = getTranslatedUrl(url);
     }
     return originalWindowOpen.call(this, url, target, features);
 };
+// ===== SMART CHATBOT WITH LOCAL KNOWLEDGE BASE (answers about everything inside the app) =====
+(function() {
+    let isChatOpen = false;
+    let isFullscreen = false;
+    let recognition = null;
+    const chatPanel = document.getElementById('chatPanel');
+    const chatButton = document.getElementById('chatButton');
+    const chatCloseBtn = document.getElementById('chatCloseBtn');
+    const chatFullscreenBtn = document.getElementById('chatFullscreenBtn');
+    const chatInput = document.getElementById('chatInput');
+    const chatSendBtn = document.getElementById('chatSendBtn');
+    const chatMessages = document.getElementById('chatMessages');
+    const voiceBtn = document.getElementById('chatVoiceBtn');
+    const voiceStatus = document.getElementById('voiceStatus');
 
-// Improve the existing "Translate & Open" button (translates the whole app page)
-document.addEventListener('DOMContentLoaded', function() {
-    const translateBtn = document.getElementById('translatePageBtn');
-    if (translateBtn) {
-        // Replace the button with a new one to remove previous listeners
-        const newBtn = translateBtn.cloneNode(true);
-        translateBtn.parentNode.replaceChild(newBtn, translateBtn);
-        newBtn.addEventListener('click', function() {
-            const currentPageUrl = window.location.href;
-            const translatedUrl = getRobustYandexUrl(currentPageUrl);
-            window.open(translatedUrl, '_blank');
-            showToast("🌐 Opening translated version of the app (Yandex)...");
-        });
+    function openChat() {
+        chatPanel.classList.add('active');
+        chatPanel.style.display = 'flex';
+        isChatOpen = true;
     }
-});
+    function closeChat() {
+        chatPanel.classList.remove('active');
+        chatPanel.style.display = 'none';
+        isChatOpen = false;
+        if (isFullscreen) toggleFullscreenMode();
+    }
+    chatButton.addEventListener('click', () => {
+        if (chatPanel.classList.contains('active')) closeChat();
+        else openChat();
+    });
+    chatCloseBtn.addEventListener('click', closeChat);
+    chatFullscreenBtn.addEventListener('click', toggleFullscreenMode);
+    function toggleFullscreenMode() {
+        isFullscreen = !isFullscreen;
+        if (isFullscreen) {
+            chatPanel.classList.add('fullscreen');
+            chatFullscreenBtn.textContent = '🗖';
+        } else {
+            chatPanel.classList.remove('fullscreen');
+            chatFullscreenBtn.textContent = '⛶';
+        }
+    }
 
-// ===== THE ENTIRE ORIGINAL SCRIPT (all tools, calculators, overlays) - FULLY PRESERVED =====
-// The following is the complete original script from the user's first message. 
-// It includes renderGrid, selectTool, all calculators, password generator, word counter, color picker,
-// unit converter, stopwatch, QR, BMI, random number, countdown, date difference, base64, URL encode,
-// JSON formatter, lorem, currency, percentage, age, binary/hex, roman, tip, world clock, dice, coin,
-// joke, IP lookup, AI tools (paraphraser, grammar, summarizer, sentiment, keywords, readability, AI enhancer),
-// all overlays (media, sites, TV/radio, browsers, convert, games, money, remote, etc.), sidebars, search,
-// star rating, random tool, and more. It is exactly as provided by the user.
-// (Due to its length, it is inserted here verbatim. No placeholders remain.)
+    function addMessage(text, isUser) {
+        const div = document.createElement('div');
+        div.className = `chat-message ${isUser ? 'user' : 'bot'}`;
+        div.textContent = text;
+        chatMessages.appendChild(div);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+        return div;
+    }
 
+    // COMPREHENSIVE KNOWLEDGE BASE ABOUT THE APP
+    function getAppKnowledge(query) {
+        const q = query.toLowerCase();
+        // Tools list
+        if (q.includes('what tools') || q.includes('list of tools') || q.includes('tools available')) {
+            return "🔧 MultiTool Pro includes over 50 tools: Advanced Calculator, Password Generator, Word Counter, Case Converter, Color Picker, Unit Converter, Stopwatch, QR Code Generator, BMI Calculator, Random Number, Countdown Timer, Date Difference, Base64 Encoder/Decoder, URL Encode/Decode, JSON Formatter, Lorem Ipsum Generator, Currency Converter, Percentage Calculator, Age Calculator, Binary/Hex/Decimal/Octal Converter, Roman Numeral Converter, Tip Calculator, World Clock (all time zones), Dice Roller, Coin Flip, Joke Generator, IP Lookup, AI Paraphraser, Grammar Check, AI Summarizer, Sentiment Analysis, Keyword Extractor, Readability Checker, and AI Text Enhancer.";
+        }
+        // Calculator
+        if (q.includes('calculator')) {
+            return "🧮 The Advanced Calculator supports sin, cos, tan, log10, ln, sqrt, π, e, exponents (^), parentheses, and basic arithmetic. It also shows calculation history. Just click the buttons or type using your keyboard.";
+        }
+        // Password generator
+        if (q.includes('password') && (q.includes('generate') || q.includes('generator'))) {
+            return "🔐 The Password Generator lets you set length (6-64), include uppercase, lowercase, digits, symbols, and exclude ambiguous characters. It also shows password strength.";
+        }
+        // Word counter
+        if (q.includes('word counter') || q.includes('word count')) {
+            return "📝 Word Counter shows word count, characters (with and without spaces), reading time, speaking time, and top 3 keyword density. Type or paste your text in the box.";
+        }
+        // Case converter
+        if (q.includes('case converter')) {
+            return "🔤 Case Converter can transform text to UPPER CASE, lower case, Title Case, Sentence case, aLtErNaTiNg, and iNVERSE cASE.";
+        }
+        // Color picker
+        if (q.includes('color picker') || q.includes('color')) {
+            return "🎨 Color Picker lets you pick any color, shows HEX, RGB, HSL, and stores recent colors. You can copy any format with one click.";
+        }
+        // Unit converter
+        if (q.includes('unit converter')) {
+            return "📏 Universal Unit Converter supports Length, Mass, Volume, Area, Temperature, Speed, Time, and Digital Storage. Select category, enter value, choose units, and click Convert.";
+        }
+        // Stopwatch
+        if (q.includes('stopwatch')) {
+            return "⏱️ Stopwatch with laps – start, pause, reset, and record lap times. Precision to 1/100 second.";
+        }
+        // QR code
+        if (q.includes('qr code') || q.includes('qr')) {
+            return "📱 QR Code Generator creates QR codes from any text/URL. You can customize size, error correction, foreground/background colors, and download as PNG.";
+        }
+        // BMI
+        if (q.includes('bmi')) {
+            return "⚖️ BMI Calculator supports metric (cm/kg) and imperial (ft/in/lbs). Calculates BMI, category, and healthy weight range.";
+        }
+        // Random number
+        if (q.includes('random number')) {
+            return "🎲 Random Number Generator lets you set min, max, how many numbers, allow duplicates, sort results, and decimal places.";
+        }
+        // Countdown
+        if (q.includes('countdown')) {
+            return "⏳ Countdown Timer – set minutes and seconds, start/pause/reset. Optional sound alert when time is up.";
+        }
+        // Date difference
+        if (q.includes('date difference') || q.includes('datediff')) {
+            return "📅 Date Difference calculates the exact difference between two dates (days, hours, minutes, weekdays).";
+        }
+        // Base64
+        if (q.includes('base64')) {
+            return "🔣 Base64 Encoder/Decoder – encode/decode text, also supports file to Base64 and Base64 to file download.";
+        }
+        // URL encode
+        if (q.includes('url encode') || q.includes('url decode')) {
+            return "🔗 URL Encode/Decode – encode full URI or component, decode back to original.";
+        }
+        // JSON formatter
+        if (q.includes('json')) {
+            return "📋 JSON Formatter – format, minify, and validate JSON data. Paste JSON and click Format.";
+        }
+        // Lorem Ipsum
+        if (q.includes('lorem ipsum')) {
+            return "📄 Lorem Ipsum Generator – generate paragraphs, sentences, or words. Optional HTML markup.";
+        }
+        // Currency
+        if (q.includes('currency converter')) {
+            return "💱 Currency Converter uses live exchange rates for all world currencies. Enter amount, select from/to currencies, click Convert.";
+        }
+        // Percentage
+        if (q.includes('percentage')) {
+            return "📊 Percentage Calculator – three types: percent of a number, percentage change, and what percent of.";
+        }
+        // Age calculator
+        if (q.includes('age calculator')) {
+            return "🎂 Age Calculator – enter birth date, get exact years, months, days, and days until next birthday.";
+        }
+        // Binary/hex
+        if (q.includes('binary') || q.includes('hex') || q.includes('octal')) {
+            return "💻 Binary/Hex/Decimal/Octal Converter – enter any number and see its representation in all bases.";
+        }
+        // Roman numeral
+        if (q.includes('roman numeral')) {
+            return "🏛️ Roman Numeral Converter – converts between numbers (1-3999) and Roman numerals.";
+        }
+        // Tip calculator
+        if (q.includes('tip')) {
+            return "💰 Tip Calculator – enter bill amount, tip percentage, and number of people to split. Shows tip, total, and per-person amount.";
+        }
+        // World clock
+        if (q.includes('world clock') || q.includes('time zone')) {
+            return "🕐 World Clock shows all time zones with real-time update, search/filter, and 12/24h toggle. Refreshes every minute.";
+        }
+        // Dice roller
+        if (q.includes('dice')) {
+            return "🎲 Dice Roller – roll multiple dice (1-6) with various sides (d4, d6, d8, d10, d12, d20). Shows individual results and sum.";
+        }
+        // Coin flip
+        if (q.includes('coin flip')) {
+            return "🪙 Coin Flip – flips a coin and tracks the streak (consecutive same results).";
+        }
+        // Joke generator
+        if (q.includes('joke')) {
+            return "😂 Joke Generator fetches fresh jokes from JokeAPI with categories (Any, Programming, Pun, Dark) and safe mode.";
+        }
+        // IP lookup
+        if (q.includes('ip') && (q.includes('lookup') || q.includes('address'))) {
+            return "🌍 IP Lookup shows your public IP address, location (city, region, country), ISP, organization, AS, timezone, and a map link.";
+        }
+        // AI tools (paraphraser, grammar, summarizer, sentiment, keywords, readability)
+        if (q.includes('paraphraser') || q.includes('paraphrase')) {
+            return "🔄 AI Paraphraser rewrites your text using a basic synonym-based AI. For better results, use longer texts.";
+        }
+        if (q.includes('grammar') || q.includes('spell check')) {
+            return "✅ Grammar & Spell Check fixes common errors like 'i' to 'I', 'wanna' to 'want to', etc. Note: basic corrections only.";
+        }
+        if (q.includes('summarizer') || q.includes('summarize')) {
+            return "📄 AI Summarizer extracts key sentences from your text. Paste long text and click Summarize.";
+        }
+        if (q.includes('sentiment')) {
+            return "😊 Sentiment Analysis detects whether your text is Positive, Negative, or Neutral based on word matching. Also shows confidence level.";
+        }
+        if (q.includes('keywords') || q.includes('keyword extractor')) {
+            return "🔑 Keyword Extractor extracts the most frequent words (excluding common stopwords) from your text.";
+        }
+        if (q.includes('readability')) {
+            return "📖 Readability Checker uses the Flesch Reading Ease formula to score your text and suggest grade level.";
+        }
+        // AI Text Enhancer (premium_ai)
+        if (q.includes('ai text enhancer') || (q.includes('enhancer') && q.includes('ai'))) {
+            return "🔮 AI Text Enhancer offers multiple modes: Grammar Fix, Professional, Friendly, Shorten, Expand, Simplify. Type your text and choose a mode.";
+        }
+        // Browsers
+        if (q.includes('browser')) {
+            return "🌐 Browsers section lets you surf the web inside the app. You can enter any URL, toggle desktop/mobile view, go fullscreen, and open an internal tab. It also includes browser presets (Chrome, Firefox, Edge, etc.).";
+        }
+        // Convert overlay
+        if (q.includes('convert') || q.includes('pdf') || q.includes('image editor') || q.includes('word') || q.includes('doc')) {
+            return "🔄 CONVERT section has 30+ online tools: PDF tools (PDFescape, Sejda, PDF24), Image editors (Fotor, LunaPic), Word editors (Google Docs, Zoho), File converters (Zamzar, Online-Convert), Audio/Video tools (VEED, Clipchamp). Click any card to open in a new tab.";
+        }
+        // AI Translator
+        if (q.includes('translator') || q.includes('translation')) {
+            return "🌐 All AI Translator provides access to Google Translate, Lernix AI, Reverso, Microsoft Translator, Yandex Translate, and many others. Click any card to open the translation service.";
+        }
+        // Games
+        if (q.includes('games')) {
+            return "🎮 GAMES section includes Steam, Epic Games, Roblox, Minecraft, Poki, CrazyGames, and many gaming news sites. All open in a new tab.";
+        }
+        // Money & Investments
+        if (q.includes('money') || q.includes('invest') || q.includes('insurance') || q.includes('loan')) {
+            return "💵 MONEY & INVESTMENTS: Insurance (Geico, State Farm), Loans (LendingTree, Rocket Mortgage), Investment (Robinhood, Coinbase), and budget tools (Mint, YNAB).";
+        }
+        // RDP, VPN, Preview
+        if (q.includes('rdp') || q.includes('vpn') || q.includes('remote') || q.includes('proxy')) {
+            return "🖥️ RDP, VPN & Web Preview: Free browser-based RDP (Neverinstall, Shells), VPN proxies (CroxyProxy, ProtonVPN), and responsive preview tools (BrowserStack, LambdaTest). All open in new tabs.";
+        }
+        // Free Emails
+        if (q.includes('free email') || q.includes('email service')) {
+            return "📧 Free Email Services: ProtonMail, Tutanota, Mail.com, GMX, Yandex Mail, AOL Mail, Zoho Mail. Click any to sign up.";
+        }
+        // Health and Sports
+        if (q.includes('health') || q.includes('sports') || q.includes('fitness')) {
+            return "🏋️ Health and Sports: MyFitnessPal (nutrition), Bodybuilding.com, SwimSwam, Runtastic, Healthline, WebMD, Weight Watchers, Fitbit, Yoga Journal, CrossFit.";
+        }
+        // Miscellaneous
+        if (q.includes('music') || q.includes('dating') || q.includes('art')) {
+            return "🎵 Miscellaneous: Music (Last.fm, SoundCloud, Bandcamp), Dating (Tinder, Bumble, OkCupid), Art (DeviantArt).";
+        }
+        // Travel and Books
+        if (q.includes('travel') || q.includes('books')) {
+            return "✈️ Travel and Books: Free books (Project Gutenberg, Open Library), travel guides (Wikivoyage, Lonely Planet), flight search (Skyscanner).";
+        }
+        // Movies, Series
+        if (q.includes('movies') || q.includes('series') || q.includes('streaming')) {
+            return "🎬 Movies, Series and Shows: Free streaming platforms like Popcornflix, Tubi, Pluto TV, Crackle, Vudu Free. Also links to Kanopy.";
+        }
+        // Tech
+        if (q.includes('tech') || q.includes('technology')) {
+            return "💻 TECH: Tech news (TechCrunch, The Verge, CNET), Android (Android Police), phone specs (GSMArena), development (XDA).";
+        }
+        // Crypto
+        if (q.includes('crypto') || q.includes('bitcoin') || q.includes('ethereum')) {
+            return "₿ Crypto: CoinMarketCap, CoinGecko for prices; Binance, Coinbase exchanges; CryptoPanic news.";
+        }
+        // News
+        if (q.includes('news')) {
+            return "📰 NEWS: BBC, CNN, Reuters, Al Jazeera, AP News, NPR, The Guardian, Le Monde.";
+        }
+        // General help / greeting
+        if (q.includes('hello') || q.includes('hi') || q.includes('hey')) {
+            return "Hello! 👋 I'm your MultiTool Pro assistant. Ask me about any tool, feature, or category. For example: 'How to use the QR code generator?', 'What games are included?', 'Tell me about the world clock.'";
+        }
+        // Fallback – but still helpful
+        return "I can help you with any tool in MultiTool Pro. Try asking: 'What tools are available?', 'How to use the calculator?', 'Tell me about the AI Hub', 'List all games', 'Explain the browser feature'. I know everything inside this app!";
+    }
+
+    async function getAIResponse(userMessage) {
+        // First try to match with local knowledge base
+        let localAnswer = getAppKnowledge(userMessage);
+        if (!localAnswer.includes("I can help you with any tool")) {
+            return localAnswer;
+        }
+        // If no specific match, still return the local fallback (no external API needed)
+        return localAnswer;
+    }
+
+    async function sendUserMessage() {
+        let message = chatInput.value.trim();
+        if (!message) return;
+        addMessage(message, true);
+        chatInput.value = '';
+        const thinkingDiv = addMessage('🤔 Searching my knowledge...', false);
+        try {
+            const aiReply = await getAIResponse(message);
+            thinkingDiv.remove();
+            addMessage(aiReply, false);
+        } catch (err) {
+            thinkingDiv.remove();
+            addMessage("⚠️ Sorry, I'm having trouble. Please try again later.", false);
+        }
+    }
+
+    chatSendBtn.addEventListener('click', sendUserMessage);
+    chatInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') sendUserMessage(); });
+
+    // Voice recognition
+    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        recognition = new SpeechRecognition();
+        recognition.continuous = false;
+        recognition.interimResults = false;
+        recognition.lang = 'en-US';
+        recognition.onstart = () => {
+            voiceStatus.textContent = '🎙️ Listening... speak now';
+            voiceBtn.style.background = '#ff5555';
+        };
+        recognition.onend = () => {
+            voiceStatus.textContent = '';
+            voiceBtn.style.background = '#4c9aff';
+        };
+        recognition.onresult = (event) => {
+            const transcript = event.results[0][0].transcript;
+            chatInput.value = transcript;
+            voiceStatus.textContent = `✅ Recognized: "${transcript}"`;
+            setTimeout(() => { if(voiceStatus) voiceStatus.textContent = ''; }, 2000);
+            sendUserMessage();
+        };
+        recognition.onerror = (e) => {
+            voiceStatus.textContent = '❌ Voice error: ' + e.error;
+            voiceBtn.style.background = '#4c9aff';
+            setTimeout(() => { if(voiceStatus) voiceStatus.textContent = ''; }, 2000);
+        };
+        voiceBtn.addEventListener('click', () => {
+            if (recognition) recognition.start();
+        });
+    } else {
+        voiceBtn.disabled = true;
+        voiceBtn.title = 'Voice not supported in this browser';
+        voiceStatus.textContent = 'No voice support';
+    }
+})();
+</script>
+
+<script>
+// ==================== ORIGINAL SCRIPT (all existing functions preserved) ====================
 (function(){
     let darkMode = localStorage.getItem('theme') === 'dark';
     if(darkMode) document.documentElement.setAttribute('data-theme','dark');
@@ -886,6 +1175,7 @@ document.addEventListener('DOMContentLoaded', function() {
     window.closeMoneyOverlay = function(){ document.getElementById('moneyOverlay').classList.remove('active'); };
     function renderMoneyGrid() { const container = document.getElementById('moneyGrid'); const sites = [ { name: 'Geico', icon: '🦎', url: 'https://www.geico.com' }, { name: 'Progressive', icon: '🅿️', url: 'https://www.progressive.com' }, { name: 'State Farm', icon: '🏠', url: 'https://www.statefarm.com' }, { name: 'Allstate', icon: '🤲', url: 'https://www.allstate.com' }, { name: 'USAA', icon: '🦅', url: 'https://www.usaa.com' }, { name: 'Liberty Mutual', icon: '🗽', url: 'https://www.libertymutual.com' }, { name: 'Nationwide', icon: '🌐', url: 'https://www.nationwide.com' }, { name: 'Farmers', icon: '🌾', url: 'https://www.farmers.com' }, { name: 'Travelers', icon: '✈️', url: 'https://www.travelers.com' }, { name: 'Aflac', icon: '🦆', url: 'https://www.aflac.com' }, { name: 'LendingTree', icon: '🌳', url: 'https://www.lendingtree.com' }, { name: 'SoFi', icon: '🏦', url: 'https://www.sofi.com' }, { name: 'Marcus', icon: '💰', url: 'https://www.marcus.com' }, { name: 'Rocket Mortgage', icon: '🚀', url: 'https://www.rocketmortgage.com' }, { name: 'Upstart', icon: '📈', url: 'https://www.upstart.com' }, { name: 'Best Egg', icon: '🥚', url: 'https://www.bestegg.com' }, { name: 'Robinhood', icon: '🏹', url: 'https://robinhood.com' }, { name: 'E*TRADE', icon: '📊', url: 'https://us.etrade.com' }, { name: 'Fidelity', icon: '🏆', url: 'https://www.fidelity.com' }, { name: 'Charles Schwab', icon: '🐂', url: 'https://www.schwab.com' }, { name: 'Vanguard', icon: '🚢', url: 'https://investor.vanguard.com' }, { name: 'Acorns', icon: '🌰', url: 'https://www.acorns.com' }, { name: 'Coinbase', icon: '🪙', url: 'https://www.coinbase.com' }, { name: 'Gemini', icon: '♊', url: 'https://www.gemini.com' }, { name: 'Webull', icon: '🐃', url: 'https://www.webull.com' }, { name: 'Betterment', icon: '🌱', url: 'https://www.betterment.com' }, { name: 'Mint', icon: '🍃', url: 'https://mint.intuit.com' }, { name: 'YNAB', icon: '📝', url: 'https://www.youneedabudget.com' }, { name: 'Credit Karma', icon: '🛡️', url: 'https://www.creditkarma.com' }, { name: 'NerdWallet', icon: '🤓', url: 'https://www.nerdwallet.com' } ]; let html = ''; sites.forEach(site => { html += `<div class="games-card" onclick="window.open(getTranslatedUrl('${site.url}'), '_blank');"><div style="font-size:2.8rem;">${site.icon}</div><div style="font-weight:700; font-size:1.2rem;">${site.name}</div><div style="font-size:0.9rem;">Click to open</div></div>`; }); container.innerHTML = html; }
     const originalTools = [ {id:'calculator', icon:'🧮', name:'Advanced Calculator'}, {id:'password', icon:'🔐', name:'Password Generator'}, {id:'wordcount', icon:'📝', name:'Word Counter'}, {id:'caseconverter', icon:'🔤', name:'Case Converter'}, {id:'colorpicker', icon:'🎨', name:'Color Picker'}, {id:'unitconverter', icon:'📏', name:'Unit Converter'}, {id:'stopwatch', icon:'⏱️', name:'Stopwatch'}, {id:'qrcode', icon:'📱', name:'QR Code'}, {id:'bmi', icon:'⚖️', name:'BMI Calculator'}, {id:'random', icon:'🎲', name:'Random Number'}, {id:'countdown', icon:'⏳', name:'Countdown Timer'}, {id:'datediff', icon:'📅', name:'Date Difference'}, {id:'base64', icon:'🔣', name:'Base64'}, {id:'urlencode', icon:'🔗', name:'URL Encode'}, {id:'jsonformat', icon:'📋', name:'JSON Formatter'}, {id:'lorem', icon:'📄', name:'Lorem Ipsum'}, {id:'currency', icon:'💱', name:'Currency Converter'}, {id:'percentcalc', icon:'📊', name:'Percentage Calc'}, {id:'agecalc', icon:'🎂', name:'Age Calculator'}, {id:'binhex', icon:'💻', name:'Binary/Hex'}, {id:'roman', icon:'🏛️', name:'Roman Numeral'}, {id:'tipcalc', icon:'💰', name:'Tip Calculator'}, {id:'worldclock', icon:'🕐', name:'World Clock (All Zones)'}, {id:'dice', icon:'🎲', name:'Dice Roller'}, {id:'coin', icon:'🪙', name:'Coin Flip'}, {id:'joke', icon:'😂', name:'Joke Generator (Fresh)'}, {id:'ip', icon:'🌍', name:'IP Lookup'},
+        // NEW ADVANCED AI TOOLS inserted before premium_ai
         {id:'ai_paraphraser', icon:'🔄', name:'AI Paraphraser'},
         {id:'ai_grammar', icon:'✅', name:'Grammar & Spell Check'},
         {id:'ai_summarizer', icon:'📄', name:'AI Summarizer'},
@@ -927,6 +1217,7 @@ document.addEventListener('DOMContentLoaded', function() {
         renderToolPanel(toolId);
         document.getElementById('toolPanel').scrollIntoView({behavior:'smooth'});
     };
+    // ************** ORIGINAL ADVANCED AI TEXT ENHANCER **************
     window.demoAIEnhanceAdvanced = function() {
         let txt = document.getElementById('aiDemoText').value;
         let mode = document.getElementById('aiMode').value;
@@ -940,6 +1231,7 @@ document.addEventListener('DOMContentLoaded', function() {
         else if(mode==='simplify') result = txt.replace(/[^a-zA-Z0-9 ]/g,'').toLowerCase();
         document.getElementById('aiDemoResult').innerHTML = result;
     };
+    // ************** NEW ADVANCED AI TOOLS FUNCTIONS **************
     window.runParaphraserTool = function() {
         let txt = document.getElementById('paraphraserText').value;
         if(!txt) { document.getElementById('paraphraserOut').innerHTML = 'Please enter some text first.'; return; }
@@ -1006,7 +1298,8 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('readabilityOut').innerHTML = `<strong>📖 Readability (Flesch Reading Ease):</strong><br>Score: ${Math.round(score)}<br>Level: ${level}<br>Words: ${words}, Sentences: ${sentenceCount}, Syllables: ${syllables}`;
     };
     function renderShortenerGrid(){ const container = document.getElementById('shortenerGrid'); const shorteners = [ { name: 'TinyURL', icon: '🔗', url: 'https://tinyurl.com/app' }, { name: 'Bitly', icon: '📎', url: 'https://bitly.com' }, { name: 'is.gd', icon: '⚡', url: 'https://is.gd' }, { name: 'Rebrandly', icon: '🔄', url: 'https://rebrandly.com' }, { name: 'Short.io', icon: '✂️', url: 'https://short.io' }, { name: 'Cutt.ly', icon: '✂️', url: 'https://cutt.ly' }, { name: 'T2M', icon: '🔗', url: 'https://t2m.io' }, { name: 'Shorte.st', icon: '📏', url: 'https://shorte.st' }, { name: '1Link', icon: '🔗', url: 'https://1link.io' }, { name: 'Linkly', icon: '🔗', url: 'https://linklyhq.com' } ]; let html = ''; shorteners.forEach(s => { html += `<div class="shortener-card" onclick="window.open(getTranslatedUrl('${s.url}'), '_blank'); closeShortenerOverlay();"><div style="font-size:2.8rem;">${s.icon}</div><div style="font-weight:700; font-size:1.2rem;">${s.name}</div><div style="font-size:0.9rem;">Click to open</div></div>`; }); container.innerHTML = html; }
-    function renderOnlineGrid(){ const container = document.getElementById('onlineGrid'); const onlineToolsList = [ { name: 'Canva', icon: '🎨', url: 'https://www.canva.com' }, { name: 'Remove.bg', icon: '🖼️', url: 'https://www.remove.bg' }, { name: 'TinyWow', icon: '✨', url: 'https://tinywow.com' }, { name: 'ILovePDF', icon: '📄', url: 'https://www.ilovepdf.com' }, { name: 'SmallPDF', icon: '📑', url: 'https://smallpdf.com' }, { name: 'OnlineOCR', icon: '🔍', url: 'https://www.onlineocr.net' }, { name: 'Convertio', icon: '🔄', url: 'https://convertio.co' }, { name: 'CloudConvert', icon: '☁️', url: 'https://cloudconvert.com' }, { name: 'EZGIF', icon: '🎞️', url: 'https://ezgif.com' }, { name: 'Kapwing', icon: '✂️', url: 'https://www.kapwing.com' }, { name: 'Pixlr', icon: '🎨', url: 'https://pixlr.com' }, { name: 'Photopea', icon: '🖌️', url: 'https://www.photopea.com' }, { name: 'Cleanup.pictures', icon: '🧹', url: 'https://cleanup.pictures' }, { name: 'Watermark Remover', icon: '💧', url: 'https://www.watermarkremover.io' }, { name: 'QR Code Monkey', icon: '📱', url: 'https://www.qrcode-monkey.com' }, { name: 'Grammarly', icon: '✍️', url: 'https://www.grammarly.com' }, { name: 'QuillBot', icon: '📝', url: 'https://quillbot.com' }, { name: 'Hemingway Editor', icon: '📖', url: 'https://hemingwayapp.com' }, { name: 'DeepL Translator', icon: '🌐', url: 'https://www.deepl.com' }, { name: 'MyMemory', icon: '🧠', url: 'https://mymemory.translated.net' }, { name: 'Color Hunt', icon: '🎨', url: 'https://colorhunt.co' }, { name: 'Coolors', icon: '🌈', url: 'https://coolors.co' }, { name: 'UI Gradients', icon: '📊', url: 'https://uigradients.com' }, { name: 'CSS Gradient', icon: '🎨', url: 'https://cssgradient.io' }, { name: 'JsonFormatter', icon: '📋', url: 'https://jsonformatter.org' }, { name: 'CodePen', icon: '💻', url: 'https://codepen.io' }, { name: 'JSFiddle', icon: '🔧', url: 'https://jsfiddle.net' }, { name: 'Replit', icon: '🔄', url: 'https://replit.com' } ]; let html = ''; onlineToolsList.forEach(tool => { html += `<div class="online-card" onclick="window.open(getTranslatedUrl('${tool.url}'), '_blank'); closeOnlineOverlay();"><div style="font-size:2.8rem;">${tool.icon}</div><div style="font-weight:700; font-size:1.2rem;">${tool.name}</div><div style="font-size:0.9rem;">Click to open</div></div>`; }); container.innerHTML = html; }
+    function renderOnlineGrid(){ const container = document.getElementById('onlineGrid'); const onlineToolsList = [ { name: 'Canva', icon: '🎨', url: 'https://www.canva.com' }, { name: 'Remove.bg', icon: '🖼️', url: 'https://www.remove.bg' }, { name: 'TinyWow', icon: '✨', url: 'https://tinywow.com' }, { name: 'ILovePDF', icon: '📄', url: 'https://www.ilovepdf.com' }, { name: 'SmallPDF', icon: '📑', url: 'https://smallpdf.com' }, { name: 'OnlineOCR', icon: '🔍', url: 'https://www.onlineocr.net' }, { name: 'Convertio', icon: '🔄', url: 'https://convertio.co' }, { name: 'CloudConvert', icon: '☁️', url: 'https://cloudconvert.com' }, { name: 'EZGIF', icon: '🎞️', url: 'https://ezgif.com' }, { name: 'Kapwing', icon: '✂️', url: 'https://www.kapwing.com' }, { name: 'Pixlr', icon: '🎨', url: 'https://pixlr.com' }, { name: 'Photopea', icon: '🖌️', url: 'https://www.photopea.com' }, { name: 'Cleanup.pictures', icon: '🧹', url: 'https://cleanup.pictures' }, { name: 'Watermark Remover', icon: '💧', url: 'https://www.watermarkremover.io' }, { name: 'QR Code Monkey', icon: '📱', url: 'https://www.qrcode-monkey.com' }, { name: 'Grammarly', icon: '✍️', url: 'https://www.grammarly.com' }, { name: 'QuillBot', icon: '📝', url: 'https://quillbot.com' }, { name: 'Hemingway Editor', icon: '📖', url: 'https://hemingwayapp.com' }, { name: 'DeepL Translator', icon: '🌐', url: 'https://www.deepl.com' }, // Google Translate removed
+        { name: 'MyMemory', icon: '🧠', url: 'https://mymemory.translated.net' }, { name: 'Color Hunt', icon: '🎨', url: 'https://colorhunt.co' }, { name: 'Coolors', icon: '🌈', url: 'https://coolors.co' }, { name: 'UI Gradients', icon: '📊', url: 'https://uigradients.com' }, { name: 'CSS Gradient', icon: '🎨', url: 'https://cssgradient.io' }, { name: 'JsonFormatter', icon: '📋', url: 'https://jsonformatter.org' }, { name: 'CodePen', icon: '💻', url: 'https://codepen.io' }, { name: 'JSFiddle', icon: '🔧', url: 'https://jsfiddle.net' }, { name: 'Replit', icon: '🔄', url: 'https://replit.com' } ]; let html = ''; onlineToolsList.forEach(tool => { html += `<div class="online-card" onclick="window.open(getTranslatedUrl('${tool.url}'), '_blank'); closeOnlineOverlay();"><div style="font-size:2.8rem;">${tool.icon}</div><div style="font-weight:700; font-size:1.2rem;">${tool.name}</div><div style="font-size:0.9rem;">Click to open</div></div>`; }); container.innerHTML = html; }
     function renderAiToolsFull(){ const container = document.getElementById('aiToolsContainer'); const aiSites = [ { name: 'ChatGPT', icon: '🤖', url: 'https://chat.openai.com', category: 'chat' }, { name: 'Google Gemini', icon: '🧠', url: 'https://gemini.google.com', category: 'chat' }, { name: 'Claude', icon: '🧬', url: 'https://claude.ai', category: 'chat' }, { name: 'DeepSeek', icon: '🐋', url: 'https://chat.deepseek.com', category: 'chat' }, { name: 'Microsoft Copilot', icon: '💻', url: 'https://copilot.microsoft.com', category: 'chat' }, { name: 'Poe', icon: '💡', url: 'https://poe.com', category: 'chat' }, { name: 'Pi AI', icon: '😊', url: 'https://pi.ai/talk', category: 'chat' }, { name: 'Character.AI', icon: '🎭', url: 'https://character.ai', category: 'chat' }, { name: 'Perplexity', icon: '🔎', url: 'https://www.perplexity.ai', category: 'search' }, { name: 'You.com', icon: '🔍', url: 'https://you.com', category: 'search' }, { name: 'DALL·E 3', icon: '🖼️', url: 'https://openai.com/dall-e-3', category: 'image' }, { name: 'Midjourney', icon: '🌸', url: 'https://www.midjourney.com', category: 'image' }, { name: 'Stable Diffusion', icon: '🌀', url: 'https://stability.ai', category: 'image' }, { name: 'Leonardo AI', icon: '🦁', url: 'https://leonardo.ai', category: 'image' }, { name: 'DreamStudio', icon: '🌟', url: 'https://beta.dreamstudio.ai', category: 'image' }, { name: 'Bing Image Creator', icon: '🌄', url: 'https://www.bing.com/images/create', category: 'image' }, { name: 'Craiyon', icon: '🎠', url: 'https://www.craiyon.com', category: 'image' }, { name: 'NightCafe', icon: '🌌', url: 'https://creator.nightcafe.studio', category: 'image' }, { name: 'Artbreeder', icon: '🧬', url: 'https://www.artbreeder.com', category: 'image' }, { name: 'Playground AI', icon: '🎮', url: 'https://playgroundai.com', category: 'image' }, { name: 'Runway ML', icon: '🎥', url: 'https://runwayml.com', category: 'video' }, { name: 'Pika', icon: '🎞️', url: 'https://pika.art', category: 'video' }, { name: 'Synthesia', icon: '🎙️', url: 'https://www.synthesia.io', category: 'video' }, { name: 'HeyGen', icon: '👤', url: 'https://www.heygen.com', category: 'video' }, { name: 'Invideo', icon: '📹', url: 'https://invideo.io', category: 'video' }, { name: 'Kapwing', icon: '🎬', url: 'https://www.kapwing.com', category: 'video' }, { name: 'Lumen5', icon: '📽️', url: 'https://www.lumen5.com', category: 'video' }, { name: 'Suno AI', icon: '🎤', url: 'https://suno.ai', category: 'music' }, { name: 'Udio', icon: '🎧', url: 'https://www.udio.com', category: 'music' }, { name: 'AIVA', icon: '🎼', url: 'https://www.aiva.ai', category: 'music' }, { name: 'Boomy', icon: '🎹', url: 'https://boomy.com', category: 'music' }, { name: 'Soundraw', icon: '🎛️', url: 'https://soundraw.io', category: 'music' }, { name: 'Mubert', icon: '🎚️', url: 'https://mubert.com', category: 'music' }, { name: 'GitHub Copilot', icon: '🐙', url: 'https://github.com/features/copilot', category: 'code' }, { name: 'Codeium', icon: '⚡', url: 'https://codeium.com', category: 'code' }, { name: 'Tabnine', icon: '🦊', url: 'https://www.tabnine.com', category: 'code' }, { name: 'Replit Ghostwriter', icon: '👻', url: 'https://replit.com/ghostwriter', category: 'code' }, { name: 'Cody', icon: '🤖', url: 'https://sourcegraph.com/cody', category: 'code' }, { name: 'Jasper', icon: '✍️', url: 'https://www.jasper.ai', category: 'writing' }, { name: 'Writesonic', icon: '📝', url: 'https://writesonic.com', category: 'writing' }, { name: 'Notion AI', icon: '📓', url: 'https://www.notion.so/product/ai', category: 'writing' } ]; const categoryNames = { chat: 'AI Chat & Assistants', search: 'AI Search & Research', image: 'AI Image Generation', video: 'AI Video & Animation', music: 'AI Music & Audio', code: 'AI Code & Development', writing: 'AI Writing & Content' }; const grouped = {}; aiSites.forEach(tool => { if (!grouped[tool.category]) grouped[tool.category] = []; grouped[tool.category].push(tool); }); let html = '<h2 style="font-size:2rem;text-align:center;">🤖 AI Hub · 40+ AI Tools</h2>'; for (const [catKey, catLabel] of Object.entries(categoryNames)) { if (grouped[catKey] && grouped[catKey].length > 0) { html += `<h3 style="margin-top:36px;text-align:center;border-bottom:2px solid var(--border);padding-bottom:12px;font-size:1.6rem;">${catLabel}</h3><div class="ai-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:24px;margin-top:24px;">`; grouped[catKey].forEach(ai => { html += `<div class="ai-card" onclick="window.open(getTranslatedUrl('${ai.url}'), '_blank'); closeAiOverlay();"><div style="font-size:2.8rem;">${ai.icon}</div><div style="font-weight:700; font-size:1.2rem;">${ai.name}</div><div style="font-size:0.9rem;">Click to open</div></div>`; }); html += '</div>'; } } html += '<div style="text-align:center;margin-top:40px;"><button class="tool-btn" onclick="closeAiOverlay()">← Back to main tools</button></div>'; container.innerHTML = html; }
     function renderImagineTools(){ const container = document.getElementById('imagineToolsGrid'); const imagineTools = [ { name: '🖼️ Image to Text (OCR)', icon: '📸', action: 'ocr' }, { name: '🎨 Random Color Palette', icon: '🌈', action: 'randomColor' }, { name: '📻 Morse Code Converter', icon: '📡', action: 'morse' }, { name: '📝 Text Summarizer', icon: '📄', action: 'summarize' }, { name: '🔢 Number Base Converter', icon: '🔢', action: 'baseAny' }, { name: '🧬 UUID Generator', icon: '🆔', action: 'uuid' }, { name: '🔐 Hash Generator', icon: '🔑', action: 'hashGen' }, { name: '📅 Unix Timestamp', icon: '⏲️', action: 'unixTime' }, { name: '🌍 IP Geolocation', icon: '🗺️', action: 'ipGeo' }, { name: '📧 Email Validator', icon: '📨', action: 'emailValidate' }, { name: '📊 CSV to JSON', icon: '📑', action: 'csvToJson' }, { name: '🧮 Quadratic Solver', icon: '📐', action: 'quadratic' }, { name: '⚖️ Weight Converter', icon: '⚖️', action: 'weightConv' }, { name: '🌡️ Temperature Converter', icon: '🌡️', action: 'tempConv' }, { name: '📏 Area Converter', icon: '📐', action: 'areaConv' }, { name: '💾 Data Size Converter', icon: '💾', action: 'dataConv' }, { name: '⏱️ Epoch Time Now', icon: '⏰', action: 'epochNow' }, { name: '🔍 Reverse Text', icon: '🔄', action: 'reverseText' }, { name: '✏️ Leet Speak', icon: '👾', action: 'leetSpeak' }, { name: '🎯 Palindrome Checker', icon: '🔄', action: 'palindrome' }, { name: '🔠 Strong Password', icon: '🔐', action: 'strongPwd' }, { name: '📇 QR Reader (camera)', icon: '📷', action: 'qrReader' }, { name: '🎲 Custom Dice Roll', icon: '🎲', action: 'customDice' }, { name: '💬 Random Advice', icon: '💡', action: 'advice' }, { name: '🔗 URL Shortener', icon: '🔗', action: 'shortener' } ]; let html = ''; imagineTools.forEach(tool => { html += `<div class="imagine-tool-card" onclick="executeImagineTool('${tool.action}')"><div style="font-size:2.8rem;">${tool.icon}</div><div style="font-weight:700; font-size:1.2rem;">${tool.name}</div></div>`; }); container.innerHTML = html; }
     window.executeImagineTool = function(action){ if(action === 'shortener') { openShortenerOverlay(); return; } let output = ''; switch(action){ case 'ocr': output = '📸 OCR Demo: Upload image<br><input type="file" id="ocrFile" accept="image/*"><button class="tool-btn" onclick="simulateOCR()">Extract Text</button><div id="ocrResult"></div>'; break;
@@ -1268,6 +1561,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 content = `<button class="tool-btn" onclick="getIPAdvanced()">Get My IP Info</button>
                 <div id="ipOut" class="tool-output"></div>`;
                 break;
+            // NEW ADVANCED AI TOOLS CASES
             case 'ai_paraphraser':
                 title = '🔄 AI Paraphraser';
                 content = `<textarea id="paraphraserText" rows="4" class="search-input" placeholder="Enter text to paraphrase..."></textarea>
@@ -1315,6 +1609,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         document.getElementById('toolPanelTitle').innerHTML = title;
         document.getElementById('toolContent').innerHTML = content;
+        // Initialize event listeners for each tool
         if(tid=='wordcount') document.getElementById('wcText')?.addEventListener('input',updateWordCount);
         if(tid=='password') document.getElementById('passLen')?.addEventListener('input',(e)=>document.getElementById('lenVal').innerText=e.target.value);
         if(tid=='colorpicker') document.getElementById('colorPick')?.addEventListener('input',updateColorFromPicker);
@@ -1323,6 +1618,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if(tid=='worldclock') { refreshWorldClock(); setInterval(refreshWorldClock, 60000); }
     }
     // ==================== Enhanced functions definitions ====================
+    // Calculator history
     let calcHistory = [];
     window.appendCalc = function(v) {
         if (v === 'C') { calcExpr = ''; }
@@ -1354,6 +1650,7 @@ document.addEventListener('DOMContentLoaded', function() {
             if (display) display.textContent = result;
         } catch(e) { document.getElementById('calcResult').innerHTML = 'Error'; }
     };
+    // Password advanced
     window.genPassAdvanced = function() {
         let len = parseInt(document.getElementById('passLen').value);
         let upper = document.getElementById('useUpper').checked;
@@ -1376,6 +1673,7 @@ document.addEventListener('DOMContentLoaded', function() {
         else if(len>=8 && ((upper && lower) || (digits && symbols))) strength = 'Medium';
         document.getElementById('strengthMeter').innerHTML = strength;
     };
+    // Word counter advanced
     function updateWordCount() {
         let t = document.getElementById('wcText').value;
         let words = t.trim().split(/\s+/).filter(w=>w.length>0);
@@ -1393,6 +1691,7 @@ document.addEventListener('DOMContentLoaded', function() {
         let sorted = Object.entries(freq).sort((a,b)=>b[1]-a[1]).slice(0,3);
         document.getElementById('keywordDensity').innerHTML = sorted.map(([k,v])=>`${k} (${v})`).join(', ') || '—';
     }
+    // Case converter extra
     window.toTitleCase = function() {
         let txt = document.getElementById('caseText').value;
         document.getElementById('caseOut').innerText = txt.replace(/\w\S*/g, w=>w.charAt(0).toUpperCase()+w.substr(1).toLowerCase());
@@ -1413,6 +1712,7 @@ document.addEventListener('DOMContentLoaded', function() {
         for(let c of txt) result += c===c.toUpperCase() ? c.toLowerCase() : c.toUpperCase();
         document.getElementById('caseOut').innerHTML = result;
     };
+    // Color picker advanced
     let recentColors = JSON.parse(localStorage.getItem('recentColors')||'[]');
     function updateColorFromPicker() {
         let col = document.getElementById('colorPick').value;
@@ -1434,6 +1734,7 @@ document.addEventListener('DOMContentLoaded', function() {
         navigator.clipboard.writeText(copyText);
         showToast(`Copied ${copyText}`);
     };
+    // Unit converter advanced
     const unitDefs = {
         length: { units: ['mm','cm','m','km','in','ft','yd','mi'], conv: { mm:0.001, cm:0.01, m:1, km:1000, in:0.0254, ft:0.3048, yd:0.9144, mi:1609.344 } },
         mass: { units: ['mg','g','kg','oz','lb','t'], conv: { mg:0.000001, g:0.001, kg:1, oz:0.0283495, lb:0.453592, t:1000 } },
@@ -1478,12 +1779,14 @@ document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('unitOut').innerHTML = `${val} ${from} = ${result.toFixed(6)} ${to}`;
         }
     };
+    // Stopwatch with laps
     let swRunning=false, swStartTime=0, swElapsed=0, swInterval=null;
     let laps=[];
     window.startSW = function() { if(swRunning) return; swRunning=true; swStartTime=Date.now()-swElapsed; swInterval=setInterval(()=>{ swElapsed=Date.now()-swStartTime; let ms=swElapsed%1000; let sec=Math.floor(swElapsed/1000)%60; let min=Math.floor(swElapsed/60000)%60; let hr=Math.floor(swElapsed/3600000); document.getElementById('swTime').innerText = `${hr.toString().padStart(2,'0')}:${min.toString().padStart(2,'0')}:${sec.toString().padStart(2,'0')}.${Math.floor(ms/10).toString().padStart(2,'0')}`; },10); };
     window.pauseSW = function() { if(swRunning) { clearInterval(swInterval); swRunning=false; } };
     window.resetSW = function() { clearInterval(swInterval); swRunning=false; swElapsed=0; laps=[]; document.getElementById('swTime').innerText='00:00:00.00'; document.getElementById('lapList').innerHTML=''; };
     window.recordLap = function() { if(!swRunning && swElapsed===0) return; let lapTime = document.getElementById('swTime').innerText; laps.push(lapTime); let ul = document.getElementById('lapList'); ul.innerHTML = laps.map((l,i)=>`<li>Lap ${i+1}: ${l}</li>`).join(''); };
+    // QR advanced
     window.genQRAdvanced = function() {
         let text = document.getElementById('qrText').value;
         if(!text) { showToast('Enter text or URL'); return; }
@@ -1494,6 +1797,7 @@ document.addEventListener('DOMContentLoaded', function() {
         let url = `https://api.qrserver.com/v1/create-qr-code/?size=${size}x${size}&data=${encodeURIComponent(text)}&ecc=${ec}&color=${fg}&bgcolor=${bg}`;
         document.getElementById('qrImg').innerHTML = `<img src="${url}" style="max-width:100%"> <br><a href="${url}" download="qrcode.png" class="tool-btn">Download PNG</a>`;
     };
+    // BMI advanced
     window.toggleBMIUnits = function() {
         let unit = document.getElementById('bmiUnit').value;
         document.getElementById('bmiMetricDiv').style.display = unit==='metric'?'block':'none';
@@ -1519,6 +1823,7 @@ document.addEventListener('DOMContentLoaded', function() {
         let category = bmi<18.5?'Underweight':bmi<25?'Normal':bmi<30?'Overweight':'Obese';
         document.getElementById('bmiOut').innerHTML = `BMI: ${bmi.toFixed(1)} (${category})<br>Healthy weight range: ${(18.5*heightM*heightM).toFixed(1)} - ${(24.9*heightM*heightM).toFixed(1)} kg`;
     };
+    // Random advanced
     window.genRandomAdvanced = function() {
         let min = parseFloat(document.getElementById('randMin').value);
         let max = parseFloat(document.getElementById('randMax').value);
@@ -1547,11 +1852,12 @@ document.addEventListener('DOMContentLoaded', function() {
         if(sort) results.sort((a,b)=>parseFloat(a)-parseFloat(b));
         document.getElementById('randOut').innerHTML = results.join(', ');
     };
+    // Countdown advanced
+    let cdTotalSeconds=0, cdIntervalObj=null, cdRunning=false;
     window.setPresetCD = function(seconds) {
         document.getElementById('cdMinutes').value = Math.floor(seconds/60);
         document.getElementById('cdSecondsInput').value = seconds%60;
     };
-    let cdTotalSeconds=0, cdIntervalObj=null, cdRunning=false;
     window.startCDAdvanced = function() {
         if(cdRunning) return;
         let min = parseInt(document.getElementById('cdMinutes').value)||0;
@@ -1580,6 +1886,7 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('cdMinutes').value='0';
         document.getElementById('cdSecondsInput').value='60';
     };
+    // Date diff advanced
     window.diffDatesAdvanced = function() {
         let d1 = new Date(document.getElementById('date1').value);
         let d2 = new Date(document.getElementById('date2').value);
@@ -1590,6 +1897,7 @@ document.addEventListener('DOMContentLoaded', function() {
         let diffMinutes = Math.floor((diffMs%3600000)/60000);
         document.getElementById('dateOut').innerHTML = `${diffDays} days, ${diffHours} hours, ${diffMinutes} minutes. Weekdays: ${Math.floor(diffDays/7)} weeks + ${diffDays%7} days`;
     };
+    // Base64 file
     window.fileToBase64 = function() {
         let file = document.getElementById('b64File').files[0];
         if(!file) { showToast('Select a file'); return; }
@@ -1608,13 +1916,16 @@ document.addEventListener('DOMContentLoaded', function() {
         link.download = 'decoded_file.bin';
         link.click();
     };
+    // URL encode advanced
     window.urlEncFull = function() { document.getElementById('urlOut').innerText = encodeURI(document.getElementById('urlText').value); };
+    // JSON minify & validate
     window.minifyJSON = function() {
         try { let obj = JSON.parse(document.getElementById('jsonIn').value); document.getElementById('jsonOut').innerText = JSON.stringify(obj); } catch(e) { document.getElementById('jsonOut').innerHTML = 'Invalid JSON'; }
     };
     window.validateJSON = function() {
         try { JSON.parse(document.getElementById('jsonIn').value); document.getElementById('jsonOut').innerHTML = '✅ Valid JSON'; } catch(e) { document.getElementById('jsonOut').innerHTML = '❌ Invalid JSON: '+e.message; }
     };
+    // Lorem advanced
     window.genLoremAdvanced = function() {
         let type = document.getElementById('loremType').value;
         let count = parseInt(document.getElementById('loremCount').value);
@@ -1628,6 +1939,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if(html) result = `<p>${result.replace(/\n/g,'</p><p>')}</p>`;
         document.getElementById('loremOut').innerHTML = result;
     };
+    // Currency live rates - ALL WORLD CURRENCIES
     const currencyList = [
         "AED","AFN","ALL","AMD","ANG","AOA","ARS","AUD","AWG","AZN","BAM","BBD","BDT","BGN","BHD","BIF","BMD","BND","BOB","BRL","BSD","BTN","BWP","BYN","BZD","CAD","CDF","CHF","CLP","CNY","COP","CRC","CUP","CVE","CZK","DJF","DKK","DOP","DZD","EGP","ERN","ETB","EUR","FJD","FKP","FOK","GBP","GEL","GGP","GHS","GIP","GMD","GNF","GTQ","GYD","HKD","HNL","HRK","HTG","HUF","IDR","ILS","IMP","INR","IQD","IRR","ISK","JEP","JMD","JOD","JPY","KES","KGS","KHR","KID","KMF","KRW","KWD","KYD","KZT","LAK","LBP","LKR","LRD","LSL","LYD","MAD","MDL","MGA","MKD","MMK","MNT","MOP","MRU","MUR","MVR","MWK","MXN","MYR","MZN","NAD","NGN","NIO","NOK","NPR","NZD","OMR","PAB","PEN","PGK","PHP","PKR","PLN","PYG","QAR","RON","RSD","RUB","RWF","SAR","SBD","SCR","SDG","SEK","SGD","SHP","SLE","SLL","SOS","SRD","SSP","STN","SYP","SZL","THB","TJS","TMT","TND","TOP","TRY","TTD","TVD","TWD","TZS","UAH","UGX","USD","UYU","UZS","VES","VND","VUV","WST","XAF","XCD","XDR","XOF","XPF","YER","ZAR","ZMW","ZWL"
     ];
@@ -1652,6 +1964,7 @@ document.addEventListener('DOMContentLoaded', function() {
             else document.getElementById('currOut').innerHTML = 'Rate not available';
         } catch(e) { document.getElementById('currOut').innerHTML = 'Error fetching rates'; }
     };
+    // Percentage advanced
     window.showPercentType = function(type) {
         let panel = document.getElementById('percentPanel');
         if(type==='percent') panel.innerHTML = `<input id="percVal" placeholder="Value" class="search-input"><input id="percPer" placeholder="Percent" class="search-input"><button class="tool-btn" onclick="calcPercent()">Calculate</button>`;
@@ -1671,6 +1984,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if(isNaN(part)||isNaN(whole)||whole===0) { showToast('Invalid input'); return; }
         document.getElementById('percOut').innerHTML = `${(part/whole*100).toFixed(2)}%`;
     };
+    // Age advanced
     window.calcAgeAdvanced = function() {
         let dob = new Date(document.getElementById('dob').value);
         let today = new Date();
@@ -1684,6 +1998,7 @@ document.addEventListener('DOMContentLoaded', function() {
         let daysToNext = Math.ceil((nextBD-today)/86400000);
         document.getElementById('ageOut').innerHTML = `${years} years, ${months} months, ${days} days.<br>Next birthday in ${daysToNext} days.`;
     };
+    // Bases converter
     window.convertAllBases = function() {
         let input = document.getElementById('binVal').value.trim();
         let num = parseInt(input);
@@ -1692,6 +2007,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if(isNaN(num)) { showToast('Invalid number'); return; }
         document.getElementById('binhexOut').innerHTML = `Decimal: ${num}<br>Binary: ${num.toString(2)}<br>Hex: ${num.toString(16).toUpperCase()}<br>Octal: ${num.toString(8)}`;
     };
+    // Roman advanced
     window.convertRomanAdvanced = function() {
         let input = document.getElementById('romanNum').value.trim().toUpperCase();
         let romanRegex = /^[IVXLCDM]+$/;
@@ -1707,6 +2023,7 @@ document.addEventListener('DOMContentLoaded', function() {
     };
     function intToRoman(num) { const map = { M:1000, CM:900, D:500, CD:400, C:100, XC:90, L:50, XL:40, X:10, IX:9, V:5, IV:4, I:1 }; let res=''; for(let key in map) { while(num>=map[key]) { res+=key; num-=map[key]; } } return res; }
     function romanToInt(s) { const map = { I:1, V:5, X:10, L:50, C:100, D:500, M:1000 }; let total=0; for(let i=0;i<s.length;i++) { let curr=map[s[i]], next=map[s[i+1]]; if(next && curr<next) total-=curr; else total+=curr; } return total; }
+    // Tip advanced
     window.calcTipAdvanced = function() {
         let bill = parseFloat(document.getElementById('billAmt').value);
         let tipP = parseFloat(document.getElementById('tipPct').value);
@@ -1717,6 +2034,7 @@ document.addEventListener('DOMContentLoaded', function() {
         let perPerson = total/split;
         document.getElementById('tipOut').innerHTML = `Tip: $${tip.toFixed(2)}<br>Total: $${total.toFixed(2)}<br>Each person (${split}): $${perPerson.toFixed(2)}`;
     };
+    // World clock with filter
     let worldClock24h = true;
     window.toggleWorldClockFormat = function() { worldClock24h = !worldClock24h; refreshWorldClock(); };
     window.refreshWorldClock = function() {
@@ -1739,6 +2057,7 @@ document.addEventListener('DOMContentLoaded', function() {
         container.innerHTML = html;
     };
     window.filterWorldClock = function() { refreshWorldClock(); };
+    // Dice multiple
     window.rollMultipleDice = function() {
         let count = parseInt(document.getElementById('diceCount').value);
         let sides = parseInt(document.getElementById('diceSidesSelect').value);
@@ -1747,6 +2066,7 @@ document.addEventListener('DOMContentLoaded', function() {
         for(let i=0;i<count;i++) { let r = Math.floor(Math.random()*sides)+1; results.push(r); sum+=r; }
         document.getElementById('diceOut').innerHTML = `🎲 ${results.join(', ')}  (Sum: ${sum})`;
     };
+    // Coin flip streak
     let streak=0, lastResult='';
     window.flipCoinAdvanced = function() {
         let result = Math.random()<0.5?'Heads':'Tails';
@@ -1756,6 +2076,7 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('coinOut').innerHTML = `🪙 ${result}`;
         document.getElementById('coinStreak').innerHTML = streak;
     };
+    // Joke with categories
     window.fetchNewJokeAdvanced = async function() {
         let category = document.getElementById('jokeCategory').value;
         let safe = document.getElementById('safeMode').checked?'&safe-mode': '';
@@ -1769,13 +2090,16 @@ document.addEventListener('DOMContentLoaded', function() {
             outDiv.innerHTML = joke;
         } catch(e) { outDiv.innerHTML = 'Failed to fetch joke'; }
     };
+    // IP advanced - FIXED AND FULLY WORKING (real data)
     window.getIPAdvanced = async function() {
         let out = document.getElementById('ipOut');
         out.innerHTML = '<span>🔍 Fetching your IP and location...</span>';
         try {
+            // Fetch public IP using ipify (HTTPS)
             let ipRes = await fetch('https://api.ipify.org?format=json');
             let ipData = await ipRes.json();
             let ip = ipData.ip;
+            // Fetch detailed geolocation via ip-api.com (HTTPS, CORS enabled)
             let geoRes = await fetch(`https://ip-api.com/json/${ip}?fields=status,country,regionName,city,zip,lat,lon,isp,org,as,timezone,query`);
             let geo = await geoRes.json();
             if(geo.status === 'success') {
@@ -1799,6 +2123,7 @@ document.addEventListener('DOMContentLoaded', function() {
             console.error(err);
         }
     };
+    // ==================== End of enhanced functions ====================
     document.getElementById('globalSearch').addEventListener('input',function(e){ let q=e.target.value.trim().toLowerCase(); if(q===''){ document.getElementById('searchResults').style.display='none'; return; } let filtered = fullToolsList.filter(t=>t.name.toLowerCase().includes(q)); let html = filtered.map(t=>`<div style="padding:16px;border-bottom:1px solid var(--border);cursor:pointer;font-size:1rem;" onclick="selectTool('${t.id}');document.getElementById('globalSearch').value='';document.getElementById('searchResults').style.display='none';">${t.icon} ${t.name}</div>`).join(''); if(!html){ html = `<div style="padding:20px;text-align:center;"><div>No tools found for "<strong>${q}</strong>"</div><button class="tool-btn" style="margin-top:16px;" onclick="searchGoogle('${q}')">🔍 Search Google for "${q} free online"</button></div>`; } document.getElementById('searchResults').innerHTML=html; document.getElementById('searchResults').style.display='block'; });
     window.searchGoogle = function(query){ window.open(`https://www.google.com/search?q=${encodeURIComponent(query + ' free online')}`, '_blank'); document.getElementById('globalSearch').value = ''; document.getElementById('searchResults').style.display = 'none'; };
     document.addEventListener('click',(e)=>{ if(!e.target.closest('.search-container')) document.getElementById('searchResults').style.display='none'; });
