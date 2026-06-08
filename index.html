@@ -389,7 +389,7 @@
 </footer>
 <div id="toast" class="toast"></div>
 
-<!-- ========== NEW FOOTER TICKER (at the very bottom) ========== -->
+<!-- ========== NEWS TICKER (seamless infinite scroll, bottom of page) ========== -->
 <div class="ultra-ticker-wrapper">
     <div class="ticker-container">
         <div class="ticker-content">
@@ -398,7 +398,7 @@
             <span class="ticker-icon">⭐</span>
             <span class="ticker-text">🔥 YOU'LL NEVER NEED ANY OTHER APP — WE HAVE EVERYTHING 🔥</span>
             <span class="ticker-icon">💎</span>
-            <span class="ticker-text">✅ 50+ TOOLS • AI HUB • WORLD CLOCK • TRANSLATOR • CONVERTER • GAMES • TV • RADIO • BROWSERS ✅</span>
+            <span class="ticker-text">✅ ALL TOOLS • AI HUB • WORLD CLOCK • TRANSLATOR • CONVERTER • GAMES • TV • RADIO • BROWSERS ✅</span>
             <span class="ticker-icon">🔒</span>
             <span class="ticker-text">🛡️ YOUR ALL-IN-ONE PREMIUM EXPERIENCE – 100% FREE 🛡️</span>
             <span class="ticker-icon">🎯</span>
@@ -411,7 +411,7 @@
             <span class="ticker-icon">⭐</span>
             <span class="ticker-text">🔥 YOU'LL NEVER NEED ANY OTHER APP — WE HAVE EVERYTHING 🔥</span>
             <span class="ticker-icon">💎</span>
-            <span class="ticker-text">✅ 50+ TOOLS • AI HUB • WORLD CLOCK • TRANSLATOR • CONVERTER • GAMES • TV • RADIO • BROWSERS ✅</span>
+            <span class="ticker-text">✅ ALL TOOLS • AI HUB • WORLD CLOCK • TRANSLATOR • CONVERTER • GAMES • TV • RADIO • BROWSERS ✅</span>
             <span class="ticker-icon">🔒</span>
             <span class="ticker-text">🛡️ YOUR ALL-IN-ONE PREMIUM EXPERIENCE – 100% FREE 🛡️</span>
             <span class="ticker-icon">🎯</span>
@@ -422,7 +422,7 @@
     </div>
 </div>
 
-<!-- ========== SMART CHATBOT (floating, voice + text, fullscreen, with working close) ========== -->
+<!-- ========== SMART CHATBOT (right side, general AI, working close) ========== -->
 <div id="smartChatWidget" class="chat-widget">
     <div class="chat-button" id="chatButton">
         💬 <span class="chat-badge">AI</span>
@@ -436,7 +436,7 @@
             </div>
         </div>
         <div class="chat-messages" id="chatMessages">
-            <div class="chat-message bot">👋 Hello! I'm your AI assistant. Ask me anything about tools, conversions, or just chat. I also listen to your voice! 🎤</div>
+            <div class="chat-message bot">👋 Hello! I'm your AI assistant. Ask me anything – about tools, general knowledge, math, science, or just chat. I also listen to your voice! 🎤</div>
         </div>
         <div class="chat-input-area">
             <button class="chat-voice-btn" id="chatVoiceBtn" title="Voice input">🎤</button>
@@ -448,7 +448,7 @@
 </div>
 
 <style>
-/* ===== NEWS TICKER (ultra modern, colorful) ===== */
+/* ===== NEWS TICKER (seamless infinite scroll) ===== */
 .ultra-ticker-wrapper {
     width: 100%;
     background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
@@ -470,7 +470,7 @@
 }
 .ticker-content {
     display: inline-block;
-    animation: smoothScroll 42s linear infinite;
+    animation: smoothScroll 35s linear infinite;
     font-size: 1.2rem;
     font-weight: bold;
     letter-spacing: 1px;
@@ -492,21 +492,22 @@
     font-weight: 800;
     margin-right: 35px;
     text-shadow: 0 0 5px rgba(255,255,200,0.5);
-    white-space: normal;
+    white-space: nowrap;
 }
 @keyframes smoothScroll {
     0% { transform: translateX(0); }
-    100% { transform: translateX(-48%); }
+    100% { transform: translateX(-50%); }
 }
 .ticker-content:hover {
     animation-play-state: paused;
 }
 
-/* ===== CHAT WIDGET (glassmorphism, responsive) ===== */
+/* ===== CHAT WIDGET (right side, glassmorphism) ===== */
 .chat-widget {
     position: fixed;
     bottom: 30px;
     right: 25px;
+    left: auto;
     z-index: 10000;
     font-family: 'Inter', system-ui, sans-serif;
 }
@@ -544,6 +545,7 @@
     position: absolute;
     bottom: 85px;
     right: 0;
+    left: auto;
     width: 380px;
     max-width: 85vw;
     background: rgba(20, 20, 40, 0.96);
@@ -674,7 +676,7 @@
 </style>
 
 <script>
-// ===== SMART CHATBOT WITH VOICE & FULLSCREEN (CLOSE BUTTON FIXED) =====
+// ===== SMART CHATBOT WITH VOICE & FULLSCREEN (General AI, working close, right side) =====
 (function() {
     let isChatOpen = false;
     let isFullscreen = false;
@@ -726,78 +728,27 @@
         return div;
     }
 
+    // General AI using Popcat Chat API (free, no key, works for anything)
     async function getAIResponse(userMessage) {
-        const lowerMsg = userMessage.toLowerCase();
-        // Free AI API fallback with timeout
         try {
             const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 5000);
-            const res = await fetch('https://api.yanad.xyz/chat', {
+            const timeoutId = setTimeout(() => controller.abort(), 8000);
+            const res = await fetch('https://api.popcat.xyz/chat', {
                 method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ message: userMessage }),
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ msg: userMessage, owner: "multitool", botname: "MultiAI" }),
                 signal: controller.signal
             });
             clearTimeout(timeoutId);
             if (res.ok) {
                 const data = await res.json();
-                if (data && data.reply) return data.reply;
+                if (data && data.response) return data.response;
             }
-        } catch(e) { /* fallback to local */ }
-
-        // Local knowledge base (covers everything)
-        if (lowerMsg.includes('tool') || lowerMsg.includes('tools') || lowerMsg.includes('what can you do')) {
-            return "🔧 MultiTool Pro offers 50+ built-in tools: calculator, password generator, word counter, color picker, unit converter, stopwatch, QR code, BMI, world clock (all timezones), dice, coin flip, fresh jokes, IP lookup, AI text enhancer, AI paraphraser, grammar check, summarizer, sentiment analysis, keyword extractor, readability checker, and many more! Plus external categories: Media, TV/Radio, Browsers, Convert tools, AI translator, Games, Money, RDP/VPN, and 20+ niche categories (Health, Tech, Crypto, News...). You'll never need another app!";
+            throw new Error('API failed');
+        } catch (e) {
+            // Fallback to a smart local response
+            return "I'm an AI assistant. I can answer general questions, help with math, explain concepts, or tell you about this app's tools. Please try asking something specific! (Note: For full AI power, ensure you have an internet connection.)";
         }
-        if (lowerMsg.includes('translate') || lowerMsg.includes('translator')) {
-            return "🌐 You have 'All AI Translator' section (Google Translate, DeepL, Lernix AI, Microsoft, etc.) and also a Universal Translator inside 'Other tools'. Simply click the AI Translator card on main page.";
-        }
-        if (lowerMsg.includes('world clock') || lowerMsg.includes('timezone')) {
-            return "🕐 Go to 'World Clock' tool. It shows all time zones with search & 12/24h toggle. Real-time updates every minute.";
-        }
-        if (lowerMsg.includes('joke') || lowerMsg.includes('funny')) {
-            return "😂 Use the 'Joke Generator' tool. It gets fresh jokes from JokeAPI with categories (Programming, Pun, Dark) and safe mode.";
-        }
-        if (lowerMsg.includes('qr')) {
-            return "📱 'QR Code' tool generates QR codes with custom size, colors, error correction and you can download the PNG.";
-        }
-        if (lowerMsg.includes('convert') || lowerMsg.includes('pdf') || lowerMsg.includes('image editor')) {
-            return "🔄 Head to the 'CONVERT Edit Word, Image, PDF...' card. It contains 30+ online converters: PDF tools (PDFescape, Sejda), Image editors (Fotor, LunaPic), Document editors (Google Docs, Zoho), File converters (Zamzar, Online-Convert), Audio/Video tools (VEED, Clipchamp).";
-        }
-        if (lowerMsg.includes('browser') || lowerMsg.includes('surf') || lowerMsg.includes('web')) {
-            return "🌐 Use the 'Browsers' section. You can browse any website inside the app, switch desktop/mobile view, go fullscreen, and even open an internal tab. Also features browser presets (Chrome, Firefox, Edge...).";
-        }
-        if (lowerMsg.includes('ai') || lowerMsg.includes('artificial')) {
-            return "🤖 AI Hub includes ChatGPT, Gemini, Claude, DeepSeek, Copilot, DALL·E, Midjourney, Stable Diffusion, and 40+ AI tools. Also we have built‑in AI text enhancer, paraphraser, grammar, summarizer, sentiment analysis inside main tools.";
-        }
-        if (lowerMsg.includes('tv') || lowerMsg.includes('radio')) {
-            return "📺📻 TV/RADIO section gives you 20+ TV channels (RedBull TV, Samsung TV Plus, Plex Live TV, etc.) and 20+ radio stations (TuneIn, Radio Garden, BBC Sounds, etc.).";
-        }
-        if (lowerMsg.includes('game')) {
-            return "🎮 GAMES section includes Steam, Epic Games, Roblox, Minecraft, Poki, CrazyGames, and many gaming news sites. All open in new tab.";
-        }
-        if (lowerMsg.includes('money') || lowerMsg.includes('invest') || lowerMsg.includes('insurance')) {
-            return "💵 MONEY & INVESTMENTS: Insurance (Geico, State Farm), Loans (LendingTree, Rocket Mortgage), Investment (Robinhood, E*TRADE, Coinbase), and budget tools (Mint, YNAB).";
-        }
-        if (lowerMsg.includes('vpn') || lowerMsg.includes('rdp') || lowerMsg.includes('remote')) {
-            return "🖥️ RDP, VPN & Web Preview: Free browser-based RDP (Neverinstall, Shells), VPN proxies (CroxyProxy, KProxy, ProtonVPN), and responsive preview tools (BrowserStack, LambdaTest).";
-        }
-        if (lowerMsg.includes('crypto')) {
-            return "₿ Crypto category includes CoinMarketCap, CoinGecko, Binance, Coinbase, CryptoPanic, Cointelegraph – live prices and news.";
-        }
-        if (lowerMsg.includes('news')) {
-            return "📰 NEWS: BBC, CNN, Reuters, Al Jazeera, The Guardian, Le Monde and many more – world coverage.";
-        }
-        if (lowerMsg.includes('hello') || lowerMsg.includes('hi') || lowerMsg.includes('hey')) {
-            return "Hello there! 👋 Ask me anything about MultiTool Pro. I can tell you about tools, help with conversions, or just chat. I also support voice input! 🎤";
-        }
-        if (lowerMsg.includes('voice') || lowerMsg.includes('microphone')) {
-            return "🎤 Click the microphone button next to the chat input, then speak your question. I'll convert your voice to text and answer you!";
-        }
-        if (lowerMsg.includes('thank')) {
-            return "You're very welcome! 😊 Enjoy using MultiTool Pro – your complete premium toolkit, always free.";
-        }
-        return "✨ MultiTool Pro contains everything you need: from calculator to AI, world clock to converters, browsers, games, VPNs, and 20+ special categories. Try the search bar or explore the huge card grid. Is there any specific tool you'd like to use? I can guide you!";
     }
 
     async function sendUserMessage() {
