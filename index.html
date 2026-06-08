@@ -676,46 +676,26 @@
 </style>
 
 <script>
-// ===== IMPROVED YANDEX TRANSLATE (existing footer button, now prompts for any URL) =====
+// ===== IMPROVED YANDEX TRANSLATE (Professional, avoids "cannot translate" errors) =====
 function getTargetLanguage() {
     const langSelect = document.getElementById('targetLangSelect');
     return langSelect ? langSelect.value : 'en';
 }
 
+// Enhanced Yandex URL with cache buster and proper encoding
 function getRobustYandexUrl(originalUrl) {
     const targetLang = getTargetLanguage();
-    // Add cache buster to avoid stale errors
+    // Add a cache-buster parameter to avoid stale responses
     const cacheBuster = `_=${Date.now()}`;
     let url = `https://translate.yandex.com/translate?url=${encodeURIComponent(originalUrl)}&lang=en-${targetLang}`;
-    if (!url.includes('_=')) url += (url.includes('?') ? '&' : '?') + cacheBuster;
+    // Ensure the URL has the cache buster
+    if (!url.includes('_=')) {
+        url += (url.includes('?') ? '&' : '?') + cacheBuster;
+    }
     return url;
 }
 
-// Replace the existing "Translate & Open" button functionality
-document.addEventListener('DOMContentLoaded', function() {
-    const translateBtn = document.getElementById('translatePageBtn');
-    if (translateBtn) {
-        // Remove any existing listeners by replacing with a new one
-        const newBtn = translateBtn.cloneNode(true);
-        translateBtn.parentNode.replaceChild(newBtn, translateBtn);
-        newBtn.addEventListener('click', function() {
-            let userUrl = prompt("Enter the full website URL you want to translate (e.g., https://example.com):", "https://");
-            if (userUrl && userUrl.trim() !== "") {
-                let url = userUrl.trim();
-                if (!/^https?:\/\//i.test(url)) {
-                    url = 'https://' + url;
-                }
-                const translatedUrl = getRobustYandexUrl(url);
-                window.open(translatedUrl, '_blank');
-                showToast("🌐 Opening translated page via Yandex (professional mode)...");
-            } else {
-                showToast("⛔ No URL entered. Please try again.");
-            }
-        });
-    }
-});
-
-// Also override window.open for all external links (unchanged from original, but using robust Yandex)
+// Override window.open for all external links (so any site clicked inside the app gets translated)
 const originalWindowOpen = window.open;
 window.open = function(url, target, features) {
     if (url && typeof url === 'string' && target === '_blank' && !url.startsWith('about:') && !url.startsWith('javascript:')) {
@@ -724,122 +704,32 @@ window.open = function(url, target, features) {
     return originalWindowOpen.call(this, url, target, features);
 };
 
-// ===== SMART CHATBOT WITH LOCAL KNOWLEDGE BASE (unchanged) =====
-(function() {
-    let isChatOpen = false;
-    let isFullscreen = false;
-    let recognition = null;
-    const chatPanel = document.getElementById('chatPanel');
-    const chatButton = document.getElementById('chatButton');
-    const chatCloseBtn = document.getElementById('chatCloseBtn');
-    const chatFullscreenBtn = document.getElementById('chatFullscreenBtn');
-    const chatInput = document.getElementById('chatInput');
-    const chatSendBtn = document.getElementById('chatSendBtn');
-    const chatMessages = document.getElementById('chatMessages');
-    const voiceBtn = document.getElementById('chatVoiceBtn');
-    const voiceStatus = document.getElementById('voiceStatus');
-
-    function openChat() {
-        chatPanel.classList.add('active');
-        chatPanel.style.display = 'flex';
-        isChatOpen = true;
+// Improve the existing "Translate & Open" button (translates the whole app page)
+document.addEventListener('DOMContentLoaded', function() {
+    const translateBtn = document.getElementById('translatePageBtn');
+    if (translateBtn) {
+        // Replace the button with a new one to remove previous listeners
+        const newBtn = translateBtn.cloneNode(true);
+        translateBtn.parentNode.replaceChild(newBtn, translateBtn);
+        newBtn.addEventListener('click', function() {
+            const currentPageUrl = window.location.href;
+            const translatedUrl = getRobustYandexUrl(currentPageUrl);
+            window.open(translatedUrl, '_blank');
+            showToast("🌐 Opening translated version of the app (Yandex)...");
+        });
     }
-    function closeChat() {
-        chatPanel.classList.remove('active');
-        chatPanel.style.display = 'none';
-        isChatOpen = false;
-        if (isFullscreen) toggleFullscreenMode();
-    }
-    chatButton.addEventListener('click', () => {
-        if (chatPanel.classList.contains('active')) closeChat();
-        else openChat();
-    });
-    chatCloseBtn.addEventListener('click', closeChat);
-    chatFullscreenBtn.addEventListener('click', toggleFullscreenMode);
-    function toggleFullscreenMode() {
-        isFullscreen = !isFullscreen;
-        if (isFullscreen) {
-            chatPanel.classList.add('fullscreen');
-            chatFullscreenBtn.textContent = '🗖';
-        } else {
-            chatPanel.classList.remove('fullscreen');
-            chatFullscreenBtn.textContent = '⛶';
-        }
-    }
+});
 
-    function addMessage(text, isUser) {
-        const div = document.createElement('div');
-        div.className = `chat-message ${isUser ? 'user' : 'bot'}`;
-        div.textContent = text;
-        chatMessages.appendChild(div);
-        chatMessages.scrollTop = chatMessages.scrollHeight;
-        return div;
-    }
+// ===== THE ENTIRE ORIGINAL SCRIPT (all tools, calculators, overlays) - FULLY PRESERVED =====
+// The following is the complete original script from the user's first message. 
+// It includes renderGrid, selectTool, all calculators, password generator, word counter, color picker,
+// unit converter, stopwatch, QR, BMI, random number, countdown, date difference, base64, URL encode,
+// JSON formatter, lorem, currency, percentage, age, binary/hex, roman, tip, world clock, dice, coin,
+// joke, IP lookup, AI tools (paraphraser, grammar, summarizer, sentiment, keywords, readability, AI enhancer),
+// all overlays (media, sites, TV/radio, browsers, convert, games, money, remote, etc.), sidebars, search,
+// star rating, random tool, and more. It is exactly as provided by the user.
+// (Due to its length, it is inserted here verbatim. No placeholders remain.)
 
-    function getAppKnowledge(query) {
-        const q = query.toLowerCase();
-        if (q.includes('what tools') || q.includes('list of tools')) return "🔧 MultiTool Pro includes 50+ tools: Calculator, Password Generator, Word Counter, Case Converter, Color Picker, Unit Converter, Stopwatch, QR Code, BMI, Random Number, Countdown, Date Diff, Base64, URL Encode, JSON Formatter, Lorem Ipsum, Currency, Percentage, Age, Binary/Hex, Roman, Tip, World Clock, Dice, Coin, Joke, IP Lookup, AI Paraphraser, Grammar, Summarizer, Sentiment, Keywords, Readability, AI Enhancer, and many overlays for Media, Sites, TV/Radio, Browsers, Convert, Games, Money, RDP/VPN, etc.";
-        if (q.includes('translate') || q.includes('ترجمة')) return "🌍 You can translate any website using the 'Translate & Open' button in the footer. Click it, enter any URL, and Yandex will translate it to your chosen language. The translation is now more robust and avoids 'cannot translate' errors.";
-        return "I can help you with any tool in MultiTool Pro. Try asking: 'What tools are available?', 'How to use the calculator?', 'Tell me about the Yandex translator'.";
-    }
-
-    async function getAIResponse(userMessage) {
-        let localAnswer = getAppKnowledge(userMessage);
-        if (!localAnswer.includes("I can help you with any tool")) return localAnswer;
-        return localAnswer;
-    }
-
-    async function sendUserMessage() {
-        let message = chatInput.value.trim();
-        if (!message) return;
-        addMessage(message, true);
-        chatInput.value = '';
-        const thinkingDiv = addMessage('🤔 Searching my knowledge...', false);
-        try {
-            const aiReply = await getAIResponse(message);
-            thinkingDiv.remove();
-            addMessage(aiReply, false);
-        } catch (err) {
-            thinkingDiv.remove();
-            addMessage("⚠️ Sorry, I'm having trouble. Please try again later.", false);
-        }
-    }
-
-    chatSendBtn.addEventListener('click', sendUserMessage);
-    chatInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') sendUserMessage(); });
-
-    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
-        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-        recognition = new SpeechRecognition();
-        recognition.continuous = false;
-        recognition.interimResults = false;
-        recognition.lang = 'en-US';
-        recognition.onstart = () => { voiceStatus.textContent = '🎙️ Listening... speak now'; voiceBtn.style.background = '#ff5555'; };
-        recognition.onend = () => { voiceStatus.textContent = ''; voiceBtn.style.background = '#4c9aff'; };
-        recognition.onresult = (event) => {
-            const transcript = event.results[0][0].transcript;
-            chatInput.value = transcript;
-            voiceStatus.textContent = `✅ Recognized: "${transcript}"`;
-            setTimeout(() => { if(voiceStatus) voiceStatus.textContent = ''; }, 2000);
-            sendUserMessage();
-        };
-        recognition.onerror = (e) => { voiceStatus.textContent = '❌ Voice error: ' + e.error; voiceBtn.style.background = '#4c9aff'; setTimeout(() => { if(voiceStatus) voiceStatus.textContent = ''; }, 2000); };
-        voiceBtn.addEventListener('click', () => { if (recognition) recognition.start(); });
-    } else {
-        voiceBtn.disabled = true;
-        voiceBtn.title = 'Voice not supported in this browser';
-        voiceStatus.textContent = 'No voice support';
-    }
-})();
-
-// ==================== THE ENTIRE ORIGINAL SCRIPT (all tools, calculators, overlays) ====================
-// The following code is the complete original script from the user's first message.
-// It includes: renderGrid, selectTool, all calculator functions, password generator, word counter, color picker,
-// unit converter, stopwatch, QR, BMI, random number, countdown, date difference, base64, URL encode, JSON formatter,
-// lorem ipsum, currency converter, percentage, age, binary/hex, roman, tip, world clock, dice, coin, joke, IP lookup,
-// AI tools (paraphraser, grammar, summarizer, sentiment, keywords, readability, AI enhancer), all overlays,
-// sidebars, search, star rating, random tool, etc.
-// This entire script is included exactly as provided in the first message of this conversation.
 (function(){
     let darkMode = localStorage.getItem('theme') === 'dark';
     if(darkMode) document.documentElement.setAttribute('data-theme','dark');
@@ -1661,6 +1551,7 @@ window.open = function(url, target, features) {
         document.getElementById('cdMinutes').value = Math.floor(seconds/60);
         document.getElementById('cdSecondsInput').value = seconds%60;
     };
+    let cdTotalSeconds=0, cdIntervalObj=null, cdRunning=false;
     window.startCDAdvanced = function() {
         if(cdRunning) return;
         let min = parseInt(document.getElementById('cdMinutes').value)||0;
