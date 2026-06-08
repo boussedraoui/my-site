@@ -389,7 +389,7 @@
 </footer>
 <div id="toast" class="toast"></div>
 
-<!-- ========== NEWS TICKER (seamless infinite scroll, bottom of page) ========== -->
+<!-- ========== NEWS TICKER (slower, clearer text, bottom) ========== -->
 <div class="ultra-ticker-wrapper">
     <div class="ticker-container">
         <div class="ticker-content">
@@ -422,7 +422,7 @@
     </div>
 </div>
 
-<!-- ========== SMART CHATBOT (right side, general AI, working close) ========== -->
+<!-- ========== SMART CHATBOT (LEFT side, general AI, working close) ========== -->
 <div id="smartChatWidget" class="chat-widget">
     <div class="chat-button" id="chatButton">
         💬 <span class="chat-badge">AI</span>
@@ -436,7 +436,7 @@
             </div>
         </div>
         <div class="chat-messages" id="chatMessages">
-            <div class="chat-message bot">👋 Hello! I'm your AI assistant. Ask me anything – about tools, general knowledge, math, science, or just chat. I also listen to your voice! 🎤</div>
+            <div class="chat-message bot">👋 Hello! I'm your AI assistant. Ask me anything – about tools, coding, general knowledge, math, science, or just chat. I also listen to your voice! 🎤</div>
         </div>
         <div class="chat-input-area">
             <button class="chat-voice-btn" id="chatVoiceBtn" title="Voice input">🎤</button>
@@ -448,7 +448,7 @@
 </div>
 
 <style>
-/* ===== NEWS TICKER (seamless infinite scroll) ===== */
+/* ===== NEWS TICKER (slower, more visible) ===== */
 .ultra-ticker-wrapper {
     width: 100%;
     background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
@@ -458,20 +458,20 @@
     overflow: hidden;
     box-shadow: 0 -8px 30px rgba(0,0,0,0.3);
     margin-top: 0;
-    z-index: 5;
+    z-index: 9999;
 }
 .ticker-container {
     width: 100%;
     overflow: hidden;
     white-space: nowrap;
-    background: rgba(0,0,0,0.4);
+    background: rgba(0,0,0,0.5);
     backdrop-filter: blur(4px);
-    padding: 12px 0;
+    padding: 14px 0;
 }
 .ticker-content {
     display: inline-block;
-    animation: smoothScroll 35s linear infinite;
-    font-size: 1.2rem;
+    animation: smoothScroll 60s linear infinite;
+    font-size: 1.3rem;
     font-weight: bold;
     letter-spacing: 1px;
 }
@@ -480,19 +480,20 @@
     vertical-align: middle;
 }
 .ticker-icon {
-    font-size: 1.6rem;
-    margin: 0 12px;
-    filter: drop-shadow(0 0 4px gold);
+    font-size: 1.8rem;
+    margin: 0 15px;
+    filter: drop-shadow(0 0 5px gold);
 }
 .ticker-text {
-    background: linear-gradient(45deg, #FFDD77, #FF9988, #FF6680, #88FFAA);
+    background: linear-gradient(45deg, #FFDD77, #FFBB88, #FF8888, #AAFFAA);
     background-clip: text;
     -webkit-background-clip: text;
     color: transparent;
     font-weight: 800;
-    margin-right: 35px;
-    text-shadow: 0 0 5px rgba(255,255,200,0.5);
+    margin-right: 40px;
+    text-shadow: 0 0 8px rgba(0,0,0,0.5);
     white-space: nowrap;
+    font-size: 1.4rem;
 }
 @keyframes smoothScroll {
     0% { transform: translateX(0); }
@@ -502,13 +503,13 @@
     animation-play-state: paused;
 }
 
-/* ===== CHAT WIDGET (right side, glassmorphism) ===== */
+/* ===== CHAT WIDGET (left side, high z-index) ===== */
 .chat-widget {
     position: fixed;
     bottom: 30px;
-    right: 25px;
-    left: auto;
-    z-index: 10000;
+    left: 25px;
+    right: auto;
+    z-index: 100000;
     font-family: 'Inter', system-ui, sans-serif;
 }
 .chat-button {
@@ -544,8 +545,8 @@
 .chat-panel {
     position: absolute;
     bottom: 85px;
-    right: 0;
-    left: auto;
+    left: 0;
+    right: auto;
     width: 380px;
     max-width: 85vw;
     background: rgba(20, 20, 40, 0.96);
@@ -557,7 +558,7 @@
     flex-direction: column;
     overflow: hidden;
     transition: all 0.2s;
-    z-index: 10001;
+    z-index: 100001;
 }
 .chat-panel.active {
     display: flex;
@@ -572,7 +573,7 @@
     bottom: 0;
     right: 0;
     border-radius: 0;
-    z-index: 20000;
+    z-index: 200000;
     background: rgba(10,10,25,0.98);
 }
 .chat-header {
@@ -670,13 +671,13 @@
     color: #aaf;
 }
 @media (max-width: 550px) {
-    .chat-panel { width: 95vw; right: -10px; bottom: 80px; }
+    .chat-panel { width: 95vw; left: 0; bottom: 80px; }
     .chat-messages { height: 55vh; }
 }
 </style>
 
 <script>
-// ===== SMART CHATBOT WITH VOICE & FULLSCREEN (General AI, working close, right side) =====
+// ===== SMART CHATBOT WITH VOICE & FULLSCREEN (General AI, left side) =====
 (function() {
     let isChatOpen = false;
     let isFullscreen = false;
@@ -728,7 +729,7 @@
         return div;
     }
 
-    // General AI using Popcat Chat API (free, no key, works for anything)
+    // General AI using Popcat Chat API (free, works for any question)
     async function getAIResponse(userMessage) {
         try {
             const controller = new AbortController();
@@ -746,8 +747,8 @@
             }
             throw new Error('API failed');
         } catch (e) {
-            // Fallback to a smart local response
-            return "I'm an AI assistant. I can answer general questions, help with math, explain concepts, or tell you about this app's tools. Please try asking something specific! (Note: For full AI power, ensure you have an internet connection.)";
+            // Fallback intelligent response
+            return "I'm an AI assistant. I can answer coding questions, explain concepts, help with math, or tell you about this app's tools. Please try asking something specific! (Note: For full AI power, ensure you have an internet connection.)";
         }
     }
 
