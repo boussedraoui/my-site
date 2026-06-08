@@ -422,7 +422,7 @@
     </div>
 </div>
 
-<!-- ========== SMART CHATBOT (LEFT side, ENHANCED ADVANCED AI) ========== -->
+<!-- ========== SMART CHATBOT (LEFT side, FIXED & ENHANCED) ========== -->
 <div id="smartChatWidget" class="chat-widget">
     <div class="chat-button" id="chatButton">
         💬 <span class="chat-badge">AI</span>
@@ -436,11 +436,11 @@
             </div>
         </div>
         <div class="chat-messages" id="chatMessages">
-            <div class="chat-message bot">👋 Hello! I'm your enhanced MultiTool Pro assistant. Ask me about any tool, how to use it, or even give me a task. I'll never repeat myself and always suggest the best tool from our 50+ utilities!</div>
+            <div class="chat-message bot">👋 Hello! I'm your enhanced MultiTool Pro assistant. Ask me about any tool, how to use it, or give me a task. I'll never repeat myself and always suggest the best tool from our 50+ utilities!</div>
         </div>
         <div class="chat-input-area">
             <button class="chat-voice-btn" id="chatVoiceBtn" title="Voice input">🎤</button>
-            <input type="text" id="chatInput" placeholder="Ask me anything... e.g., 'Calculate 2+2' or 'How do I make a QR code?'">
+            <input type="text" id="chatInput" placeholder="Ask me anything... e.g., 'Calculator' or 'How to make a QR code?'">
             <button class="chat-send-btn" id="chatSendBtn">➤</button>
         </div>
         <div class="chat-voice-status" id="voiceStatus"></div>
@@ -485,7 +485,6 @@
     filter: drop-shadow(0 0 5px gold);
 }
 .ticker-text {
-    /* make text pure white + strong glow for clarity */
     color: #ffffff !important;
     background: none !important;
     -webkit-background-clip: unset !important;
@@ -678,7 +677,7 @@
 </style>
 
 <script>
-// ===== ENHANCED SMART CHATBOT WITH ADVANCED KNOWLEDGE + RECOMMENDATIONS =====
+// ===== FIXED SMART CHATBOT WITH CORRECT MATCHING =====
 (function() {
     let isChatOpen = false;
     let isFullscreen = false;
@@ -692,7 +691,6 @@
     const chatMessages = document.getElementById('chatMessages');
     const voiceBtn = document.getElementById('chatVoiceBtn');
     const voiceStatus = document.getElementById('voiceStatus');
-    let lastQueryContext = null;   // simple memory to avoid repetition
 
     function openChat() {
         chatPanel.classList.add('active');
@@ -731,9 +729,9 @@
         return div;
     }
 
-    // Comprehensive tool database for matching & recommendations
+    // Comprehensive tool database – each tool now includes its exact name as a keyword, and keywords cover common variants.
     const toolsKnowledge = [
-        { id: 'calculator', name: 'Advanced Calculator', keywords: ['calculate', 'math', 'arithmetic', 'sin', 'cos', 'tan', 'log', 'sqrt', 'exponent', 'plus', 'minus', 'multiply', 'divide'], desc: 'A scientific calculator with sin, cos, tan, log, ln, sqrt, π, e, exponent (^), parentheses. It also shows calculation history. Type or click buttons.' },
+        { id: 'calculator', name: 'Advanced Calculator', keywords: ['calculator', 'calculate', 'math', 'arithmetic', 'sin', 'cos', 'tan', 'log', 'sqrt', 'exponent', 'plus', 'minus', 'multiply', 'divide'], desc: 'A scientific calculator with sin, cos, tan, log, ln, sqrt, π, e, exponent (^), parentheses. It also shows calculation history. Type or click buttons.' },
         { id: 'password', name: 'Password Generator', keywords: ['password', 'generate secure password', 'random password', 'strong password', 'passkey', 'security'], desc: 'Generate strong passwords with custom length (6-64), include uppercase, lowercase, digits, symbols, and exclude ambiguous characters. Shows password strength.' },
         { id: 'wordcount', name: 'Word Counter', keywords: ['word count', 'character count', 'reading time', 'speaking time', 'keyword density'], desc: 'Counts words, characters (with/without spaces), reading time, speaking time, and shows top 3 keyword density.' },
         { id: 'caseconverter', name: 'Case Converter', keywords: ['case converter', 'uppercase', 'lowercase', 'title case', 'sentence case', 'alternating case', 'inverse case'], desc: 'Transform text to UPPER CASE, lower case, Title Case, Sentence case, aLtErNaTiNg, and iNVERSE cASE.' },
@@ -767,7 +765,6 @@
         { id: 'ai_keywords', name: 'Keyword Extractor', keywords: ['keywords', 'extract keywords', 'important words', 'tag generator'], desc: 'Extracts the most frequent words (excluding common stopwords) from your text.' },
         { id: 'ai_readability', name: 'Readability Checker', keywords: ['readability', 'flesch', 'reading ease', 'grade level'], desc: 'Uses the Flesch Reading Ease formula to score your text and suggest grade level.' },
         { id: 'premium_ai', name: 'AI Text Enhancer', keywords: ['enhance text', 'improve writing', 'polish', 'rewrite professional', 'ai writing'], desc: 'Offers multiple modes: Grammar Fix, Professional, Friendly, Shorten, Expand, Simplify. Type your text and choose a mode.' },
-        // Additional categories as tools for recommendation
         { id: 'browsers_overlay', name: 'Browsers (In‑App)', keywords: ['browser', 'web browser', 'surf web', 'open website', 'internal tab', 'fullscreen browser'], desc: 'Surf the web inside the app. Enter any URL, toggle desktop/mobile view, go fullscreen, and open an internal tab. Includes browser presets (Chrome, Firefox, Edge, etc.).' },
         { id: 'convert_overlay', name: 'CONVERT Tools', keywords: ['convert', 'pdf editor', 'image editor', 'word editor', 'file converter', 'audio converter', 'video converter'], desc: '30+ online tools: PDF tools (PDFescape, Sejda, PDF24), Image editors (Fotor, LunaPic), Word editors (Google Docs, Zoho), File converters (Zamzar, Online-Convert), Audio/Video tools (VEED, Clipchamp).' },
         { id: 'aitranslator_overlay', name: 'All AI Translator', keywords: ['translate', 'translation', 'google translate', 'lernix', 'reverso', 'language translator'], desc: 'Access to Google Translate, Lernix AI, Reverso, Microsoft Translator, Yandex Translate, and many others. Click any card to open the translation service.' },
@@ -778,12 +775,15 @@
     ];
 
     function getBestTool(query) {
-        const q = query.toLowerCase();
+        const q = query.toLowerCase().trim();
         let bestScore = 0;
         let bestTool = null;
         for (let tool of toolsKnowledge) {
             let score = 0;
+            // direct name match (tool name includes query OR query includes tool name)
+            if (tool.name.toLowerCase().includes(q)) score += 15;
             if (q.includes(tool.name.toLowerCase())) score += 10;
+            // keyword matches
             for (let kw of tool.keywords) {
                 if (q.includes(kw.toLowerCase())) score += 3;
             }
@@ -795,13 +795,11 @@
         return { tool: bestTool, score: bestScore };
     }
 
-    // Avoid repeating the exact same response for same query context (simple memory)
-    let lastAnswer = '';
     function getAdvancedAnswer(userMsg) {
         const q = userMsg.toLowerCase().trim();
         const { tool, score } = getBestTool(q);
         
-        // Greeting detection
+        // Greeting
         if (q.match(/^(hi|hello|hey|greetings|sup)$/i)) {
             const greetings = [
                 "👋 Hello! How can I assist you with MultiTool Pro today?",
@@ -809,14 +807,11 @@
                 "Greetings! I'm your tool expert. Need help finding something?",
                 "Hi! Need a calculator? QR code? World clock? Just ask!"
             ];
-            let resp = greetings[Math.floor(Math.random() * greetings.length)];
-            lastAnswer = resp;
-            return resp;
+            return greetings[Math.floor(Math.random() * greetings.length)];
         }
         
-        // Specific request for a known tool with high confidence
-        if (tool && score >= 5) {
-            // Variety of response templates
+        // If we found a tool with decent confidence
+        if (tool && score >= 3) {
             const templates = [
                 `🔧 **${tool.name}** - ${tool.desc}\n\n👉 You can find it in the tools grid or search for "${tool.name}".`,
                 `✨ **${tool.name}** is perfect for that! ${tool.desc}\n\nClick on it in the main menu or use the search bar.`,
@@ -824,33 +819,27 @@
                 `⚡ You're looking for **${tool.name}** — ${tool.desc}\n\nOpen it via the tools grid.`
             ];
             let resp = templates[Math.floor(Math.random() * templates.length)];
-            // Add a unique tip for some tools
+            // Add specific tips
             if (tool.id === 'password') resp += `\n💡 Tip: Use length >= 12 and include all character types for a "Strong" password.`;
             if (tool.id === 'calculator') resp += `\n💡 Tip: You can type expressions using your keyboard! Try "sin(30)" or "2^10".`;
             if (tool.id === 'qrcode') resp += `\n💡 Tip: You can change colors and download the QR as PNG.`;
             if (tool.id === 'worldclock') resp += `\n💡 Tip: Use the search box inside the tool to filter timezones.`;
             if (tool.id === 'browsers_overlay') resp += `\n💡 Tip: If a site doesn't load in the iframe, use the "Open Internal Tab" button.`;
             if (tool.id === 'premium_ai') resp += `\n💡 Tip: Try the "Professional" mode to polish business emails.`;
-            lastAnswer = resp;
             return resp;
         }
         
-        // No good match -> recommend best available tool based on closest keywords
+        // If we have a partial match but low score, recommend something
         if (tool && score > 0) {
-            let rec = `I'm not entirely sure about "${userMsg}", but you might find **${tool.name}** useful: ${tool.desc}\n\nOpen it from the tools grid.`;
-            lastAnswer = rec;
-            return rec;
+            return `🤔 I'm not entirely sure about "${userMsg}", but you might find **${tool.name}** useful: ${tool.desc}\n\nOpen it from the tools grid.`;
         }
         
-        // Completely unknown
-        let fallback = `🤔 Hmm, I don't recognize that. MultiTool Pro has over 50 tools including Calculator, Password Generator, Word Counter, QR Code, Unit Converter, World Clock, Joke Generator, AI Paraphraser, Currency Converter, and many more. Try asking about a specific tool like "How to use the QR code generator?" or "What is the password generator?".`;
-        lastAnswer = fallback;
-        return fallback;
+        // No match at all – provide helpful fallback
+        return `🤔 Hmm, I don't recognize that. MultiTool Pro has over 50 tools including Calculator, Password Generator, Word Counter, QR Code, Unit Converter, World Clock, Joke Generator, AI Paraphraser, Currency Converter, and many more. Try asking about a specific tool like "How to use the QR code generator?" or "What is the password generator?" or simply type "Calculator".`;
     }
 
     async function getAIResponse(userMessage) {
-        // Simulate slight delay for realism
-        await new Promise(r => setTimeout(r, 100));
+        await new Promise(r => setTimeout(r, 80));
         return getAdvancedAnswer(userMessage);
     }
 
