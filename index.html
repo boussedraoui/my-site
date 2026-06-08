@@ -422,7 +422,7 @@
     </div>
 </div>
 
-<!-- ========== SMART CHATBOT (LEFT side, Yanad AI – works like Gemini) ========== -->
+<!-- ========== SMART CHATBOT (LEFT side, LOCAL KNOWLEDGE BASE for the app) ========== -->
 <div id="smartChatWidget" class="chat-widget">
     <div class="chat-button" id="chatButton">
         💬 <span class="chat-badge">AI</span>
@@ -436,11 +436,11 @@
             </div>
         </div>
         <div class="chat-messages" id="chatMessages">
-            <div class="chat-message bot">👋 Hello! I'm your AI assistant (powered by Yanad AI). Ask me anything – coding, general knowledge, tool help, math, science, or just chat. I also listen to your voice! 🎤</div>
+            <div class="chat-message bot">👋 Hello! I'm your MultiTool Pro assistant. Ask me anything about the tools, features, or how to use them. I know everything inside this app!</div>
         </div>
         <div class="chat-input-area">
             <button class="chat-voice-btn" id="chatVoiceBtn" title="Voice input">🎤</button>
-            <input type="text" id="chatInput" placeholder="Type your question...">
+            <input type="text" id="chatInput" placeholder="Ask about a tool... e.g., 'How to use the QR code generator?'">
             <button class="chat-send-btn" id="chatSendBtn">➤</button>
         </div>
         <div class="chat-voice-status" id="voiceStatus"></div>
@@ -448,7 +448,7 @@
 </div>
 
 <style>
-/* ===== NEWS TICKER ===== */
+/* ===== NEWS TICKER – BRIGHT WHITE TEXT ===== */
 .ultra-ticker-wrapper {
     width: 100%;
     background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
@@ -485,13 +485,14 @@
     filter: drop-shadow(0 0 5px gold);
 }
 .ticker-text {
-    background: linear-gradient(45deg, #FFDD77, #FFBB88, #FF8888, #AAFFAA);
-    background-clip: text;
-    -webkit-background-clip: text;
-    color: transparent;
+    /* make text pure white + strong glow for clarity */
+    color: #ffffff !important;
+    background: none !important;
+    -webkit-background-clip: unset !important;
+    background-clip: unset !important;
+    text-shadow: 0 0 8px rgba(0,0,0,0.8), 0 0 4px #ffffff, 0 0 2px #000000;
     font-weight: 800;
     margin-right: 40px;
-    text-shadow: 0 0 8px rgba(0,0,0,0.5);
     white-space: nowrap;
     font-size: 1.4rem;
 }
@@ -677,7 +678,7 @@
 </style>
 
 <script>
-// ===== SMART CHATBOT WITH VOICE & FULLSCREEN (Yanad AI – works great, no key) =====
+// ===== SMART CHATBOT WITH LOCAL KNOWLEDGE BASE (answers about everything inside the app) =====
 (function() {
     let isChatOpen = false;
     let isFullscreen = false;
@@ -729,28 +730,216 @@
         return div;
     }
 
-    // Using Yanad API – free, no API key, works for any question
-    async function getAIResponse(userMessage) {
-        try {
-            const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 10000);
-            const response = await fetch('https://api.yanad.xyz/chat', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ message: userMessage }),
-                signal: controller.signal
-            });
-            clearTimeout(timeoutId);
-            if (response.ok) {
-                const data = await response.json();
-                if (data && data.reply) return data.reply;
-            }
-            throw new Error('API error');
-        } catch (error) {
-            console.warn('Yanad API error:', error);
-            // Fallback: return a helpful message but not the repetitive one
-            return "I'm having trouble connecting to the AI service right now. Please check your internet connection and try again. You can also use the many tools inside MultiTool Pro while I recover. 🛠️";
+    // COMPREHENSIVE KNOWLEDGE BASE ABOUT THE APP
+    function getAppKnowledge(query) {
+        const q = query.toLowerCase();
+        // Tools list
+        if (q.includes('what tools') || q.includes('list of tools') || q.includes('tools available')) {
+            return "🔧 MultiTool Pro includes over 50 tools: Advanced Calculator, Password Generator, Word Counter, Case Converter, Color Picker, Unit Converter, Stopwatch, QR Code Generator, BMI Calculator, Random Number, Countdown Timer, Date Difference, Base64 Encoder/Decoder, URL Encode/Decode, JSON Formatter, Lorem Ipsum Generator, Currency Converter, Percentage Calculator, Age Calculator, Binary/Hex/Decimal/Octal Converter, Roman Numeral Converter, Tip Calculator, World Clock (all time zones), Dice Roller, Coin Flip, Joke Generator, IP Lookup, AI Paraphraser, Grammar Check, AI Summarizer, Sentiment Analysis, Keyword Extractor, Readability Checker, and AI Text Enhancer.";
         }
+        // Calculator
+        if (q.includes('calculator')) {
+            return "🧮 The Advanced Calculator supports sin, cos, tan, log10, ln, sqrt, π, e, exponents (^), parentheses, and basic arithmetic. It also shows calculation history. Just click the buttons or type using your keyboard.";
+        }
+        // Password generator
+        if (q.includes('password') && (q.includes('generate') || q.includes('generator'))) {
+            return "🔐 The Password Generator lets you set length (6-64), include uppercase, lowercase, digits, symbols, and exclude ambiguous characters. It also shows password strength.";
+        }
+        // Word counter
+        if (q.includes('word counter') || q.includes('word count')) {
+            return "📝 Word Counter shows word count, characters (with and without spaces), reading time, speaking time, and top 3 keyword density. Type or paste your text in the box.";
+        }
+        // Case converter
+        if (q.includes('case converter')) {
+            return "🔤 Case Converter can transform text to UPPER CASE, lower case, Title Case, Sentence case, aLtErNaTiNg, and iNVERSE cASE.";
+        }
+        // Color picker
+        if (q.includes('color picker') || q.includes('color')) {
+            return "🎨 Color Picker lets you pick any color, shows HEX, RGB, HSL, and stores recent colors. You can copy any format with one click.";
+        }
+        // Unit converter
+        if (q.includes('unit converter')) {
+            return "📏 Universal Unit Converter supports Length, Mass, Volume, Area, Temperature, Speed, Time, and Digital Storage. Select category, enter value, choose units, and click Convert.";
+        }
+        // Stopwatch
+        if (q.includes('stopwatch')) {
+            return "⏱️ Stopwatch with laps – start, pause, reset, and record lap times. Precision to 1/100 second.";
+        }
+        // QR code
+        if (q.includes('qr code') || q.includes('qr')) {
+            return "📱 QR Code Generator creates QR codes from any text/URL. You can customize size, error correction, foreground/background colors, and download as PNG.";
+        }
+        // BMI
+        if (q.includes('bmi')) {
+            return "⚖️ BMI Calculator supports metric (cm/kg) and imperial (ft/in/lbs). Calculates BMI, category, and healthy weight range.";
+        }
+        // Random number
+        if (q.includes('random number')) {
+            return "🎲 Random Number Generator lets you set min, max, how many numbers, allow duplicates, sort results, and decimal places.";
+        }
+        // Countdown
+        if (q.includes('countdown')) {
+            return "⏳ Countdown Timer – set minutes and seconds, start/pause/reset. Optional sound alert when time is up.";
+        }
+        // Date difference
+        if (q.includes('date difference') || q.includes('datediff')) {
+            return "📅 Date Difference calculates the exact difference between two dates (days, hours, minutes, weekdays).";
+        }
+        // Base64
+        if (q.includes('base64')) {
+            return "🔣 Base64 Encoder/Decoder – encode/decode text, also supports file to Base64 and Base64 to file download.";
+        }
+        // URL encode
+        if (q.includes('url encode') || q.includes('url decode')) {
+            return "🔗 URL Encode/Decode – encode full URI or component, decode back to original.";
+        }
+        // JSON formatter
+        if (q.includes('json')) {
+            return "📋 JSON Formatter – format, minify, and validate JSON data. Paste JSON and click Format.";
+        }
+        // Lorem Ipsum
+        if (q.includes('lorem ipsum')) {
+            return "📄 Lorem Ipsum Generator – generate paragraphs, sentences, or words. Optional HTML markup.";
+        }
+        // Currency
+        if (q.includes('currency converter')) {
+            return "💱 Currency Converter uses live exchange rates for all world currencies. Enter amount, select from/to currencies, click Convert.";
+        }
+        // Percentage
+        if (q.includes('percentage')) {
+            return "📊 Percentage Calculator – three types: percent of a number, percentage change, and what percent of.";
+        }
+        // Age calculator
+        if (q.includes('age calculator')) {
+            return "🎂 Age Calculator – enter birth date, get exact years, months, days, and days until next birthday.";
+        }
+        // Binary/hex
+        if (q.includes('binary') || q.includes('hex') || q.includes('octal')) {
+            return "💻 Binary/Hex/Decimal/Octal Converter – enter any number and see its representation in all bases.";
+        }
+        // Roman numeral
+        if (q.includes('roman numeral')) {
+            return "🏛️ Roman Numeral Converter – converts between numbers (1-3999) and Roman numerals.";
+        }
+        // Tip calculator
+        if (q.includes('tip')) {
+            return "💰 Tip Calculator – enter bill amount, tip percentage, and number of people to split. Shows tip, total, and per-person amount.";
+        }
+        // World clock
+        if (q.includes('world clock') || q.includes('time zone')) {
+            return "🕐 World Clock shows all time zones with real-time update, search/filter, and 12/24h toggle. Refreshes every minute.";
+        }
+        // Dice roller
+        if (q.includes('dice')) {
+            return "🎲 Dice Roller – roll multiple dice (1-6) with various sides (d4, d6, d8, d10, d12, d20). Shows individual results and sum.";
+        }
+        // Coin flip
+        if (q.includes('coin flip')) {
+            return "🪙 Coin Flip – flips a coin and tracks the streak (consecutive same results).";
+        }
+        // Joke generator
+        if (q.includes('joke')) {
+            return "😂 Joke Generator fetches fresh jokes from JokeAPI with categories (Any, Programming, Pun, Dark) and safe mode.";
+        }
+        // IP lookup
+        if (q.includes('ip') && (q.includes('lookup') || q.includes('address'))) {
+            return "🌍 IP Lookup shows your public IP address, location (city, region, country), ISP, organization, AS, timezone, and a map link.";
+        }
+        // AI tools (paraphraser, grammar, summarizer, sentiment, keywords, readability)
+        if (q.includes('paraphraser') || q.includes('paraphrase')) {
+            return "🔄 AI Paraphraser rewrites your text using a basic synonym-based AI. For better results, use longer texts.";
+        }
+        if (q.includes('grammar') || q.includes('spell check')) {
+            return "✅ Grammar & Spell Check fixes common errors like 'i' to 'I', 'wanna' to 'want to', etc. Note: basic corrections only.";
+        }
+        if (q.includes('summarizer') || q.includes('summarize')) {
+            return "📄 AI Summarizer extracts key sentences from your text. Paste long text and click Summarize.";
+        }
+        if (q.includes('sentiment')) {
+            return "😊 Sentiment Analysis detects whether your text is Positive, Negative, or Neutral based on word matching. Also shows confidence level.";
+        }
+        if (q.includes('keywords') || q.includes('keyword extractor')) {
+            return "🔑 Keyword Extractor extracts the most frequent words (excluding common stopwords) from your text.";
+        }
+        if (q.includes('readability')) {
+            return "📖 Readability Checker uses the Flesch Reading Ease formula to score your text and suggest grade level.";
+        }
+        // AI Text Enhancer (premium_ai)
+        if (q.includes('ai text enhancer') || (q.includes('enhancer') && q.includes('ai'))) {
+            return "🔮 AI Text Enhancer offers multiple modes: Grammar Fix, Professional, Friendly, Shorten, Expand, Simplify. Type your text and choose a mode.";
+        }
+        // Browsers
+        if (q.includes('browser')) {
+            return "🌐 Browsers section lets you surf the web inside the app. You can enter any URL, toggle desktop/mobile view, go fullscreen, and open an internal tab. It also includes browser presets (Chrome, Firefox, Edge, etc.).";
+        }
+        // Convert overlay
+        if (q.includes('convert') || q.includes('pdf') || q.includes('image editor') || q.includes('word') || q.includes('doc')) {
+            return "🔄 CONVERT section has 30+ online tools: PDF tools (PDFescape, Sejda, PDF24), Image editors (Fotor, LunaPic), Word editors (Google Docs, Zoho), File converters (Zamzar, Online-Convert), Audio/Video tools (VEED, Clipchamp). Click any card to open in a new tab.";
+        }
+        // AI Translator
+        if (q.includes('translator') || q.includes('translation')) {
+            return "🌐 All AI Translator provides access to Google Translate, Lernix AI, Reverso, Microsoft Translator, Yandex Translate, and many others. Click any card to open the translation service.";
+        }
+        // Games
+        if (q.includes('games')) {
+            return "🎮 GAMES section includes Steam, Epic Games, Roblox, Minecraft, Poki, CrazyGames, and many gaming news sites. All open in a new tab.";
+        }
+        // Money & Investments
+        if (q.includes('money') || q.includes('invest') || q.includes('insurance') || q.includes('loan')) {
+            return "💵 MONEY & INVESTMENTS: Insurance (Geico, State Farm), Loans (LendingTree, Rocket Mortgage), Investment (Robinhood, Coinbase), and budget tools (Mint, YNAB).";
+        }
+        // RDP, VPN, Preview
+        if (q.includes('rdp') || q.includes('vpn') || q.includes('remote') || q.includes('proxy')) {
+            return "🖥️ RDP, VPN & Web Preview: Free browser-based RDP (Neverinstall, Shells), VPN proxies (CroxyProxy, ProtonVPN), and responsive preview tools (BrowserStack, LambdaTest). All open in new tabs.";
+        }
+        // Free Emails
+        if (q.includes('free email') || q.includes('email service')) {
+            return "📧 Free Email Services: ProtonMail, Tutanota, Mail.com, GMX, Yandex Mail, AOL Mail, Zoho Mail. Click any to sign up.";
+        }
+        // Health and Sports
+        if (q.includes('health') || q.includes('sports') || q.includes('fitness')) {
+            return "🏋️ Health and Sports: MyFitnessPal (nutrition), Bodybuilding.com, SwimSwam, Runtastic, Healthline, WebMD, Weight Watchers, Fitbit, Yoga Journal, CrossFit.";
+        }
+        // Miscellaneous
+        if (q.includes('music') || q.includes('dating') || q.includes('art')) {
+            return "🎵 Miscellaneous: Music (Last.fm, SoundCloud, Bandcamp), Dating (Tinder, Bumble, OkCupid), Art (DeviantArt).";
+        }
+        // Travel and Books
+        if (q.includes('travel') || q.includes('books')) {
+            return "✈️ Travel and Books: Free books (Project Gutenberg, Open Library), travel guides (Wikivoyage, Lonely Planet), flight search (Skyscanner).";
+        }
+        // Movies, Series
+        if (q.includes('movies') || q.includes('series') || q.includes('streaming')) {
+            return "🎬 Movies, Series and Shows: Free streaming platforms like Popcornflix, Tubi, Pluto TV, Crackle, Vudu Free. Also links to Kanopy.";
+        }
+        // Tech
+        if (q.includes('tech') || q.includes('technology')) {
+            return "💻 TECH: Tech news (TechCrunch, The Verge, CNET), Android (Android Police), phone specs (GSMArena), development (XDA).";
+        }
+        // Crypto
+        if (q.includes('crypto') || q.includes('bitcoin') || q.includes('ethereum')) {
+            return "₿ Crypto: CoinMarketCap, CoinGecko for prices; Binance, Coinbase exchanges; CryptoPanic news.";
+        }
+        // News
+        if (q.includes('news')) {
+            return "📰 NEWS: BBC, CNN, Reuters, Al Jazeera, AP News, NPR, The Guardian, Le Monde.";
+        }
+        // General help / greeting
+        if (q.includes('hello') || q.includes('hi') || q.includes('hey')) {
+            return "Hello! 👋 I'm your MultiTool Pro assistant. Ask me about any tool, feature, or category. For example: 'How to use the QR code generator?', 'What games are included?', 'Tell me about the world clock.'";
+        }
+        // Fallback – but still helpful
+        return "I can help you with any tool in MultiTool Pro. Try asking: 'What tools are available?', 'How to use the calculator?', 'Tell me about the AI Hub', 'List all games', 'Explain the browser feature'. I know everything inside this app!";
+    }
+
+    async function getAIResponse(userMessage) {
+        // First try to match with local knowledge base
+        let localAnswer = getAppKnowledge(userMessage);
+        if (!localAnswer.includes("I can help you with any tool")) {
+            return localAnswer;
+        }
+        // If no specific match, still return the local fallback (no external API needed)
+        return localAnswer;
     }
 
     async function sendUserMessage() {
@@ -758,7 +947,7 @@
         if (!message) return;
         addMessage(message, true);
         chatInput.value = '';
-        const thinkingDiv = addMessage('🤔 Thinking...', false);
+        const thinkingDiv = addMessage('🤔 Searching my knowledge...', false);
         try {
             const aiReply = await getAIResponse(message);
             thinkingDiv.remove();
