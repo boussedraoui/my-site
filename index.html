@@ -381,7 +381,25 @@
 </main>
 <footer class="footer-widget">
     <div class="footer-controls"><button class="footer-btn" onclick="toggleTheme()">🌓</button><button class="footer-btn" onclick="toggleSidebar()">☰</button><button class="footer-btn" id="muteBtn">🔊</button></div>
-    <div class="translation-toolbar"><span>🌍 Translate App:</span><select id="targetLangSelect"><option value="ar">العربية</option><option value="zh">中文</option><option value="fr">Français</option><option value="de">Deutsch</option><option value="es">Español</option><option value="hi">हिन्दी</option><option value="it">Italiano</option><option value="ja">日本語</option><option value="ko">한국어</option><option value="pt">Português</option><option value="ru">Русский</option><option value="tr">Türkçe</option><option value="nl">Nederlands</option><option value="pl">Polski</option><option value="sv">Svenska</option><option value="th">ไทย</option><option value="vi">Tiếng Việt</option><option value="id">Bahasa Indonesia</option><option value="ms">Bahasa Melayu</option><option value="fa">فارسی</option><option value="ur">اردو</option><option value="bn">বাংলা</option><option value="uk">Українська</option><option value="ro">Română</option><option value="cs">Čeština</option><option value="el">Ελληνικά</option><option value="he">עברית</option><option value="hu">Magyar</option><option value="no">Norsk</option><option value="fi">Suomi</option><option value="da">Dansk</option><option value="en">English</option></select><button class="tool-btn" id="translatePageBtn">🌐 Translate & Open</button></div>
+    <div class="translation-toolbar">
+        <span>🌍 Translate App:</span>
+        <select id="targetLangSelect">
+            <option value="ar">العربية</option><option value="zh">中文</option><option value="fr">Français</option><option value="de">Deutsch</option>
+            <option value="es">Español</option><option value="hi">हिन्दी</option><option value="it">Italiano</option><option value="ja">日本語</option>
+            <option value="ko">한국어</option><option value="pt">Português</option><option value="ru">Русский</option><option value="tr">Türkçe</option>
+            <option value="nl">Nederlands</option><option value="pl">Polski</option><option value="sv">Svenska</option><option value="th">ไทย</option>
+            <option value="vi">Tiếng Việt</option><option value="id">Bahasa Indonesia</option><option value="ms">Bahasa Melayu</option><option value="fa">فارسی</option>
+            <option value="ur">اردو</option><option value="bn">বাংলা</option><option value="uk">Українська</option><option value="ro">Română</option>
+            <option value="cs">Čeština</option><option value="el">Ελληνικά</option><option value="he">עברית</option><option value="hu">Magyar</option>
+            <option value="no">Norsk</option><option value="fi">Suomi</option><option value="da">Dansk</option><option value="en">English</option>
+        </select>
+        <button class="tool-btn" id="translatePageBtn">🌐 Yandex Translate Page</button>
+        <button class="tool-btn" id="googleTranslatePageBtn" style="background:#4285F4;">🌐 Google Translate Page</button>
+        <label style="display:inline-flex; align-items:center; gap:6px; margin-left:8px;">
+            <input type="checkbox" id="enableLinkTranslation" checked> 🔘 Translate links (Yandex)
+        </label>
+        <span style="font-size:0.75rem; margin-left:6px;">🔍 If a site fails to open, uncheck the box and click the link again.</span>
+    </div>
     <p style="font-size:1rem;">© 2026 MultiTool Pro · Ultimate toolkit</p>
     <div class="footer-love-line"><span id="scrollUpArrow" class="scroll-up-arrow" onclick="scrollToTop()" title="Go to top">↑</span><span>Made with <span class="heart-beat">💕</span></span><span class="footer-arrow-down" onclick="window.scrollTo({top:document.body.scrollHeight,behavior:'smooth'})" title="Go to bottom">↓</span></div>
     <div class="random-trigger"><button id="randomToolBtn" class="random-btn">🎲 Random Tool <span class="arrow-down">⬇️</span></button></div>
@@ -678,24 +696,41 @@
 </style>
 
 <script>
-// ===== GLOBAL YANDEX TRANSLATE HELPER =====
+// ===== GLOBAL YANDEX/GOOGLE TRANSLATE HELPER WITH TOGGLE =====
+let linkTranslationEnabled = true;
+(function() {
+    const toggleCheckbox = document.getElementById('enableLinkTranslation');
+    if (toggleCheckbox) {
+        linkTranslationEnabled = toggleCheckbox.checked;
+        toggleCheckbox.addEventListener('change', function(e) {
+            linkTranslationEnabled = e.target.checked;
+            showToast(linkTranslationEnabled ? 'Link translation enabled (Yandex)' : 'Link translation disabled - sites open directly');
+        });
+    }
+})();
+
 function getTranslatedUrl(originalUrl) {
+    if (!linkTranslationEnabled) return originalUrl;
     const langSelect = document.getElementById('targetLangSelect');
     const targetLang = langSelect ? langSelect.value : 'en';
-    // Prevent double wrapping if URL is already a Yandex translate URL
-    if (originalUrl && originalUrl.includes('translate.yandex.com/translate?url=')) {
+    // Prevent double wrapping if URL is already a translate URL
+    if (originalUrl && (originalUrl.includes('translate.yandex.com/translate?url=') || originalUrl.includes('translate.google.com/translate?sl=auto'))) {
         return originalUrl;
     }
     return `https://translate.yandex.com/translate?url=${encodeURIComponent(originalUrl)}&lang=en-${targetLang}`;
 }
-// Override window.open to automatically translate external URLs
+
+// Override window.open to automatically translate external links when translation is enabled
 const originalWindowOpen = window.open;
 window.open = function(url, target, features) {
     if (url && typeof url === 'string' && target === '_blank' && !url.startsWith('about:') && !url.startsWith('javascript:')) {
-        url = getTranslatedUrl(url);
+        if (linkTranslationEnabled) {
+            url = getTranslatedUrl(url);
+        }
     }
     return originalWindowOpen.call(this, url, target, features);
 };
+
 // ===== SMART CHATBOT WITH LOCAL KNOWLEDGE BASE (answers about everything inside the app) =====
 (function() {
     let isChatOpen = false;
@@ -2137,14 +2172,22 @@ window.open = function(url, target, features) {
 </script>
 <script>
 (function() {
-    const translateBtn = document.getElementById('translatePageBtn');
+    const translateYandexBtn = document.getElementById('translatePageBtn');
+    const translateGoogleBtn = document.getElementById('googleTranslatePageBtn');
     const langSelect = document.getElementById('targetLangSelect');
     const PAGE_URL = 'https://boussedraoui.github.io/Multitool-Pro-Full-Complete/';
-    if (translateBtn && langSelect) {
-        translateBtn.addEventListener('click', function() {
+    if (translateYandexBtn && langSelect) {
+        translateYandexBtn.addEventListener('click', function() {
             const targetLang = langSelect.value;
             const yandexUrl = `https://translate.yandex.com/translate?url=${encodeURIComponent(PAGE_URL)}&lang=en-${targetLang}`;
             window.open(yandexUrl, '_blank');
+        });
+    }
+    if (translateGoogleBtn && langSelect) {
+        translateGoogleBtn.addEventListener('click', function() {
+            const targetLang = langSelect.value;
+            const googleUrl = `https://translate.google.com/translate?sl=en&tl=${targetLang}&u=${encodeURIComponent(PAGE_URL)}`;
+            window.open(googleUrl, '_blank');
         });
     }
 })();
