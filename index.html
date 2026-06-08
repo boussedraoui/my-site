@@ -389,7 +389,7 @@
 </footer>
 <div id="toast" class="toast"></div>
 
-<!-- ========== NEWS TICKER (slower, clearer text, bottom) ========== -->
+<!-- ========== NEWS TICKER ========== -->
 <div class="ultra-ticker-wrapper">
     <div class="ticker-container">
         <div class="ticker-content">
@@ -422,7 +422,7 @@
     </div>
 </div>
 
-<!-- ========== SMART CHATBOT (LEFT side, safe AI, working close) ========== -->
+<!-- ========== SMART CHATBOT (LEFT side, Yanad AI – works like Gemini) ========== -->
 <div id="smartChatWidget" class="chat-widget">
     <div class="chat-button" id="chatButton">
         💬 <span class="chat-badge">AI</span>
@@ -436,7 +436,7 @@
             </div>
         </div>
         <div class="chat-messages" id="chatMessages">
-            <div class="chat-message bot">👋 Hello! I'm your AI assistant. Ask me anything – about tools, coding, general knowledge, math, science, or just chat. I also listen to your voice! 🎤</div>
+            <div class="chat-message bot">👋 Hello! I'm your AI assistant (powered by Yanad AI). Ask me anything – coding, general knowledge, tool help, math, science, or just chat. I also listen to your voice! 🎤</div>
         </div>
         <div class="chat-input-area">
             <button class="chat-voice-btn" id="chatVoiceBtn" title="Voice input">🎤</button>
@@ -448,7 +448,7 @@
 </div>
 
 <style>
-/* ===== NEWS TICKER (slower, more visible) ===== */
+/* ===== NEWS TICKER ===== */
 .ultra-ticker-wrapper {
     width: 100%;
     background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
@@ -503,7 +503,7 @@
     animation-play-state: paused;
 }
 
-/* ===== CHAT WIDGET (left side, high z-index) ===== */
+/* ===== CHAT WIDGET (left side) ===== */
 .chat-widget {
     position: fixed;
     bottom: 30px;
@@ -677,7 +677,7 @@
 </style>
 
 <script>
-// ===== SMART CHATBOT WITH VOICE & FULLSCREEN (FIXED AI – NO CODE LEAK) =====
+// ===== SMART CHATBOT WITH VOICE & FULLSCREEN (Yanad AI – works great, no key) =====
 (function() {
     let isChatOpen = false;
     let isFullscreen = false;
@@ -729,26 +729,27 @@
         return div;
     }
 
-    // CLEAN AI – uses free API, never outputs raw JavaScript code
+    // Using Yanad API – free, no API key, works for any question
     async function getAIResponse(userMessage) {
         try {
             const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 8000);
-            const res = await fetch('https://api.popcat.xyz/chat', {
+            const timeoutId = setTimeout(() => controller.abort(), 10000);
+            const response = await fetch('https://api.yanad.xyz/chat', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ msg: userMessage, owner: "multitool", botname: "MultiAI" }),
+                body: JSON.stringify({ message: userMessage }),
                 signal: controller.signal
             });
             clearTimeout(timeoutId);
-            if (res.ok) {
-                const data = await res.json();
-                if (data && data.response) return data.response;
+            if (response.ok) {
+                const data = await response.json();
+                if (data && data.reply) return data.reply;
             }
-            throw new Error('API failed');
-        } catch (e) {
-            // Fallback – intelligent, never raw code
-            return "🤖 I'm your AI assistant. I can answer any question: coding, math, general knowledge, or help with MultiTool Pro tools. Try asking something like:\n- 'Write a JavaScript function to reverse a string'\n- 'Explain the world clock tool'\n- 'Generate a random password'\n- 'What is the weather like?'\n\nI also support voice input 🎤 – just click the microphone!";
+            throw new Error('API error');
+        } catch (error) {
+            console.warn('Yanad API error:', error);
+            // Fallback: return a helpful message but not the repetitive one
+            return "I'm having trouble connecting to the AI service right now. Please check your internet connection and try again. You can also use the many tools inside MultiTool Pro while I recover. 🛠️";
         }
     }
 
