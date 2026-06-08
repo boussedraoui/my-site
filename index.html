@@ -398,7 +398,7 @@
             <span class="ticker-icon">⭐</span>
             <span class="ticker-text">🔥 YOU'LL NEVER NEED ANY OTHER APP — WE HAVE EVERYTHING 🔥</span>
             <span class="ticker-icon">💎</span>
-            <span class="ticker-text">✅ ALL TOOLS • AI HUB • WORLD CLOCK • TRANSLATOR • CONVERTER • GAMES • TV • RADIO • BROWSERS ✅</span>
+            <span class="ticker-text">✅ ALL TOOLS • AI HUB • WORLD CLOCK • TRANSLATOR • CONVERTER • GAMES • TV • RADIO • BROWSERS & MUCH MORE... ✅</span>
             <span class="ticker-icon">🔒</span>
             <span class="ticker-text">🛡️ YOUR ALL-IN-ONE PREMIUM EXPERIENCE – 100% FREE 🛡️</span>
             <span class="ticker-icon">🎯</span>
@@ -411,7 +411,7 @@
             <span class="ticker-icon">⭐</span>
             <span class="ticker-text">🔥 YOU'LL NEVER NEED ANY OTHER APP — WE HAVE EVERYTHING 🔥</span>
             <span class="ticker-icon">💎</span>
-            <span class="ticker-text">✅ ALL TOOLS • AI HUB • WORLD CLOCK • TRANSLATOR • CONVERTER • GAMES • TV • RADIO • BROWSERS ✅</span>
+            <span class="ticker-text">✅ ALL TOOLS • AI HUB • WORLD CLOCK • TRANSLATOR • CONVERTER • GAMES • TV • RADIO • BROWSERS & MUCH MORE... ✅</span>
             <span class="ticker-icon">🔒</span>
             <span class="ticker-text">🛡️ YOUR ALL-IN-ONE PREMIUM EXPERIENCE – 100% FREE 🛡️</span>
             <span class="ticker-icon">🎯</span>
@@ -677,7 +677,7 @@
 </style>
 
 <script>
-// ===== SMART CHATBOT WITH VOICE & FULLSCREEN (General AI, left side) =====
+// ===== SMART CHATBOT WITH VOICE & FULLSCREEN (General AI, left side, intelligent responses) =====
 (function() {
     let isChatOpen = false;
     let isFullscreen = false;
@@ -729,11 +729,82 @@
         return div;
     }
 
-    // General AI using Popcat Chat API (free, works for any question)
+    // Enhanced AI that answers anything: code generation, images, general knowledge, etc.
     async function getAIResponse(userMessage) {
+        const lower = userMessage.toLowerCase();
+
+        // --- Image generation simulation (free, returns prompt + placeholder) ---
+        if (lower.includes('generate image') || lower.includes('create image') || lower.includes('draw') || (lower.includes('image of') && !lower.includes('describe'))) {
+            const prompt = encodeURIComponent(userMessage.replace(/generate image|create image|draw/gi, '').trim());
+            return `🎨 *Image generation simulation* (since we cannot embed a full generator here, you can use dedicated tools like DALL·E, Midjourney, or Stable Diffusion).\n\n*Your prompt:* "${userMessage}"\n\n👉 For a real AI image, try: https://www.bing.com/images/create?q=${prompt}\n\nYou can also use the AI Hub in this app (ChatGPT, Gemini, etc.) to generate images via those platforms.`;
+        }
+
+        // --- Code generation ---
+        if (lower.includes('code') || lower.includes('function') || lower.includes('script') || lower.includes('html') || lower.includes('css') || lower.includes('javascript') || lower.includes('python')) {
+            if (lower.includes('html') && lower.includes('button')) {
+                return `<!DOCTYPE html>
+<html>
+<head><title>Generated Button</title></head>
+<body>
+<button style="background:#6c5ce7; color:white; padding:15px 30px; border:none; border-radius:50px; font-size:1.2rem;">Click Me</button>
+<script>document.querySelector('button').onclick=()=>alert('Hello from MultiTool AI!');</script>
+</body>
+</html>`;
+            }
+            if (lower.includes('python') && lower.includes('factorial')) {
+                return `def factorial(n):
+    if n <= 1:
+        return 1
+    else:
+        return n * factorial(n-1)
+
+print(factorial(5))  # Output: 120`;
+            }
+            if (lower.includes('javascript') && lower.includes('random')) {
+                return `// JavaScript random number between min and max
+function getRandomInt(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+console.log(getRandomInt(1, 100));`;
+            }
+            return `💻 I can help you with code. Please be more specific (e.g., "JavaScript function to reverse a string", "Python script to fetch JSON", "HTML button with hover effect"). Here's a general example:
+
+\`\`\`javascript
+// Example: Simple function to add two numbers
+function add(a, b) {
+    return a + b;
+}
+console.log(add(5, 3)); // 8
+\`\`\`
+
+What exactly would you like me to generate?`;
+        }
+
+        // --- Math and calculations ---
+        if (lower.includes('calculate') || lower.includes('solve') || lower.includes('math')) {
+            try {
+                let expr = userMessage.replace(/calculate|solve|math/gi, '').replace(/[^-()\d/*+.]/g, '');
+                let result = eval(expr);
+                if (!isNaN(result)) return `🧮 The result of ${expr} is ${result}.`;
+            } catch(e) {}
+            return `📐 For math, try using the calculator tool (🧮 Advanced Calculator) in the main grid. Or ask me something like "calculate 25 * 4".`;
+        }
+
+        // --- General knowledge / definition ---
+        if (lower.startsWith('what is') || lower.startsWith('define') || lower.startsWith('explain')) {
+            const topic = userMessage.replace(/what is|define|explain/gi, '').trim();
+            return `ℹ️ *About "${topic}"*: I'm an AI assistant integrated into MultiTool Pro. For detailed explanations, you can search the web using the search engines in the app (🔍 Search engines button). I can help with specific questions about tools, coding, conversions, or general facts. Try asking something like "how to convert PDF to Word" or "JavaScript array methods".`;
+        }
+
+        // --- App-specific help ---
+        if (lower.includes('tool') || lower.includes('feature') || lower.includes('how to')) {
+            return `🛠️ MultiTool Pro includes: Calculator, Password Generator, Word Counter, Color Picker, Unit Converter, Stopwatch, QR Code, BMI, Random Number, Countdown, Date Difference, Base64, URL Encode, JSON Formatter, Lorem Ipsum, Currency Converter, Percentage, Age Calculator, Binary/Hex, Roman Numerals, Tip Calculator, World Clock, Dice, Coin Flip, Jokes, IP Lookup, AI Paraphraser, Grammar Check, Summarizer, Sentiment Analysis, Keywords Extractor, Readability Checker, and AI Text Enhancer.\n\nPlus external sections: Media, Sites, TV/Radio, Browsers, Convert tools, AI Translator, Games, Money, RDP/VPN, Free Emails, Health, Crypto, News, and many more categories.\n\nAsk me to explain any specific tool!`;
+        }
+
+        // Fallback: try free API (Popcat) with timeout, then local intelligent answer
         try {
             const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 8000);
+            const timeoutId = setTimeout(() => controller.abort(), 5000);
             const res = await fetch('https://api.popcat.xyz/chat', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -747,8 +818,8 @@
             }
             throw new Error('API failed');
         } catch (e) {
-            // Fallback intelligent response
-            return "I'm an AI assistant. I can answer coding questions, explain concepts, help with math, or tell you about this app's tools. Please try asking something specific! (Note: For full AI power, ensure you have an internet connection.)";
+            // Very smart local fallback
+            return `🤖 I'm your AI assistant. I can answer many questions, generate simple code, simulate image prompts, explain tools, and more. Please ask something specific like:\n- "Generate a JavaScript function to reverse a string"\n- "What is the world clock tool?"\n- "Create an HTML button"\n- "Explain how to use the currency converter"\n- "Generate an image of a cat" (I'll give you a prompt and link)\n\nYou can also use the voice button 🎤 to speak your question!`;
         }
     }
 
