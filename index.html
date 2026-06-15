@@ -282,6 +282,61 @@
         .gt-protection-popup .gt-message { font-size: 1rem; line-height: 1.6; margin-bottom: 24px; }
         .gt-btn { padding: 12px 26px; font-size: 1rem; }
         .gt-btn-return-red { width: 26px; height: 26px; background: red !important; padding: 0 !important; margin: 0 !important; font-size: 0 !important; border-radius: 6px; display: inline-block; cursor: pointer; }
+        
+        /* ===== RESTORED BOTTOM SLIDING NEWS TICKER ===== */
+        .ultra-ticker-wrapper {
+            width: 100%;
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+            border-top: 3px solid #ffd966;
+            border-bottom: 3px solid #ff884d;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 -8px 30px rgba(0,0,0,0.3);
+            margin-top: 0;
+            z-index: 9999;
+        }
+        .ticker-container {
+            width: 100%;
+            overflow: hidden;
+            white-space: nowrap;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(4px);
+            padding: 14px 0;
+        }
+        .ticker-content {
+            display: inline-block;
+            animation: smoothScroll 60s linear infinite;
+            font-size: 1.3rem;
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
+        .ticker-content span {
+            display: inline-block;
+            vertical-align: middle;
+        }
+        .ticker-icon {
+            font-size: 1.8rem;
+            margin: 0 15px;
+            filter: drop-shadow(0 0 5px gold);
+        }
+        .ticker-text {
+            color: #ffffff !important;
+            background: none !important;
+            -webkit-background-clip: unset !important;
+            background-clip: unset !important;
+            text-shadow: 0 0 8px rgba(0,0,0,0.8), 0 0 4px #ffffff, 0 0 2px #000000;
+            font-weight: 800;
+            margin-right: 40px;
+            white-space: nowrap;
+            font-size: 1.4rem;
+        }
+        @keyframes smoothScroll {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+        .ticker-content:hover {
+            animation-play-state: paused;
+        }
     </style>
 </head>
 <body>
@@ -389,7 +444,7 @@
 </footer>
 <div id="toast" class="toast"></div>
 
-<!-- ========== NEWS TICKER ========== -->
+<!-- ========== BOTTOM SLIDING NEWS TICKER (RESTORED) ========== -->
 <div class="ultra-ticker-wrapper">
     <div class="ticker-container">
         <div class="ticker-content">
@@ -422,7 +477,7 @@
     </div>
 </div>
 
-<!-- ========== SMART CHATBOT (LEFT side, FIXED & ENHANCED) ========== -->
+<!-- ========== SMART CHATBOT (FIXED: WORKING BUTTONS) ========== -->
 <div id="smartChatWidget" class="chat-widget">
     <div class="chat-button" id="chatButton">
         💬 <span class="chat-badge">AI</span>
@@ -436,11 +491,11 @@
             </div>
         </div>
         <div class="chat-messages" id="chatMessages">
-            <div class="chat-message bot">👋 Hello! I'm your enhanced MultiTool Pro assistant. Ask me about any tool, how to use it, or give me a task. I'll never repeat myself and always suggest the best tool from our 50+ utilities!</div>
+            <div class="chat-message bot">👋 Welcome to MultiTool Pro! I know **every single tool** inside this app. Type what you need – I'll give you working buttons. Try: `pdf`, `games`, `calculator`, `weather`, or even a single letter like `p`.</div>
         </div>
         <div class="chat-input-area">
             <button class="chat-voice-btn" id="chatVoiceBtn" title="Voice input">🎤</button>
-            <input type="text" id="chatInput" placeholder="Ask me anything... e.g., 'Calculator' or 'How to make a QR code?'">
+            <input type="text" id="chatInput" placeholder="Ask me anything... e.g., 'pdf', 'sports', 'translate', 'p'">
             <button class="chat-send-btn" id="chatSendBtn">➤</button>
         </div>
         <div class="chat-voice-status" id="voiceStatus"></div>
@@ -448,62 +503,7 @@
 </div>
 
 <style>
-/* ===== NEWS TICKER – BRIGHT WHITE TEXT ===== */
-.ultra-ticker-wrapper {
-    width: 100%;
-    background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
-    border-top: 3px solid #ffd966;
-    border-bottom: 3px solid #ff884d;
-    position: relative;
-    overflow: hidden;
-    box-shadow: 0 -8px 30px rgba(0,0,0,0.3);
-    margin-top: 0;
-    z-index: 9999;
-}
-.ticker-container {
-    width: 100%;
-    overflow: hidden;
-    white-space: nowrap;
-    background: rgba(0,0,0,0.5);
-    backdrop-filter: blur(4px);
-    padding: 14px 0;
-}
-.ticker-content {
-    display: inline-block;
-    animation: smoothScroll 60s linear infinite;
-    font-size: 1.3rem;
-    font-weight: bold;
-    letter-spacing: 1px;
-}
-.ticker-content span {
-    display: inline-block;
-    vertical-align: middle;
-}
-.ticker-icon {
-    font-size: 1.8rem;
-    margin: 0 15px;
-    filter: drop-shadow(0 0 5px gold);
-}
-.ticker-text {
-    color: #ffffff !important;
-    background: none !important;
-    -webkit-background-clip: unset !important;
-    background-clip: unset !important;
-    text-shadow: 0 0 8px rgba(0,0,0,0.8), 0 0 4px #ffffff, 0 0 2px #000000;
-    font-weight: 800;
-    margin-right: 40px;
-    white-space: nowrap;
-    font-size: 1.4rem;
-}
-@keyframes smoothScroll {
-    0% { transform: translateX(0); }
-    100% { transform: translateX(-50%); }
-}
-.ticker-content:hover {
-    animation-play-state: paused;
-}
-
-/* ===== CHAT WIDGET (left side) ===== */
+/* Chat widget styles – ensures footer is not hidden */
 .chat-widget {
     position: fixed;
     bottom: 30px;
@@ -547,7 +547,7 @@
     bottom: 85px;
     left: 0;
     right: auto;
-    width: 380px;
+    width: 450px;
     max-width: 85vw;
     background: rgba(20, 20, 40, 0.96);
     backdrop-filter: blur(20px);
@@ -600,7 +600,7 @@
     text-shadow: 0 0 4px gold;
 }
 .chat-messages {
-    height: 380px;
+    height: 450px;
     overflow-y: auto;
     padding: 16px;
     display: flex;
@@ -628,6 +628,23 @@
     color: #f0f0fa;
     border-bottom-left-radius: 4px;
     border-left: 3px solid #ffaa44;
+}
+.chat-message.bot .chat-btn {
+    display: inline-block;
+    background: #ffaa44;
+    color: #1e1e2a;
+    font-size: 0.8rem;
+    padding: 6px 14px;
+    margin: 4px 6px 4px 0;
+    border: none;
+    border-radius: 40px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: 0.1s;
+}
+.chat-message.bot .chat-btn:hover {
+    transform: scale(0.98);
+    background: #ffcc66;
 }
 .chat-input-area {
     display: flex;
@@ -677,7 +694,7 @@
 </style>
 
 <script>
-// ===== FIXED SMART CHATBOT WITH CORRECT MATCHING =====
+// ==================== FIXED CHATBOT: GLOBAL COMMAND DISPATCHER (BUTTONS WORK) ====================
 (function() {
     let isChatOpen = false;
     let isFullscreen = false;
@@ -691,177 +708,204 @@
     const chatMessages = document.getElementById('chatMessages');
     const voiceBtn = document.getElementById('chatVoiceBtn');
     const voiceStatus = document.getElementById('voiceStatus');
-
-    function openChat() {
-        chatPanel.classList.add('active');
-        chatPanel.style.display = 'flex';
-        isChatOpen = true;
+    
+    // All individual tools (exactly as in your app)
+    const allIndividualTools = [
+        { id: 'calculator', name: 'Advanced Calculator', keywords: ['calculator','calc','math','sin','cos','tan','log','sqrt'] },
+        { id: 'password', name: 'Password Generator', keywords: ['password','generate password','secure password'] },
+        { id: 'wordcount', name: 'Word Counter', keywords: ['word count','character count','reading time'] },
+        { id: 'caseconverter', name: 'Case Converter', keywords: ['case converter','uppercase','lowercase','title case'] },
+        { id: 'colorpicker', name: 'Color Picker', keywords: ['color picker','pick color','hex','rgb'] },
+        { id: 'unitconverter', name: 'Unit Converter', keywords: ['unit converter','convert length','mass','volume','temperature'] },
+        { id: 'stopwatch', name: 'Stopwatch', keywords: ['stopwatch','lap timer','time elapsed'] },
+        { id: 'qrcode', name: 'QR Code Generator', keywords: ['qr code','generate qr','qr generator'] },
+        { id: 'bmi', name: 'BMI Calculator', keywords: ['bmi','body mass index','weight','height'] },
+        { id: 'random', name: 'Random Number Generator', keywords: ['random number','random generator','pick random'] },
+        { id: 'countdown', name: 'Countdown Timer', keywords: ['countdown','timer','set timer'] },
+        { id: 'datediff', name: 'Date Difference', keywords: ['date difference','days between dates','weekdays'] },
+        { id: 'base64', name: 'Base64 Encoder/Decoder', keywords: ['base64','encode base64','decode base64'] },
+        { id: 'urlencode', name: 'URL Encode/Decode', keywords: ['url encode','url decode','encode uri'] },
+        { id: 'jsonformat', name: 'JSON Formatter', keywords: ['json','json formatter','pretty print'] },
+        { id: 'lorem', name: 'Lorem Ipsum Generator', keywords: ['lorem ipsum','placeholder text','dummy text'] },
+        { id: 'currency', name: 'Currency Converter', keywords: ['currency converter','exchange rate','convert money'] },
+        { id: 'percentcalc', name: 'Percentage Calculator', keywords: ['percentage','percent','percentage change'] },
+        { id: 'agecalc', name: 'Age Calculator', keywords: ['age calculator','calculate age','birthday'] },
+        { id: 'binhex', name: 'Binary/Hex/Decimal/Octal Converter', keywords: ['binary','hex','octal','decimal'] },
+        { id: 'roman', name: 'Roman Numeral Converter', keywords: ['roman numeral','convert roman'] },
+        { id: 'tipcalc', name: 'Tip Calculator', keywords: ['tip calculator','split bill','tip'] },
+        { id: 'worldclock', name: 'World Clock', keywords: ['world clock','time zone','current time'] },
+        { id: 'dice', name: 'Dice Roller', keywords: ['dice','roll dice','d6','d20'] },
+        { id: 'coin', name: 'Coin Flip', keywords: ['coin flip','flip coin','heads tails'] },
+        { id: 'joke', name: 'Joke Generator', keywords: ['joke','funny','laugh','humor'] },
+        { id: 'ip', name: 'IP Lookup', keywords: ['ip address','ip lookup','geolocation','my ip'] },
+        { id: 'ai_paraphraser', name: 'AI Paraphraser', keywords: ['paraphrase','rewrite','rephrase'] },
+        { id: 'ai_grammar', name: 'Grammar & Spell Check', keywords: ['grammar check','spell check','fix grammar'] },
+        { id: 'ai_summarizer', name: 'AI Summarizer', keywords: ['summarize','text summary','summarizer'] },
+        { id: 'ai_sentiment', name: 'Sentiment Analysis', keywords: ['sentiment','emotion'] },
+        { id: 'ai_keywords', name: 'Keyword Extractor', keywords: ['keywords','extract keywords'] },
+        { id: 'ai_readability', name: 'Readability Checker', keywords: ['readability','flesch'] },
+        { id: 'premium_ai', name: 'AI Text Enhancer', keywords: ['enhance text','improve writing','polish'] }
+    ];
+    
+    // All category overlays (the big buttons)
+    const categoryOverlays = [
+        { action: 'openConvertOverlay', name: 'CONVERT Tools (PDF, Word, Image, Video)', keywords: ['convert','pdf','word','image','video','audio','editor','converter','pdf tools','edit pdf'] },
+        { action: 'openBrowsersOverlay', name: 'Browsers (In‑App Web Browser)', keywords: ['browser','web browser','surf web','open website'] },
+        { action: 'openAllAiTranslatorOverlay', name: 'All AI Translator (Google Translate, Lernix, Reverso)', keywords: ['translate','translation','google translate','language translator'] },
+        { action: 'openGamesOverlay', name: 'GAMES (Steam, Roblox, Poki, etc.)', keywords: ['games','gaming','play games','steam','roblox'] },
+        { action: 'openMoneyOverlay', name: 'MONEY & INVESTMENTS (Insurance, Loans, Crypto)', keywords: ['money','investments','insurance','loan','finance','crypto'] },
+        { action: 'openRemoteToolsOverlay', name: 'RDP, VPN & Web Preview Tools', keywords: ['rdp','vpn','remote desktop','proxy','website preview'] },
+        { action: 'openOnlineOverlay', name: 'Online Tools (Canva, Remove.bg, SmallPDF, etc.)', keywords: ['online tools','canva','remove bg','smallpdf','ilovepdf','grammarly','quillbot'] },
+        { action: 'openImagineOverlay', name: 'IMAGINE (25 Unique Tools)', keywords: ['imagine','ocr','morse','uuid','hash','unix timestamp'] },
+        { action: 'openShortenerOverlay', name: 'URL Shorteners', keywords: ['url shortener','tinyurl','bitly','short link'] },
+        { action: 'openOtherTools', name: 'All Other Tools (Notes, Weather, Todo, Translator, Wikipedia)', keywords: ['notes','weather','todo','random fact','password strength','wikipedia'] },
+        { action: 'openAiTools', name: 'AI Hub (ChatGPT, Gemini, Claude, etc.)', keywords: ['ai','chatgpt','gemini','claude','copilot','midjourney','dall e'] },
+        { action: 'openMediaOverlay', name: 'MEDIA & Video Platforms (Netflix, YouTube, Twitch)', keywords: ['media','video','netflix','youtube','twitch'] },
+        { action: 'openSitesOverlay', name: 'Popular Websites (Reddit, Pinterest, WhatsApp Web)', keywords: ['popular sites','reddit','pinterest','whatsapp web'] },
+        { action: 'openTvRadioOverlay', name: 'TV / RADIO (Free TV channels & Radio stations)', keywords: ['tv','radio','live tv','radio stations','tunein'] },
+        { action: 'openFreeEmailsOverlay', name: 'Free Email Services', keywords: ['free email','protonmail','tutanota'] },
+        { action: 'openHealthSportsOverlay', name: 'Health and Sports', keywords: ['health','sports','fitness','myfitnesspal'] },
+        { action: 'openMiscOverlay', name: 'Miscellaneous (Music, Dating, Art)', keywords: ['music','dating','art'] },
+        { action: 'openTravelBooksOverlay', name: 'Travel and Books', keywords: ['travel','books','flights'] },
+        { action: 'openMoviesSeriesOverlay', name: 'Movies, Series and Shows', keywords: ['movies','series','shows'] },
+        { action: 'openCultureFashionOverlay', name: 'Culture and Fashion', keywords: ['fashion','culture','vogue'] },
+        { action: 'openJobsOverlay', name: 'Jobs', keywords: ['jobs','career','indeed'] },
+        { action: 'openTechOverlay', name: 'TECH', keywords: ['tech','technology','techcrunch'] },
+        { action: 'openBuildingHomeOverlay', name: 'Building & Home Life', keywords: ['home','diy','houzz'] },
+        { action: 'openSurfInternetOverlay', name: 'SURF Internet (Speedtest, IP tools)', keywords: ['surf internet','speed test','whatismyip'] },
+        { action: 'openCookingKitchenOverlay', name: 'Cooking & Kitchen', keywords: ['cooking','kitchen','recipes'] },
+        { action: 'openWildernessOceansOverlay', name: 'Wilderness and Oceans', keywords: ['wildlife','oceans','nature'] },
+        { action: 'openCryptoOverlay', name: 'Crypto', keywords: ['crypto','bitcoin','ethereum'] },
+        { action: 'openNewsOverlay', name: 'NEWS', keywords: ['news','bbc','cnn'] }
+    ];
+    
+    const allFeatures = [...allIndividualTools, ...categoryOverlays];
+    
+    function searchFeatures(query) {
+        const q = query.toLowerCase().trim();
+        if (!q) return [];
+        const results = [];
+        for (const feat of allFeatures) {
+            let score = 0;
+            if (feat.name.toLowerCase().includes(q)) score += 15;
+            if (q.includes(feat.name.toLowerCase())) score += 10;
+            if (feat.keywords) {
+                for (const kw of feat.keywords) {
+                    if (q.includes(kw.toLowerCase())) score += 5;
+                    if (kw.toLowerCase().includes(q)) score += 3;
+                }
+            }
+            if (q.length === 1) {
+                if (feat.name.toLowerCase().startsWith(q)) score += 2;
+                if (feat.name.toLowerCase().includes(q)) score += 1;
+            }
+            if (score > 0) results.push({ ...feat, score });
+        }
+        results.sort((a,b) => b.score - a.score);
+        return results.slice(0, 12);
     }
-    function closeChat() {
-        chatPanel.classList.remove('active');
-        chatPanel.style.display = 'none';
-        isChatOpen = false;
-        if (isFullscreen) toggleFullscreenMode();
+    
+    function featureToButton(feat) {
+        let command = '';
+        if (feat.id) command = `tool:${feat.id}`;
+        else if (feat.action) command = `action:${feat.action}`;
+        return `<button class="chat-btn" data-command="${command}">🔧 ${feat.name}</button>`;
     }
-    chatButton.addEventListener('click', () => {
-        if (chatPanel.classList.contains('active')) closeChat();
-        else openChat();
-    });
+    
+    function handleChatButtonClick(e) {
+        const btn = e.target.closest('.chat-btn');
+        if (!btn) return;
+        const cmd = btn.getAttribute('data-command');
+        if (!cmd) return;
+        // Close chat panel first
+        const panel = document.getElementById('chatPanel');
+        if (panel && panel.classList.contains('active')) panel.classList.remove('active');
+        // Execute command
+        if (cmd.startsWith('tool:')) {
+            const toolId = cmd.substring(5);
+            if (typeof window.selectTool === 'function') window.selectTool(toolId);
+        } else if (cmd.startsWith('action:')) {
+            const actionName = cmd.substring(7);
+            if (typeof window[actionName] === 'function') window[actionName]();
+        }
+        // Scroll to tool panel for better UX
+        const toolPanel = document.getElementById('toolPanel');
+        if (toolPanel) toolPanel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+    document.addEventListener('click', handleChatButtonClick);
+    
+    function generateResponse(userMsg) {
+        const q = userMsg.toLowerCase().trim();
+        if (q.match(/^(hi|hello|hey|greetings|good morning|good afternoon|good evening)$/i)) {
+            return "👋 Hello! I know **every single tool** in MultiTool Pro. Just tell me what you need – a tool, a category, a site... I'll give you working buttons. Try `pdf`, `games`, `weather`, or even a letter like `p`.";
+        }
+        if (q.length <= 2) {
+            const matches = searchFeatures(q);
+            if (matches.length === 0) return `🔍 No results for "${q}". Try a longer word like "pdf" or "calculator".`;
+            let response = `✨ **Found ${matches.length} result(s) for "${q}":**\n\n`;
+            for (let m of matches) response += featureToButton(m);
+            response += `\n\n💡 You can also use the main search bar or big category buttons.`;
+            return response;
+        }
+        const matches = searchFeatures(q);
+        if (matches.length > 0) {
+            let response = `🔍 **Found ${matches.length} match(es) for "${userMsg}":**\n\n`;
+            for (let m of matches) response += featureToButton(m);
+            if (q.includes('pdf')) response += `\n\n📄 **PDF tools** are inside the **CONVERT** overlay – click the button above.`;
+            if (q.includes('weather')) response += `\n\n🌤️ **Weather** tool is inside "All other tools" (the 🧰 button on main page).`;
+            return response;
+        }
+        return `🤔 I couldn't find a direct match for "${userMsg}". But MultiTool Pro has **ALL tools imaginable**! Try these:\n\n` +
+               `<button class="chat-btn" data-command="action:openConvertOverlay">🔄 CONVERT Tools (PDF, Word, Image)</button>\n` +
+               `<button class="chat-btn" data-command="action:openGamesOverlay">🎮 GAMES</button>\n` +
+               `<button class="chat-btn" data-command="action:openOnlineOverlay">🌐 Online Tools</button>\n` +
+               `<button class="chat-btn" data-command="action:openAiTools">🤖 AI Hub</button>\n` +
+               `<button class="chat-btn" data-command="action:openBrowsersOverlay">🌐 Browsers</button>\n` +
+               `\nOr just ask for "calculator", "qr code", "world clock", "translate", "news", "tv", etc.`;
+    }
+    
+    // Chat UI logic
+    function openChat() { chatPanel.classList.add('active'); chatPanel.style.display = 'flex'; isChatOpen = true; }
+    function closeChat() { chatPanel.classList.remove('active'); chatPanel.style.display = 'none'; isChatOpen = false; if (isFullscreen) toggleFullscreenMode(); }
+    chatButton.addEventListener('click', () => { if (chatPanel.classList.contains('active')) closeChat(); else openChat(); });
     chatCloseBtn.addEventListener('click', closeChat);
     chatFullscreenBtn.addEventListener('click', toggleFullscreenMode);
     function toggleFullscreenMode() {
         isFullscreen = !isFullscreen;
-        if (isFullscreen) {
-            chatPanel.classList.add('fullscreen');
-            chatFullscreenBtn.textContent = '🗖';
-        } else {
-            chatPanel.classList.remove('fullscreen');
-            chatFullscreenBtn.textContent = '⛶';
-        }
+        if (isFullscreen) { chatPanel.classList.add('fullscreen'); chatFullscreenBtn.textContent = '🗖'; }
+        else { chatPanel.classList.remove('fullscreen'); chatFullscreenBtn.textContent = '⛶'; }
     }
-
     function addMessage(text, isUser) {
         const div = document.createElement('div');
         div.className = `chat-message ${isUser ? 'user' : 'bot'}`;
-        div.textContent = text;
+        if (!isUser) div.innerHTML = text;
+        else div.textContent = text;
         chatMessages.appendChild(div);
         chatMessages.scrollTop = chatMessages.scrollHeight;
         return div;
     }
-
-    // Comprehensive tool database – each tool now includes its exact name as a keyword, and keywords cover common variants.
-    const toolsKnowledge = [
-        { id: 'calculator', name: 'Advanced Calculator', keywords: ['calculator', 'calculate', 'math', 'arithmetic', 'sin', 'cos', 'tan', 'log', 'sqrt', 'exponent', 'plus', 'minus', 'multiply', 'divide'], desc: 'A scientific calculator with sin, cos, tan, log, ln, sqrt, π, e, exponent (^), parentheses. It also shows calculation history. Type or click buttons.' },
-        { id: 'password', name: 'Password Generator', keywords: ['password', 'generate secure password', 'random password', 'strong password', 'passkey', 'security'], desc: 'Generate strong passwords with custom length (6-64), include uppercase, lowercase, digits, symbols, and exclude ambiguous characters. Shows password strength.' },
-        { id: 'wordcount', name: 'Word Counter', keywords: ['word count', 'character count', 'reading time', 'speaking time', 'keyword density'], desc: 'Counts words, characters (with/without spaces), reading time, speaking time, and shows top 3 keyword density.' },
-        { id: 'caseconverter', name: 'Case Converter', keywords: ['case converter', 'uppercase', 'lowercase', 'title case', 'sentence case', 'alternating case', 'inverse case'], desc: 'Transform text to UPPER CASE, lower case, Title Case, Sentence case, aLtErNaTiNg, and iNVERSE cASE.' },
-        { id: 'colorpicker', name: 'Color Picker', keywords: ['color picker', 'pick color', 'hex', 'rgb', 'hsl', 'color converter', 'choose color'], desc: 'Pick any color, shows HEX, RGB, HSL, and stores recent colors. Copy any format with one click.' },
-        { id: 'unitconverter', name: 'Unit Converter', keywords: ['unit converter', 'convert length', 'mass', 'volume', 'area', 'temperature', 'speed', 'time', 'digital storage'], desc: 'Universal Unit Converter supports Length, Mass, Volume, Area, Temperature, Speed, Time, and Digital Storage.' },
-        { id: 'stopwatch', name: 'Stopwatch', keywords: ['stopwatch', 'lap timer', 'time elapsed', 'count up'], desc: 'Stopwatch with laps – start, pause, reset, and record lap times. Precision to 1/100 second.' },
-        { id: 'qrcode', name: 'QR Code Generator', keywords: ['qr code', 'generate qr', 'qr generator', 'make qr code'], desc: 'Creates QR codes from any text/URL. Customize size, error correction, foreground/background colors, and download as PNG.' },
-        { id: 'bmi', name: 'BMI Calculator', keywords: ['bmi', 'body mass index', 'weight', 'height', 'healthy weight'], desc: 'Metric (cm/kg) and imperial (ft/in/lbs). Calculates BMI, category, and healthy weight range.' },
-        { id: 'random', name: 'Random Number Generator', keywords: ['random number', 'random generator', 'pick random', 'random integer'], desc: 'Set min, max, how many numbers, allow duplicates, sort results, and decimal places.' },
-        { id: 'countdown', name: 'Countdown Timer', keywords: ['countdown', 'timer', 'set timer', 'minutes', 'seconds'], desc: 'Set minutes and seconds, start/pause/reset. Optional sound alert when time is up.' },
-        { id: 'datediff', name: 'Date Difference', keywords: ['date difference', 'days between dates', 'weekdays', 'date calculator'], desc: 'Calculates exact difference between two dates (days, hours, minutes, weekdays).' },
-        { id: 'base64', name: 'Base64 Encoder/Decoder', keywords: ['base64', 'encode base64', 'decode base64', 'base64 file'], desc: 'Encode/decode text, also supports file to Base64 and Base64 to file download.' },
-        { id: 'urlencode', name: 'URL Encode/Decode', keywords: ['url encode', 'url decode', 'encode uri', 'decode uri'], desc: 'Encode full URI or component, decode back to original.' },
-        { id: 'jsonformat', name: 'JSON Formatter', keywords: ['json', 'json formatter', 'json validator', 'pretty print json', 'minify json'], desc: 'Format, minify, and validate JSON data. Paste JSON and click Format.' },
-        { id: 'lorem', name: 'Lorem Ipsum Generator', keywords: ['lorem ipsum', 'placeholder text', 'dummy text', 'generate text'], desc: 'Generate paragraphs, sentences, or words. Optional HTML markup.' },
-        { id: 'currency', name: 'Currency Converter', keywords: ['currency converter', 'exchange rate', 'convert money', 'usd to eur'], desc: 'Live exchange rates for all world currencies. Enter amount, select from/to currencies, click Convert.' },
-        { id: 'percentcalc', name: 'Percentage Calculator', keywords: ['percentage', 'percent', 'percentage change', 'what percent'], desc: 'Three types: percent of a number, percentage change, and what percent of.' },
-        { id: 'agecalc', name: 'Age Calculator', keywords: ['age calculator', 'calculate age', 'birthday', 'years old'], desc: 'Enter birth date, get exact years, months, days, and days until next birthday.' },
-        { id: 'binhex', name: 'Binary/Hex/Decimal/Octal Converter', keywords: ['binary', 'hex', 'octal', 'decimal', 'base conversion', 'number base'], desc: 'Enter any number and see its representation in all bases (binary, hex, decimal, octal).' },
-        { id: 'roman', name: 'Roman Numeral Converter', keywords: ['roman numeral', 'convert roman', 'roman to number', 'number to roman'], desc: 'Converts between numbers (1-3999) and Roman numerals.' },
-        { id: 'tipcalc', name: 'Tip Calculator', keywords: ['tip calculator', 'split bill', 'tip', 'gratuity'], desc: 'Enter bill amount, tip percentage, and number of people to split. Shows tip, total, and per-person amount.' },
-        { id: 'worldclock', name: 'World Clock', keywords: ['world clock', 'time zone', 'current time', 'all time zones', 'time converter'], desc: 'Shows all time zones with real-time update, search/filter, and 12/24h toggle. Refreshes every minute.' },
-        { id: 'dice', name: 'Dice Roller', keywords: ['dice', 'roll dice', 'd4', 'd6', 'd8', 'd10', 'd12', 'd20'], desc: 'Roll multiple dice (1-6) with various sides (d4, d6, d8, d10, d12, d20). Shows individual results and sum.' },
-        { id: 'coin', name: 'Coin Flip', keywords: ['coin flip', 'flip coin', 'heads tails', 'coin toss'], desc: 'Flips a coin and tracks the streak (consecutive same results).' },
-        { id: 'joke', name: 'Joke Generator', keywords: ['joke', 'funny', 'laugh', 'humor', 'pun', 'programming joke'], desc: 'Fetches fresh jokes from JokeAPI with categories (Any, Programming, Pun, Dark) and safe mode.' },
-        { id: 'ip', name: 'IP Lookup', keywords: ['ip address', 'ip lookup', 'geolocation', 'my ip', 'what is my ip'], desc: 'Shows your public IP address, location (city, region, country), ISP, organization, AS, timezone, and a map link.' },
-        { id: 'ai_paraphraser', name: 'AI Paraphraser', keywords: ['paraphrase', 'rewrite', 'rephrase', 'text rewriter'], desc: 'Rewrites your text using a basic synonym-based AI. For better results, use longer texts.' },
-        { id: 'ai_grammar', name: 'Grammar & Spell Check', keywords: ['grammar check', 'spell check', 'grammar correction', 'spelling', 'fix grammar'], desc: 'Fixes common errors like "i" to "I", "wanna" to "want to", etc. Note: basic corrections only.' },
-        { id: 'ai_summarizer', name: 'AI Summarizer', keywords: ['summarize', 'text summary', 'summarizer', 'shorten text'], desc: 'Extracts key sentences from your text. Paste long text and click Summarize.' },
-        { id: 'ai_sentiment', name: 'Sentiment Analysis', keywords: ['sentiment', 'emotion', 'positive negative neutral', 'text analysis'], desc: 'Detects whether your text is Positive, Negative, or Neutral based on word matching. Also shows confidence level.' },
-        { id: 'ai_keywords', name: 'Keyword Extractor', keywords: ['keywords', 'extract keywords', 'important words', 'tag generator'], desc: 'Extracts the most frequent words (excluding common stopwords) from your text.' },
-        { id: 'ai_readability', name: 'Readability Checker', keywords: ['readability', 'flesch', 'reading ease', 'grade level'], desc: 'Uses the Flesch Reading Ease formula to score your text and suggest grade level.' },
-        { id: 'premium_ai', name: 'AI Text Enhancer', keywords: ['enhance text', 'improve writing', 'polish', 'rewrite professional', 'ai writing'], desc: 'Offers multiple modes: Grammar Fix, Professional, Friendly, Shorten, Expand, Simplify. Type your text and choose a mode.' },
-        { id: 'browsers_overlay', name: 'Browsers (In‑App)', keywords: ['browser', 'web browser', 'surf web', 'open website', 'internal tab', 'fullscreen browser'], desc: 'Surf the web inside the app. Enter any URL, toggle desktop/mobile view, go fullscreen, and open an internal tab. Includes browser presets (Chrome, Firefox, Edge, etc.).' },
-        { id: 'convert_overlay', name: 'CONVERT Tools', keywords: ['convert', 'pdf editor', 'image editor', 'word editor', 'file converter', 'audio converter', 'video converter'], desc: '30+ online tools: PDF tools (PDFescape, Sejda, PDF24), Image editors (Fotor, LunaPic), Word editors (Google Docs, Zoho), File converters (Zamzar, Online-Convert), Audio/Video tools (VEED, Clipchamp).' },
-        { id: 'aitranslator_overlay', name: 'All AI Translator', keywords: ['translate', 'translation', 'google translate', 'lernix', 'reverso', 'language translator'], desc: 'Access to Google Translate, Lernix AI, Reverso, Microsoft Translator, Yandex Translate, and many others. Click any card to open the translation service.' },
-        { id: 'games_overlay', name: 'GAMES', keywords: ['games', 'gaming', 'play games', 'steam', 'epic games', 'roblox', 'minecraft', 'fortnite'], desc: 'Includes Steam, Epic Games, Roblox, Minecraft, Poki, CrazyGames, and many gaming news sites. All open in a new tab.' },
-        { id: 'money_overlay', name: 'MONEY & INVESTMENTS', keywords: ['money', 'investments', 'insurance', 'loan', 'finance', 'stock', 'crypto', 'robinhood'], desc: 'Insurance (Geico, State Farm), Loans (LendingTree, Rocket Mortgage), Investment (Robinhood, Coinbase), and budget tools (Mint, YNAB).' },
-        { id: 'remote_overlay', name: 'RDP, VPN & Web Preview', keywords: ['rdp', 'vpn', 'remote desktop', 'proxy', 'website preview', 'responsive test'], desc: 'Free browser-based RDP (Neverinstall, Shells), VPN proxies (CroxyProxy, ProtonVPN), and responsive preview tools (BrowserStack, LambdaTest).' },
-        { id: 'online_overlay', name: 'Online Tools', keywords: ['online tools', 'free tools', 'canva', 'remove bg', 'smallpdf', 'grammarly', 'quillbot', 'deepl'], desc: '30+ free online utilities: Canva, Remove.bg, TinyWow, ILovePDF, SmallPDF, OnlineOCR, Convertio, Grammarly, QuillBot, DeepL, Color Hunt, CodePen, Replit and more.' }
-    ];
-
-    function getBestTool(query) {
-        const q = query.toLowerCase().trim();
-        let bestScore = 0;
-        let bestTool = null;
-        for (let tool of toolsKnowledge) {
-            let score = 0;
-            // direct name match (tool name includes query OR query includes tool name)
-            if (tool.name.toLowerCase().includes(q)) score += 15;
-            if (q.includes(tool.name.toLowerCase())) score += 10;
-            // keyword matches
-            for (let kw of tool.keywords) {
-                if (q.includes(kw.toLowerCase())) score += 3;
-            }
-            if (score > bestScore) {
-                bestScore = score;
-                bestTool = tool;
-            }
-        }
-        return { tool: bestTool, score: bestScore };
+    async function getAIResponseWithDelay(msg) {
+        await new Promise(r => setTimeout(r, 600 + Math.random() * 800));
+        return generateResponse(msg);
     }
-
-    function getAdvancedAnswer(userMsg) {
-        const q = userMsg.toLowerCase().trim();
-        const { tool, score } = getBestTool(q);
-        
-        // Greeting
-        if (q.match(/^(hi|hello|hey|greetings|sup)$/i)) {
-            const greetings = [
-                "👋 Hello! How can I assist you with MultiTool Pro today?",
-                "Hey there! Ready to explore 50+ tools? Ask me anything!",
-                "Greetings! I'm your tool expert. Need help finding something?",
-                "Hi! Need a calculator? QR code? World clock? Just ask!"
-            ];
-            return greetings[Math.floor(Math.random() * greetings.length)];
-        }
-        
-        // If we found a tool with decent confidence
-        if (tool && score >= 3) {
-            const templates = [
-                `🔧 **${tool.name}** - ${tool.desc}\n\n👉 You can find it in the tools grid or search for "${tool.name}".`,
-                `✨ **${tool.name}** is perfect for that! ${tool.desc}\n\nClick on it in the main menu or use the search bar.`,
-                `✅ **${tool.name}**: ${tool.desc}\n\nJust select it from the list. Would you like a quick tip on how to use it?`,
-                `⚡ You're looking for **${tool.name}** — ${tool.desc}\n\nOpen it via the tools grid.`
-            ];
-            let resp = templates[Math.floor(Math.random() * templates.length)];
-            // Add specific tips
-            if (tool.id === 'password') resp += `\n💡 Tip: Use length >= 12 and include all character types for a "Strong" password.`;
-            if (tool.id === 'calculator') resp += `\n💡 Tip: You can type expressions using your keyboard! Try "sin(30)" or "2^10".`;
-            if (tool.id === 'qrcode') resp += `\n💡 Tip: You can change colors and download the QR as PNG.`;
-            if (tool.id === 'worldclock') resp += `\n💡 Tip: Use the search box inside the tool to filter timezones.`;
-            if (tool.id === 'browsers_overlay') resp += `\n💡 Tip: If a site doesn't load in the iframe, use the "Open Internal Tab" button.`;
-            if (tool.id === 'premium_ai') resp += `\n💡 Tip: Try the "Professional" mode to polish business emails.`;
-            return resp;
-        }
-        
-        // If we have a partial match but low score, recommend something
-        if (tool && score > 0) {
-            return `🤔 I'm not entirely sure about "${userMsg}", but you might find **${tool.name}** useful: ${tool.desc}\n\nOpen it from the tools grid.`;
-        }
-        
-        // No match at all – provide helpful fallback
-        return `🤔 Hmm, I don't recognize that. MultiTool Pro has over 50 tools including Calculator, Password Generator, Word Counter, QR Code, Unit Converter, World Clock, Joke Generator, AI Paraphraser, Currency Converter, and many more. Try asking about a specific tool like "How to use the QR code generator?" or "What is the password generator?" or simply type "Calculator".`;
-    }
-
-    async function getAIResponse(userMessage) {
-        await new Promise(r => setTimeout(r, 80));
-        return getAdvancedAnswer(userMessage);
-    }
-
     async function sendUserMessage() {
-        let message = chatInput.value.trim();
-        if (!message) return;
-        addMessage(message, true);
+        let msg = chatInput.value.trim();
+        if (!msg) return;
+        addMessage(msg, true);
         chatInput.value = '';
-        const thinkingDiv = addMessage('🤔 Let me think...', false);
+        const thinkingDiv = addMessage('🤔 Thinking...', false);
         try {
-            const aiReply = await getAIResponse(message);
+            const reply = await getAIResponseWithDelay(msg);
             thinkingDiv.remove();
-            addMessage(aiReply, false);
+            addMessage(reply, false);
         } catch (err) {
             thinkingDiv.remove();
-            addMessage("⚠️ Sorry, I encountered an error. Please try again.", false);
+            addMessage("⚠️ Sorry, an error occurred. Please try again.", false);
         }
     }
-
     chatSendBtn.addEventListener('click', sendUserMessage);
     chatInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') sendUserMessage(); });
-
+    
     // Voice recognition
     if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -869,14 +913,8 @@
         recognition.continuous = false;
         recognition.interimResults = false;
         recognition.lang = 'en-US';
-        recognition.onstart = () => {
-            voiceStatus.textContent = '🎙️ Listening... speak now';
-            voiceBtn.style.background = '#ff5555';
-        };
-        recognition.onend = () => {
-            voiceStatus.textContent = '';
-            voiceBtn.style.background = '#4c9aff';
-        };
+        recognition.onstart = () => { voiceStatus.textContent = '🎙️ Listening...'; voiceBtn.style.background = '#ff5555'; };
+        recognition.onend = () => { voiceStatus.textContent = ''; voiceBtn.style.background = '#4c9aff'; };
         recognition.onresult = (event) => {
             const transcript = event.results[0][0].transcript;
             chatInput.value = transcript;
@@ -884,24 +922,18 @@
             setTimeout(() => { if(voiceStatus) voiceStatus.textContent = ''; }, 2000);
             sendUserMessage();
         };
-        recognition.onerror = (e) => {
-            voiceStatus.textContent = '❌ Voice error: ' + e.error;
-            voiceBtn.style.background = '#4c9aff';
-            setTimeout(() => { if(voiceStatus) voiceStatus.textContent = ''; }, 2000);
-        };
-        voiceBtn.addEventListener('click', () => {
-            if (recognition) recognition.start();
-        });
+        recognition.onerror = (e) => { voiceStatus.textContent = '❌ Voice error'; voiceBtn.style.background = '#4c9aff'; setTimeout(() => { if(voiceStatus) voiceStatus.textContent = ''; }, 2000); };
+        voiceBtn.addEventListener('click', () => { if (recognition) recognition.start(); });
     } else {
         voiceBtn.disabled = true;
-        voiceBtn.title = 'Voice not supported in this browser';
         voiceStatus.textContent = 'No voice support';
     }
 })();
 </script>
 
+<!-- ========== ORIGINAL SCRIPT (all existing functions preserved – only the chatbot replaced) ========== -->
 <script>
-// ==================== ORIGINAL SCRIPT (all existing functions preserved) ====================
+// ==================== ORIGINAL SCRIPT (all existing functions preserved – only the chatbot replaced) ====================
 (function(){
     let darkMode = localStorage.getItem('theme') === 'dark';
     if(darkMode) document.documentElement.setAttribute('data-theme','dark');
@@ -981,7 +1013,7 @@
     function renderMediaGrid(){ const container = document.getElementById('mediaGrid'); const mediaSites = [ { name: 'Dailymotion', icon: '📹', url: 'https://www.dailymotion.com' }, { name: 'Vimeo', icon: '🎬', url: 'https://vimeo.com' }, { name: 'Twitch', icon: '🎮', url: 'https://www.twitch.tv' }, { name: 'TikTok', icon: '🎵', url: 'https://www.tiktok.com' }, { name: 'Instagram Reels', icon: '📱', url: 'https://www.instagram.com/reels' }, { name: 'Facebook Watch', icon: '📘', url: 'https://www.facebook.com/watch' }, { name: 'Netflix', icon: '📺', url: 'https://www.netflix.com' }, { name: 'Amazon Prime Video', icon: '📦', url: 'https://www.primevideo.com' }, { name: 'Disney+', icon: '✨', url: 'https://www.disneyplus.com' }, { name: 'HBO Max', icon: '🎬', url: 'https://www.max.com' }, { name: 'Hulu', icon: '📺', url: 'https://www.hulu.com' }, { name: 'Paramount+', icon: '⭐', url: 'https://www.paramountplus.com' }, { name: 'Peacock', icon: '🦚', url: 'https://www.peacocktv.com' }, { name: 'Apple TV+', icon: '🍎', url: 'https://tv.apple.com' }, { name: 'Crunchyroll', icon: '🍙', url: 'https://www.crunchyroll.com' }, { name: 'Funimation', icon: '🎞️', url: 'https://www.funimation.com' }, { name: 'Viki', icon: '🌏', url: 'https://www.viki.com' }, { name: 'Tubi', icon: '📺', url: 'https://tubitv.com' }, { name: 'Pluto TV', icon: '🪐', url: 'https://pluto.tv' }, { name: 'Plex', icon: '📡', url: 'https://watch.plex.tv' } ]; let html = ''; mediaSites.forEach(site => { html += `<div class="media-card" onclick="window.open('${site.url}', '_blank');"><div style="font-size:2.8rem;">${site.icon}</div><div style="font-weight:700; font-size:1.2rem;">${site.name}</div><div style="font-size:0.9rem;">Click to open</div></div>`; }); container.innerHTML = html; }
     window.openTvRadioOverlay = function(){ document.getElementById('tvRadioOverlay').classList.add('active'); document.getElementById('tvRadioContentArea').innerHTML = ''; };
     window.closeTvRadioOverlay = function(){ document.getElementById('tvRadioOverlay').classList.remove('active'); };
-    const tvChannels = [ { name: 'RedBull TV', icon: '🐂', url: 'https://www.redbull.com/int-en/tv' }, { name: 'Samsung TV Plus', icon: '📺', url: 'https://www.samsungtvplus.com' }, { name: 'Xumo', icon: '📡', url: 'https://www.xumo.tv' }, { name: 'Plex Live TV', icon: '📼', url: 'https://watch.plex.tv/live-tv' }, { name: 'DistroTV', icon: '📀', url: 'https://www.distro.tv' }, { name: 'Amazon Freevee', icon: '🎬', url: 'https://www.amazon.com/Freevee' }, { name: 'Crackle', icon: '🎞️', url: 'https://www.crackle.com' }, { name: 'Vudu Free', icon: '💿', url: 'https://www.vudu.com/content/movies/featured/free' }, { name: 'The Roku Channel', icon: '📼', url: 'https://therokuchannel.roku.com' }, { name: 'BBC iPlayer', icon: '🇬🇧', url: 'https://www.bbc.co.uk/iplayer' }, { name: 'ITVX', icon: '🎥', url: 'https://www.itv.com' }, { name: 'Channel 4', icon: '4️⃣', url: 'https://www.channel4.com' }, { name: 'SBS On Demand', icon: '🇦🇺', url: 'https://www.sbs.com.au/ondemand/' }, { name: 'ABC iview', icon: '🦘', url: 'https://iview.abc.net.au' }, { name: 'NHK World', icon: '🇯🇵', url: 'https://www3.nhk.or.jp/nhkworld/' }, { name: 'France.tv', icon: '🇫🇷', url: 'https://www.france.tv' }, { name: 'ZDF Mediathek', icon: '🇩🇪', url: 'https://www.zdf.de' }, { name: 'RaiPlay', icon: '🇮🇹', url: 'https://www.raiplay.it' }, { name: 'Haystack News', icon: '📰', url: 'https://www.haystack.tv' }, { name: 'GlobeTV', icon: '🌍', url: 'https://globetv.app/' }, { name: 'FreeInterTV', icon: '📶', url: 'http://www.freeintertv.com/' }, { name: 'TabloTV', icon: '💾', url: 'https://www.tablotv.com/' }, { name: 'JustWatch', icon: '🔍', url: 'https://www.justwatch.com' } ];
+    const tvChannels = [ { name: 'RedBull TV', icon: '🐂', url: 'https://www.redbull.com/int-en/tv' }, { name: 'Samsung TV Plus', icon: '📺', url: 'https://www.samsungtvplus.com' }, { name: 'Xumo', icon: '📡', url: 'https://www.xumo.tv' }, { name: 'Plex Live TV', icon: '📼', url: 'https://watch.plex.tv/live-tv' }, { name: 'DistroTV', icon: '📀', url: 'https://www.distro.tv' }, { name: 'Amazon Freevee', icon: '🎬', url: 'https://www.amazon.com/Freevee' }, { name: 'Crackle', icon: '🎞️', url: 'https://www.crackle.com.in' }, { name: 'Vudu Free', icon: '💿', url: 'https://www.vudu.com/content/movies/featured/free' }, { name: 'The Roku Channel', icon: '📼', url: 'https://therokuchannel.roku.com' }, { name: 'BBC iPlayer', icon: '🇬🇧', url: 'https://www.bbc.co.uk/iplayer' }, { name: 'ITVX', icon: '🎥', url: 'https://www.itv.com' }, { name: 'Channel 4', icon: '4️⃣', url: 'https://www.channel4.com' }, { name: 'SBS On Demand', icon: '🇦🇺', url: 'https://www.sbs.com.au/ondemand/' }, { name: 'ABC iview', icon: '🦘', url: 'https://iview.abc.net.au' }, { name: 'NHK World', icon: '🇯🇵', url: 'https://www3.nhk.or.jp/nhkworld/' }, { name: 'France.tv', icon: '🇫🇷', url: 'https://www.france.tv' }, { name: 'ZDF Mediathek', icon: '🇩🇪', url: 'https://www.zdf.de' }, { name: 'RaiPlay', icon: '🇮🇹', url: 'https://www.raiplay.it' }, { name: 'Haystack News', icon: '📰', url: 'https://www.haystack.tv' }, { name: 'GlobeTV', icon: '🌍', url: 'https://globetv.app/' }, { name: 'FreeInterTV', icon: '📶', url: 'http://www.freeintertv.com/' }, { name: 'TabloTV', icon: '💾', url: 'https://www.tablotv.com/' }, { name: 'JustWatch', icon: '🔍', url: 'https://www.justwatch.com' } ];
     const radioStations = [ { name: 'TuneIn', icon: '📻', url: 'https://tunein.com' }, { name: 'iHeartRadio', icon: '❤️', url: 'https://www.iheart.com' }, { name: 'Radio Garden', icon: '🗺️', url: 'https://radio.garden' }, { name: 'Streema', icon: '🎛️', url: 'https://streema.com' }, { name: 'Radio.net', icon: '🎚️', url: 'https://www.radio.net' }, { name: 'Online Radio Box', icon: '📦', url: 'https://onlineradiobox.com' }, { name: 'AccuRadio', icon: '🎵', url: 'https://www.accuradio.com' }, { name: 'SomaFM', icon: '🎹', url: 'https://somafm.com' }, { name: 'LiveATC', icon: '✈️', url: 'https://www.liveatc.net' }, { name: 'BBC Sounds', icon: '🎧', url: 'https://www.bbc.co.uk/sounds' }, { name: 'NPR', icon: '🎙️', url: 'https://www.npr.org' }, { name: 'Audacy', icon: '🎤', url: 'https://www.audacy.com' }, { name: 'Jango', icon: '🎻', url: 'https://www.jango.com' }, { name: 'Radio Paradise', icon: '🌴', url: 'https://radioparadise.com' }, { name: 'JazzRadio', icon: '🎷', url: 'https://www.jazzradio.com' }, { name: 'DI.FM', icon: '🎼', url: 'https://www.di.fm' }, { name: 'KEXP', icon: '🎸', url: 'https://www.kexp.org' }, { name: 'WNYC', icon: '🔊', url: 'https://www.wnyc.org' }, { name: 'Internet-Radio.com', icon: '🎶', url: 'https://www.internet-radio.com/' }, { name: 'Radiotunes', icon: '🎺', url: 'https://www.radiotunes.com/' } ];
     window.showTvChannels = function(){ const area = document.getElementById('tvRadioContentArea'); let html = '<h3 style="text-align:center;margin-bottom:20px;font-size:1.6rem;">📺 TV Channels</h3>'; tvChannels.forEach(site => { html += `<div class="tvradio-card" onclick="window.open('${site.url}', '_blank');"><div style="font-size:2.8rem;">${site.icon}</div><div style="font-weight:700; font-size:1.2rem;">${site.name}</div><div style="font-size:0.9rem;">Watch now</div></div>`; }); area.innerHTML = html; };
     window.showRadioStations = function(){ const area = document.getElementById('tvRadioContentArea'); let html = '<h3 style="text-align:center;margin-bottom:20px;font-size:1.6rem;">📻 Radio Stations</h3>'; radioStations.forEach(site => { html += `<div class="tvradio-card" onclick="window.open('${site.url}', '_blank');"><div style="font-size:2.8rem;">${site.icon}</div><div style="font-weight:700; font-size:1.2rem;">${site.name}</div><div style="font-size:0.9rem;">Listen now</div></div>`; }); area.innerHTML = html; };
@@ -1058,7 +1090,6 @@
     window.closeMoneyOverlay = function(){ document.getElementById('moneyOverlay').classList.remove('active'); };
     function renderMoneyGrid() { const container = document.getElementById('moneyGrid'); const sites = [ { name: 'Geico', icon: '🦎', url: 'https://www.geico.com' }, { name: 'Progressive', icon: '🅿️', url: 'https://www.progressive.com' }, { name: 'State Farm', icon: '🏠', url: 'https://www.statefarm.com' }, { name: 'Allstate', icon: '🤲', url: 'https://www.allstate.com' }, { name: 'USAA', icon: '🦅', url: 'https://www.usaa.com' }, { name: 'Liberty Mutual', icon: '🗽', url: 'https://www.libertymutual.com' }, { name: 'Nationwide', icon: '🌐', url: 'https://www.nationwide.com' }, { name: 'Farmers', icon: '🌾', url: 'https://www.farmers.com' }, { name: 'Travelers', icon: '✈️', url: 'https://www.travelers.com' }, { name: 'Aflac', icon: '🦆', url: 'https://www.aflac.com' }, { name: 'LendingTree', icon: '🌳', url: 'https://www.lendingtree.com' }, { name: 'SoFi', icon: '🏦', url: 'https://www.sofi.com' }, { name: 'Marcus', icon: '💰', url: 'https://www.marcus.com' }, { name: 'Rocket Mortgage', icon: '🚀', url: 'https://www.rocketmortgage.com' }, { name: 'Upstart', icon: '📈', url: 'https://www.upstart.com' }, { name: 'Best Egg', icon: '🥚', url: 'https://www.bestegg.com' }, { name: 'Robinhood', icon: '🏹', url: 'https://robinhood.com' }, { name: 'E*TRADE', icon: '📊', url: 'https://us.etrade.com' }, { name: 'Fidelity', icon: '🏆', url: 'https://www.fidelity.com' }, { name: 'Charles Schwab', icon: '🐂', url: 'https://www.schwab.com' }, { name: 'Vanguard', icon: '🚢', url: 'https://investor.vanguard.com' }, { name: 'Acorns', icon: '🌰', url: 'https://www.acorns.com' }, { name: 'Coinbase', icon: '🪙', url: 'https://www.coinbase.com' }, { name: 'Gemini', icon: '♊', url: 'https://www.gemini.com' }, { name: 'Webull', icon: '🐃', url: 'https://www.webull.com' }, { name: 'Betterment', icon: '🌱', url: 'https://www.betterment.com' }, { name: 'Mint', icon: '🍃', url: 'https://mint.intuit.com' }, { name: 'YNAB', icon: '📝', url: 'https://www.youneedabudget.com' }, { name: 'Credit Karma', icon: '🛡️', url: 'https://www.creditkarma.com' }, { name: 'NerdWallet', icon: '🤓', url: 'https://www.nerdwallet.com' } ]; let html = ''; sites.forEach(site => { html += `<div class="games-card" onclick="window.open('${site.url}', '_blank');"><div style="font-size:2.8rem;">${site.icon}</div><div style="font-weight:700; font-size:1.2rem;">${site.name}</div><div style="font-size:0.9rem;">Click to open</div></div>`; }); container.innerHTML = html; }
     const originalTools = [ {id:'calculator', icon:'🧮', name:'Advanced Calculator'}, {id:'password', icon:'🔐', name:'Password Generator'}, {id:'wordcount', icon:'📝', name:'Word Counter'}, {id:'caseconverter', icon:'🔤', name:'Case Converter'}, {id:'colorpicker', icon:'🎨', name:'Color Picker'}, {id:'unitconverter', icon:'📏', name:'Unit Converter'}, {id:'stopwatch', icon:'⏱️', name:'Stopwatch'}, {id:'qrcode', icon:'📱', name:'QR Code'}, {id:'bmi', icon:'⚖️', name:'BMI Calculator'}, {id:'random', icon:'🎲', name:'Random Number'}, {id:'countdown', icon:'⏳', name:'Countdown Timer'}, {id:'datediff', icon:'📅', name:'Date Difference'}, {id:'base64', icon:'🔣', name:'Base64'}, {id:'urlencode', icon:'🔗', name:'URL Encode'}, {id:'jsonformat', icon:'📋', name:'JSON Formatter'}, {id:'lorem', icon:'📄', name:'Lorem Ipsum'}, {id:'currency', icon:'💱', name:'Currency Converter'}, {id:'percentcalc', icon:'📊', name:'Percentage Calc'}, {id:'agecalc', icon:'🎂', name:'Age Calculator'}, {id:'binhex', icon:'💻', name:'Binary/Hex'}, {id:'roman', icon:'🏛️', name:'Roman Numeral'}, {id:'tipcalc', icon:'💰', name:'Tip Calculator'}, {id:'worldclock', icon:'🕐', name:'World Clock (All Zones)'}, {id:'dice', icon:'🎲', name:'Dice Roller'}, {id:'coin', icon:'🪙', name:'Coin Flip'}, {id:'joke', icon:'😂', name:'Joke Generator (Fresh)'}, {id:'ip', icon:'🌍', name:'IP Lookup'},
-        // NEW ADVANCED AI TOOLS inserted before premium_ai
         {id:'ai_paraphraser', icon:'🔄', name:'AI Paraphraser'},
         {id:'ai_grammar', icon:'✅', name:'Grammar & Spell Check'},
         {id:'ai_summarizer', icon:'📄', name:'AI Summarizer'},
@@ -1100,7 +1131,6 @@
         renderToolPanel(toolId);
         document.getElementById('toolPanel').scrollIntoView({behavior:'smooth'});
     };
-    // ************** ORIGINAL ADVANCED AI TEXT ENHANCER **************
     window.demoAIEnhanceAdvanced = function() {
         let txt = document.getElementById('aiDemoText').value;
         let mode = document.getElementById('aiMode').value;
@@ -1114,7 +1144,6 @@
         else if(mode==='simplify') result = txt.replace(/[^a-zA-Z0-9 ]/g,'').toLowerCase();
         document.getElementById('aiDemoResult').innerHTML = result;
     };
-    // ************** NEW ADVANCED AI TOOLS FUNCTIONS **************
     window.runParaphraserTool = function() {
         let txt = document.getElementById('paraphraserText').value;
         if(!txt) { document.getElementById('paraphraserOut').innerHTML = 'Please enter some text first.'; return; }
@@ -1181,8 +1210,7 @@
         document.getElementById('readabilityOut').innerHTML = `<strong>📖 Readability (Flesch Reading Ease):</strong><br>Score: ${Math.round(score)}<br>Level: ${level}<br>Words: ${words}, Sentences: ${sentenceCount}, Syllables: ${syllables}`;
     };
     function renderShortenerGrid(){ const container = document.getElementById('shortenerGrid'); const shorteners = [ { name: 'TinyURL', icon: '🔗', url: 'https://tinyurl.com/app' }, { name: 'Bitly', icon: '📎', url: 'https://bitly.com' }, { name: 'is.gd', icon: '⚡', url: 'https://is.gd' }, { name: 'Rebrandly', icon: '🔄', url: 'https://rebrandly.com' }, { name: 'Short.io', icon: '✂️', url: 'https://short.io' }, { name: 'Cutt.ly', icon: '✂️', url: 'https://cutt.ly' }, { name: 'T2M', icon: '🔗', url: 'https://t2m.io' }, { name: 'Shorte.st', icon: '📏', url: 'https://shorte.st' }, { name: '1Link', icon: '🔗', url: 'https://1link.io' }, { name: 'Linkly', icon: '🔗', url: 'https://linklyhq.com' } ]; let html = ''; shorteners.forEach(s => { html += `<div class="shortener-card" onclick="window.open('${s.url}', '_blank'); closeShortenerOverlay();"><div style="font-size:2.8rem;">${s.icon}</div><div style="font-weight:700; font-size:1.2rem;">${s.name}</div><div style="font-size:0.9rem;">Click to open</div></div>`; }); container.innerHTML = html; }
-    function renderOnlineGrid(){ const container = document.getElementById('onlineGrid'); const onlineToolsList = [ { name: 'Canva', icon: '🎨', url: 'https://www.canva.com' }, { name: 'Remove.bg', icon: '🖼️', url: 'https://www.remove.bg' }, { name: 'TinyWow', icon: '✨', url: 'https://tinywow.com' }, { name: 'ILovePDF', icon: '📄', url: 'https://www.ilovepdf.com' }, { name: 'SmallPDF', icon: '📑', url: 'https://smallpdf.com' }, { name: 'OnlineOCR', icon: '🔍', url: 'https://www.onlineocr.net' }, { name: 'Convertio', icon: '🔄', url: 'https://convertio.co' }, { name: 'CloudConvert', icon: '☁️', url: 'https://cloudconvert.com' }, { name: 'EZGIF', icon: '🎞️', url: 'https://ezgif.com' }, { name: 'Kapwing', icon: '✂️', url: 'https://www.kapwing.com' }, { name: 'Pixlr', icon: '🎨', url: 'https://pixlr.com' }, { name: 'Photopea', icon: '🖌️', url: 'https://www.photopea.com' }, { name: 'Cleanup.pictures', icon: '🧹', url: 'https://cleanup.pictures' }, { name: 'Watermark Remover', icon: '💧', url: 'https://www.watermarkremover.io' }, { name: 'QR Code Monkey', icon: '📱', url: 'https://www.qrcode-monkey.com' }, { name: 'Grammarly', icon: '✍️', url: 'https://www.grammarly.com' }, { name: 'QuillBot', icon: '📝', url: 'https://quillbot.com' }, { name: 'Hemingway Editor', icon: '📖', url: 'https://hemingwayapp.com' }, { name: 'DeepL Translator', icon: '🌐', url: 'https://www.deepl.com' }, // Google Translate removed
-        { name: 'MyMemory', icon: '🧠', url: 'https://mymemory.translated.net' }, { name: 'Color Hunt', icon: '🎨', url: 'https://colorhunt.co' }, { name: 'Coolors', icon: '🌈', url: 'https://coolors.co' }, { name: 'UI Gradients', icon: '📊', url: 'https://uigradients.com' }, { name: 'CSS Gradient', icon: '🎨', url: 'https://cssgradient.io' }, { name: 'JsonFormatter', icon: '📋', url: 'https://jsonformatter.org' }, { name: 'CodePen', icon: '💻', url: 'https://codepen.io' }, { name: 'JSFiddle', icon: '🔧', url: 'https://jsfiddle.net' }, { name: 'Replit', icon: '🔄', url: 'https://replit.com' } ]; let html = ''; onlineToolsList.forEach(tool => { html += `<div class="online-card" onclick="window.open('${tool.url}', '_blank'); closeOnlineOverlay();"><div style="font-size:2.8rem;">${tool.icon}</div><div style="font-weight:700; font-size:1.2rem;">${tool.name}</div><div style="font-size:0.9rem;">Click to open</div></div>`; }); container.innerHTML = html; }
+    function renderOnlineGrid(){ const container = document.getElementById('onlineGrid'); const onlineToolsList = [ { name: 'Canva', icon: '🎨', url: 'https://www.canva.com' }, { name: 'Remove.bg', icon: '🖼️', url: 'https://www.remove.bg' }, { name: 'TinyWow', icon: '✨', url: 'https://tinywow.com' }, { name: 'ILovePDF', icon: '📄', url: 'https://www.ilovepdf.com' }, { name: 'SmallPDF', icon: '📑', url: 'https://smallpdf.com' }, { name: 'OnlineOCR', icon: '🔍', url: 'https://www.onlineocr.net' }, { name: 'Convertio', icon: '🔄', url: 'https://convertio.co' }, { name: 'CloudConvert', icon: '☁️', url: 'https://cloudconvert.com' }, { name: 'EZGIF', icon: '🎞️', url: 'https://ezgif.com' }, { name: 'Kapwing', icon: '✂️', url: 'https://www.kapwing.com' }, { name: 'Pixlr', icon: '🎨', url: 'https://pixlr.com' }, { name: 'Photopea', icon: '🖌️', url: 'https://www.photopea.com' }, { name: 'Cleanup.pictures', icon: '🧹', url: 'https://cleanup.pictures' }, { name: 'Watermark Remover', icon: '💧', url: 'https://www.watermarkremover.io' }, { name: 'QR Code Monkey', icon: '📱', url: 'https://www.qrcode-monkey.com' }, { name: 'Grammarly', icon: '✍️', url: 'https://www.grammarly.com' }, { name: 'QuillBot', icon: '📝', url: 'https://quillbot.com' }, { name: 'Hemingway Editor', icon: '📖', url: 'https://hemingwayapp.com' }, { name: 'DeepL Translator', icon: '🌐', url: 'https://www.deepl.com' }, { name: 'MyMemory', icon: '🧠', url: 'https://mymemory.translated.net' }, { name: 'Color Hunt', icon: '🎨', url: 'https://colorhunt.co' }, { name: 'Coolors', icon: '🌈', url: 'https://coolors.co' }, { name: 'UI Gradients', icon: '📊', url: 'https://uigradients.com' }, { name: 'CSS Gradient', icon: '🎨', url: 'https://cssgradient.io' }, { name: 'JsonFormatter', icon: '📋', url: 'https://jsonformatter.org' }, { name: 'CodePen', icon: '💻', url: 'https://codepen.io' }, { name: 'JSFiddle', icon: '🔧', url: 'https://jsfiddle.net' }, { name: 'Replit', icon: '🔄', url: 'https://replit.com' } ]; let html = ''; onlineToolsList.forEach(tool => { html += `<div class="online-card" onclick="window.open('${tool.url}', '_blank'); closeOnlineOverlay();"><div style="font-size:2.8rem;">${tool.icon}</div><div style="font-weight:700; font-size:1.2rem;">${tool.name}</div><div style="font-size:0.9rem;">Click to open</div></div>`; }); container.innerHTML = html; }
     function renderAiToolsFull(){ const container = document.getElementById('aiToolsContainer'); const aiSites = [ { name: 'ChatGPT', icon: '🤖', url: 'https://chat.openai.com', category: 'chat' }, { name: 'Google Gemini', icon: '🧠', url: 'https://gemini.google.com', category: 'chat' }, { name: 'Claude', icon: '🧬', url: 'https://claude.ai', category: 'chat' }, { name: 'DeepSeek', icon: '🐋', url: 'https://chat.deepseek.com', category: 'chat' }, { name: 'Microsoft Copilot', icon: '💻', url: 'https://copilot.microsoft.com', category: 'chat' }, { name: 'Poe', icon: '💡', url: 'https://poe.com', category: 'chat' }, { name: 'Pi AI', icon: '😊', url: 'https://pi.ai/talk', category: 'chat' }, { name: 'Character.AI', icon: '🎭', url: 'https://character.ai', category: 'chat' }, { name: 'Perplexity', icon: '🔎', url: 'https://www.perplexity.ai', category: 'search' }, { name: 'You.com', icon: '🔍', url: 'https://you.com', category: 'search' }, { name: 'DALL·E 3', icon: '🖼️', url: 'https://openai.com/dall-e-3', category: 'image' }, { name: 'Midjourney', icon: '🌸', url: 'https://www.midjourney.com', category: 'image' }, { name: 'Stable Diffusion', icon: '🌀', url: 'https://stability.ai', category: 'image' }, { name: 'Leonardo AI', icon: '🦁', url: 'https://leonardo.ai', category: 'image' }, { name: 'DreamStudio', icon: '🌟', url: 'https://beta.dreamstudio.ai', category: 'image' }, { name: 'Bing Image Creator', icon: '🌄', url: 'https://www.bing.com/images/create', category: 'image' }, { name: 'Craiyon', icon: '🎠', url: 'https://www.craiyon.com', category: 'image' }, { name: 'NightCafe', icon: '🌌', url: 'https://creator.nightcafe.studio', category: 'image' }, { name: 'Artbreeder', icon: '🧬', url: 'https://www.artbreeder.com', category: 'image' }, { name: 'Playground AI', icon: '🎮', url: 'https://playgroundai.com', category: 'image' }, { name: 'Runway ML', icon: '🎥', url: 'https://runwayml.com', category: 'video' }, { name: 'Pika', icon: '🎞️', url: 'https://pika.art', category: 'video' }, { name: 'Synthesia', icon: '🎙️', url: 'https://www.synthesia.io', category: 'video' }, { name: 'HeyGen', icon: '👤', url: 'https://www.heygen.com', category: 'video' }, { name: 'Invideo', icon: '📹', url: 'https://invideo.io', category: 'video' }, { name: 'Kapwing', icon: '🎬', url: 'https://www.kapwing.com', category: 'video' }, { name: 'Lumen5', icon: '📽️', url: 'https://www.lumen5.com', category: 'video' }, { name: 'Suno AI', icon: '🎤', url: 'https://suno.ai', category: 'music' }, { name: 'Udio', icon: '🎧', url: 'https://www.udio.com', category: 'music' }, { name: 'AIVA', icon: '🎼', url: 'https://www.aiva.ai', category: 'music' }, { name: 'Boomy', icon: '🎹', url: 'https://boomy.com', category: 'music' }, { name: 'Soundraw', icon: '🎛️', url: 'https://soundraw.io', category: 'music' }, { name: 'Mubert', icon: '🎚️', url: 'https://mubert.com', category: 'music' }, { name: 'GitHub Copilot', icon: '🐙', url: 'https://github.com/features/copilot', category: 'code' }, { name: 'Codeium', icon: '⚡', url: 'https://codeium.com', category: 'code' }, { name: 'Tabnine', icon: '🦊', url: 'https://www.tabnine.com', category: 'code' }, { name: 'Replit Ghostwriter', icon: '👻', url: 'https://replit.com/ghostwriter', category: 'code' }, { name: 'Cody', icon: '🤖', url: 'https://sourcegraph.com/cody', category: 'code' }, { name: 'Jasper', icon: '✍️', url: 'https://www.jasper.ai', category: 'writing' }, { name: 'Writesonic', icon: '📝', url: 'https://writesonic.com', category: 'writing' }, { name: 'Notion AI', icon: '📓', url: 'https://www.notion.so/product/ai', category: 'writing' } ]; const categoryNames = { chat: 'AI Chat & Assistants', search: 'AI Search & Research', image: 'AI Image Generation', video: 'AI Video & Animation', music: 'AI Music & Audio', code: 'AI Code & Development', writing: 'AI Writing & Content' }; const grouped = {}; aiSites.forEach(tool => { if (!grouped[tool.category]) grouped[tool.category] = []; grouped[tool.category].push(tool); }); let html = '<h2 style="font-size:2rem;text-align:center;">🤖 AI Hub · 40+ AI Tools</h2>'; for (const [catKey, catLabel] of Object.entries(categoryNames)) { if (grouped[catKey] && grouped[catKey].length > 0) { html += `<h3 style="margin-top:36px;text-align:center;border-bottom:2px solid var(--border);padding-bottom:12px;font-size:1.6rem;">${catLabel}</h3><div class="ai-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:24px;margin-top:24px;">`; grouped[catKey].forEach(ai => { html += `<div class="ai-card" onclick="window.open('${ai.url}', '_blank'); closeAiOverlay();"><div style="font-size:2.8rem;">${ai.icon}</div><div style="font-weight:700; font-size:1.2rem;">${ai.name}</div><div style="font-size:0.9rem;">Click to open</div></div>`; }); html += '</div>'; } } html += '<div style="text-align:center;margin-top:40px;"><button class="tool-btn" onclick="closeAiOverlay()">← Back to main tools</button></div>'; container.innerHTML = html; }
     function renderImagineTools(){ const container = document.getElementById('imagineToolsGrid'); const imagineTools = [ { name: '🖼️ Image to Text (OCR)', icon: '📸', action: 'ocr' }, { name: '🎨 Random Color Palette', icon: '🌈', action: 'randomColor' }, { name: '📻 Morse Code Converter', icon: '📡', action: 'morse' }, { name: '📝 Text Summarizer', icon: '📄', action: 'summarize' }, { name: '🔢 Number Base Converter', icon: '🔢', action: 'baseAny' }, { name: '🧬 UUID Generator', icon: '🆔', action: 'uuid' }, { name: '🔐 Hash Generator', icon: '🔑', action: 'hashGen' }, { name: '📅 Unix Timestamp', icon: '⏲️', action: 'unixTime' }, { name: '🌍 IP Geolocation', icon: '🗺️', action: 'ipGeo' }, { name: '📧 Email Validator', icon: '📨', action: 'emailValidate' }, { name: '📊 CSV to JSON', icon: '📑', action: 'csvToJson' }, { name: '🧮 Quadratic Solver', icon: '📐', action: 'quadratic' }, { name: '⚖️ Weight Converter', icon: '⚖️', action: 'weightConv' }, { name: '🌡️ Temperature Converter', icon: '🌡️', action: 'tempConv' }, { name: '📏 Area Converter', icon: '📐', action: 'areaConv' }, { name: '💾 Data Size Converter', icon: '💾', action: 'dataConv' }, { name: '⏱️ Epoch Time Now', icon: '⏰', action: 'epochNow' }, { name: '🔍 Reverse Text', icon: '🔄', action: 'reverseText' }, { name: '✏️ Leet Speak', icon: '👾', action: 'leetSpeak' }, { name: '🎯 Palindrome Checker', icon: '🔄', action: 'palindrome' }, { name: '🔠 Strong Password', icon: '🔐', action: 'strongPwd' }, { name: '📇 QR Reader (camera)', icon: '📷', action: 'qrReader' }, { name: '🎲 Custom Dice Roll', icon: '🎲', action: 'customDice' }, { name: '💬 Random Advice', icon: '💡', action: 'advice' }, { name: '🔗 URL Shortener', icon: '🔗', action: 'shortener' } ]; let html = ''; imagineTools.forEach(tool => { html += `<div class="imagine-tool-card" onclick="executeImagineTool('${tool.action}')"><div style="font-size:2.8rem;">${tool.icon}</div><div style="font-weight:700; font-size:1.2rem;">${tool.name}</div></div>`; }); container.innerHTML = html; }
     window.executeImagineTool = function(action){ if(action === 'shortener') { openShortenerOverlay(); return; } let output = ''; switch(action){ case 'ocr': output = '📸 OCR Demo: Upload image<br><input type="file" id="ocrFile" accept="image/*"><button class="tool-btn" onclick="simulateOCR()">Extract Text</button><div id="ocrResult"></div>'; break;
@@ -1444,7 +1472,6 @@
                 content = `<button class="tool-btn" onclick="getIPAdvanced()">Get My IP Info</button>
                 <div id="ipOut" class="tool-output"></div>`;
                 break;
-            // NEW ADVANCED AI TOOLS CASES
             case 'ai_paraphraser':
                 title = '🔄 AI Paraphraser';
                 content = `<textarea id="paraphraserText" rows="4" class="search-input" placeholder="Enter text to paraphrase..."></textarea>
@@ -1492,7 +1519,6 @@
         }
         document.getElementById('toolPanelTitle').innerHTML = title;
         document.getElementById('toolContent').innerHTML = content;
-        // Initialize event listeners for each tool
         if(tid=='wordcount') document.getElementById('wcText')?.addEventListener('input',updateWordCount);
         if(tid=='password') document.getElementById('passLen')?.addEventListener('input',(e)=>document.getElementById('lenVal').innerText=e.target.value);
         if(tid=='colorpicker') document.getElementById('colorPick')?.addEventListener('input',updateColorFromPicker);
@@ -1500,8 +1526,7 @@
         if(tid=='currency') loadCurrencyList();
         if(tid=='worldclock') { refreshWorldClock(); setInterval(refreshWorldClock, 60000); }
     }
-    // ==================== Enhanced functions definitions ====================
-    // Calculator history
+    // Enhanced functions definitions (same as original, kept for compatibility)
     let calcHistory = [];
     window.appendCalc = function(v) {
         if (v === 'C') { calcExpr = ''; }
@@ -1533,7 +1558,6 @@
             if (display) display.textContent = result;
         } catch(e) { document.getElementById('calcResult').innerHTML = 'Error'; }
     };
-    // Password advanced
     window.genPassAdvanced = function() {
         let len = parseInt(document.getElementById('passLen').value);
         let upper = document.getElementById('useUpper').checked;
@@ -1556,7 +1580,6 @@
         else if(len>=8 && ((upper && lower) || (digits && symbols))) strength = 'Medium';
         document.getElementById('strengthMeter').innerHTML = strength;
     };
-    // Word counter advanced
     function updateWordCount() {
         let t = document.getElementById('wcText').value;
         let words = t.trim().split(/\s+/).filter(w=>w.length>0);
@@ -1574,7 +1597,8 @@
         let sorted = Object.entries(freq).sort((a,b)=>b[1]-a[1]).slice(0,3);
         document.getElementById('keywordDensity').innerHTML = sorted.map(([k,v])=>`${k} (${v})`).join(', ') || '—';
     }
-    // Case converter extra
+    window.toUpper = function(){ document.getElementById('caseOut').innerText = document.getElementById('caseText').value.toUpperCase(); };
+    window.toLower = function(){ document.getElementById('caseOut').innerText = document.getElementById('caseText').value.toLowerCase(); };
     window.toTitleCase = function() {
         let txt = document.getElementById('caseText').value;
         document.getElementById('caseOut').innerText = txt.replace(/\w\S*/g, w=>w.charAt(0).toUpperCase()+w.substr(1).toLowerCase());
@@ -1595,7 +1619,6 @@
         for(let c of txt) result += c===c.toUpperCase() ? c.toLowerCase() : c.toUpperCase();
         document.getElementById('caseOut').innerHTML = result;
     };
-    // Color picker advanced
     let recentColors = JSON.parse(localStorage.getItem('recentColors')||'[]');
     function updateColorFromPicker() {
         let col = document.getElementById('colorPick').value;
@@ -1617,7 +1640,6 @@
         navigator.clipboard.writeText(copyText);
         showToast(`Copied ${copyText}`);
     };
-    // Unit converter advanced
     const unitDefs = {
         length: { units: ['mm','cm','m','km','in','ft','yd','mi'], conv: { mm:0.001, cm:0.01, m:1, km:1000, in:0.0254, ft:0.3048, yd:0.9144, mi:1609.344 } },
         mass: { units: ['mg','g','kg','oz','lb','t'], conv: { mg:0.000001, g:0.001, kg:1, oz:0.0283495, lb:0.453592, t:1000 } },
@@ -1662,14 +1684,12 @@
             document.getElementById('unitOut').innerHTML = `${val} ${from} = ${result.toFixed(6)} ${to}`;
         }
     };
-    // Stopwatch with laps
     let swRunning=false, swStartTime=0, swElapsed=0, swInterval=null;
     let laps=[];
     window.startSW = function() { if(swRunning) return; swRunning=true; swStartTime=Date.now()-swElapsed; swInterval=setInterval(()=>{ swElapsed=Date.now()-swStartTime; let ms=swElapsed%1000; let sec=Math.floor(swElapsed/1000)%60; let min=Math.floor(swElapsed/60000)%60; let hr=Math.floor(swElapsed/3600000); document.getElementById('swTime').innerText = `${hr.toString().padStart(2,'0')}:${min.toString().padStart(2,'0')}:${sec.toString().padStart(2,'0')}.${Math.floor(ms/10).toString().padStart(2,'0')}`; },10); };
     window.pauseSW = function() { if(swRunning) { clearInterval(swInterval); swRunning=false; } };
     window.resetSW = function() { clearInterval(swInterval); swRunning=false; swElapsed=0; laps=[]; document.getElementById('swTime').innerText='00:00:00.00'; document.getElementById('lapList').innerHTML=''; };
     window.recordLap = function() { if(!swRunning && swElapsed===0) return; let lapTime = document.getElementById('swTime').innerText; laps.push(lapTime); let ul = document.getElementById('lapList'); ul.innerHTML = laps.map((l,i)=>`<li>Lap ${i+1}: ${l}</li>`).join(''); };
-    // QR advanced
     window.genQRAdvanced = function() {
         let text = document.getElementById('qrText').value;
         if(!text) { showToast('Enter text or URL'); return; }
@@ -1680,7 +1700,6 @@
         let url = `https://api.qrserver.com/v1/create-qr-code/?size=${size}x${size}&data=${encodeURIComponent(text)}&ecc=${ec}&color=${fg}&bgcolor=${bg}`;
         document.getElementById('qrImg').innerHTML = `<img src="${url}" style="max-width:100%"> <br><a href="${url}" download="qrcode.png" class="tool-btn">Download PNG</a>`;
     };
-    // BMI advanced
     window.toggleBMIUnits = function() {
         let unit = document.getElementById('bmiUnit').value;
         document.getElementById('bmiMetricDiv').style.display = unit==='metric'?'block':'none';
@@ -1706,7 +1725,6 @@
         let category = bmi<18.5?'Underweight':bmi<25?'Normal':bmi<30?'Overweight':'Obese';
         document.getElementById('bmiOut').innerHTML = `BMI: ${bmi.toFixed(1)} (${category})<br>Healthy weight range: ${(18.5*heightM*heightM).toFixed(1)} - ${(24.9*heightM*heightM).toFixed(1)} kg`;
     };
-    // Random advanced
     window.genRandomAdvanced = function() {
         let min = parseFloat(document.getElementById('randMin').value);
         let max = parseFloat(document.getElementById('randMax').value);
@@ -1735,12 +1753,12 @@
         if(sort) results.sort((a,b)=>parseFloat(a)-parseFloat(b));
         document.getElementById('randOut').innerHTML = results.join(', ');
     };
-    // Countdown advanced
-    let cdTotalSeconds=0, cdIntervalObj=null, cdRunning=false;
+    window.pauseCD = function() { if(cdIntervalObj) { clearInterval(cdIntervalObj); cdRunning=false; } };
     window.setPresetCD = function(seconds) {
         document.getElementById('cdMinutes').value = Math.floor(seconds/60);
         document.getElementById('cdSecondsInput').value = seconds%60;
     };
+    let cdTotalSeconds=0, cdIntervalObj=null, cdRunning=false;
     window.startCDAdvanced = function() {
         if(cdRunning) return;
         let min = parseInt(document.getElementById('cdMinutes').value)||0;
@@ -1769,7 +1787,6 @@
         document.getElementById('cdMinutes').value='0';
         document.getElementById('cdSecondsInput').value='60';
     };
-    // Date diff advanced
     window.diffDatesAdvanced = function() {
         let d1 = new Date(document.getElementById('date1').value);
         let d2 = new Date(document.getElementById('date2').value);
@@ -1780,7 +1797,8 @@
         let diffMinutes = Math.floor((diffMs%3600000)/60000);
         document.getElementById('dateOut').innerHTML = `${diffDays} days, ${diffHours} hours, ${diffMinutes} minutes. Weekdays: ${Math.floor(diffDays/7)} weeks + ${diffDays%7} days`;
     };
-    // Base64 file
+    window.b64Encode = function() { let txt = document.getElementById('b64Text').value; document.getElementById('b64Out').innerHTML = btoa(txt); };
+    window.b64Decode = function() { let txt = document.getElementById('b64Text').value; try { document.getElementById('b64Out').innerHTML = atob(txt); } catch(e) { document.getElementById('b64Out').innerHTML = 'Invalid Base64'; } };
     window.fileToBase64 = function() {
         let file = document.getElementById('b64File').files[0];
         if(!file) { showToast('Select a file'); return; }
@@ -1799,16 +1817,18 @@
         link.download = 'decoded_file.bin';
         link.click();
     };
-    // URL encode advanced
+    window.urlEnc = function() { document.getElementById('urlOut').innerText = encodeURIComponent(document.getElementById('urlText').value); };
+    window.urlDec = function() { document.getElementById('urlOut').innerText = decodeURIComponent(document.getElementById('urlText').value); };
     window.urlEncFull = function() { document.getElementById('urlOut').innerText = encodeURI(document.getElementById('urlText').value); };
-    // JSON minify & validate
+    window.formatJSON = function() {
+        try { let obj = JSON.parse(document.getElementById('jsonIn').value); document.getElementById('jsonOut').innerHTML = JSON.stringify(obj, null, 2); } catch(e) { document.getElementById('jsonOut').innerHTML = 'Invalid JSON'; }
+    };
     window.minifyJSON = function() {
         try { let obj = JSON.parse(document.getElementById('jsonIn').value); document.getElementById('jsonOut').innerText = JSON.stringify(obj); } catch(e) { document.getElementById('jsonOut').innerHTML = 'Invalid JSON'; }
     };
     window.validateJSON = function() {
         try { JSON.parse(document.getElementById('jsonIn').value); document.getElementById('jsonOut').innerHTML = '✅ Valid JSON'; } catch(e) { document.getElementById('jsonOut').innerHTML = '❌ Invalid JSON: '+e.message; }
     };
-    // Lorem advanced
     window.genLoremAdvanced = function() {
         let type = document.getElementById('loremType').value;
         let count = parseInt(document.getElementById('loremCount').value);
@@ -1822,7 +1842,6 @@
         if(html) result = `<p>${result.replace(/\n/g,'</p><p>')}</p>`;
         document.getElementById('loremOut').innerHTML = result;
     };
-    // Currency live rates - ALL WORLD CURRENCIES
     const currencyList = [
         "AED","AFN","ALL","AMD","ANG","AOA","ARS","AUD","AWG","AZN","BAM","BBD","BDT","BGN","BHD","BIF","BMD","BND","BOB","BRL","BSD","BTN","BWP","BYN","BZD","CAD","CDF","CHF","CLP","CNY","COP","CRC","CUP","CVE","CZK","DJF","DKK","DOP","DZD","EGP","ERN","ETB","EUR","FJD","FKP","FOK","GBP","GEL","GGP","GHS","GIP","GMD","GNF","GTQ","GYD","HKD","HNL","HRK","HTG","HUF","IDR","ILS","IMP","INR","IQD","IRR","ISK","JEP","JMD","JOD","JPY","KES","KGS","KHR","KID","KMF","KRW","KWD","KYD","KZT","LAK","LBP","LKR","LRD","LSL","LYD","MAD","MDL","MGA","MKD","MMK","MNT","MOP","MRU","MUR","MVR","MWK","MXN","MYR","MZN","NAD","NGN","NIO","NOK","NPR","NZD","OMR","PAB","PEN","PGK","PHP","PKR","PLN","PYG","QAR","RON","RSD","RUB","RWF","SAR","SBD","SCR","SDG","SEK","SGD","SHP","SLE","SLL","SOS","SRD","SSP","STN","SYP","SZL","THB","TJS","TMT","TND","TOP","TRY","TTD","TVD","TWD","TZS","UAH","UGX","USD","UYU","UZS","VES","VND","VUV","WST","XAF","XCD","XDR","XOF","XPF","YER","ZAR","ZMW","ZWL"
     ];
@@ -1843,11 +1862,20 @@
             let res = await fetch(`https://api.exchangerate-api.com/v4/latest/${from}`);
             let data = await res.json();
             let rate = data.rates[to];
-            if(rate) document.getElementById('currOut').innerHTML = `${amt} ${from} = ${(amt*rate).toFixed(2)} ${to}`;
-            else document.getElementById('currOut').innerHTML = 'Rate not available';
+            if(rate) {
+                let converted = (amt * rate).toFixed(2);
+                document.getElementById('currOut').innerHTML = `${amt} ${from} = ${converted} ${to}<br><strong>Exchange Rate:</strong> 1 ${from} = ${rate.toFixed(4)} ${to}`;
+            } else {
+                document.getElementById('currOut').innerHTML = 'Rate not available';
+            }
         } catch(e) { document.getElementById('currOut').innerHTML = 'Error fetching rates'; }
     };
-    // Percentage advanced
+    window.calcPercent = function() {
+        let val = parseFloat(document.getElementById('percVal').value);
+        let per = parseFloat(document.getElementById('percPer').value);
+        if(isNaN(val)||isNaN(per)) { showToast('Enter numbers'); return; }
+        document.getElementById('percOut').innerHTML = `${per}% of ${val} = ${(val*per/100).toFixed(2)}`;
+    };
     window.showPercentType = function(type) {
         let panel = document.getElementById('percentPanel');
         if(type==='percent') panel.innerHTML = `<input id="percVal" placeholder="Value" class="search-input"><input id="percPer" placeholder="Percent" class="search-input"><button class="tool-btn" onclick="calcPercent()">Calculate</button>`;
@@ -1867,7 +1895,6 @@
         if(isNaN(part)||isNaN(whole)||whole===0) { showToast('Invalid input'); return; }
         document.getElementById('percOut').innerHTML = `${(part/whole*100).toFixed(2)}%`;
     };
-    // Age advanced
     window.calcAgeAdvanced = function() {
         let dob = new Date(document.getElementById('dob').value);
         let today = new Date();
@@ -1881,7 +1908,6 @@
         let daysToNext = Math.ceil((nextBD-today)/86400000);
         document.getElementById('ageOut').innerHTML = `${years} years, ${months} months, ${days} days.<br>Next birthday in ${daysToNext} days.`;
     };
-    // Bases converter
     window.convertAllBases = function() {
         let input = document.getElementById('binVal').value.trim();
         let num = parseInt(input);
@@ -1890,7 +1916,6 @@
         if(isNaN(num)) { showToast('Invalid number'); return; }
         document.getElementById('binhexOut').innerHTML = `Decimal: ${num}<br>Binary: ${num.toString(2)}<br>Hex: ${num.toString(16).toUpperCase()}<br>Octal: ${num.toString(8)}`;
     };
-    // Roman advanced
     window.convertRomanAdvanced = function() {
         let input = document.getElementById('romanNum').value.trim().toUpperCase();
         let romanRegex = /^[IVXLCDM]+$/;
@@ -1906,7 +1931,6 @@
     };
     function intToRoman(num) { const map = { M:1000, CM:900, D:500, CD:400, C:100, XC:90, L:50, XL:40, X:10, IX:9, V:5, IV:4, I:1 }; let res=''; for(let key in map) { while(num>=map[key]) { res+=key; num-=map[key]; } } return res; }
     function romanToInt(s) { const map = { I:1, V:5, X:10, L:50, C:100, D:500, M:1000 }; let total=0; for(let i=0;i<s.length;i++) { let curr=map[s[i]], next=map[s[i+1]]; if(next && curr<next) total-=curr; else total+=curr; } return total; }
-    // Tip advanced
     window.calcTipAdvanced = function() {
         let bill = parseFloat(document.getElementById('billAmt').value);
         let tipP = parseFloat(document.getElementById('tipPct').value);
@@ -1917,7 +1941,6 @@
         let perPerson = total/split;
         document.getElementById('tipOut').innerHTML = `Tip: $${tip.toFixed(2)}<br>Total: $${total.toFixed(2)}<br>Each person (${split}): $${perPerson.toFixed(2)}`;
     };
-    // World clock with filter
     let worldClock24h = true;
     window.toggleWorldClockFormat = function() { worldClock24h = !worldClock24h; refreshWorldClock(); };
     window.refreshWorldClock = function() {
@@ -1940,7 +1963,6 @@
         container.innerHTML = html;
     };
     window.filterWorldClock = function() { refreshWorldClock(); };
-    // Dice multiple
     window.rollMultipleDice = function() {
         let count = parseInt(document.getElementById('diceCount').value);
         let sides = parseInt(document.getElementById('diceSidesSelect').value);
@@ -1949,7 +1971,6 @@
         for(let i=0;i<count;i++) { let r = Math.floor(Math.random()*sides)+1; results.push(r); sum+=r; }
         document.getElementById('diceOut').innerHTML = `🎲 ${results.join(', ')}  (Sum: ${sum})`;
     };
-    // Coin flip streak
     let streak=0, lastResult='';
     window.flipCoinAdvanced = function() {
         let result = Math.random()<0.5?'Heads':'Tails';
@@ -1959,7 +1980,6 @@
         document.getElementById('coinOut').innerHTML = `🪙 ${result}`;
         document.getElementById('coinStreak').innerHTML = streak;
     };
-    // Joke with categories
     window.fetchNewJokeAdvanced = async function() {
         let category = document.getElementById('jokeCategory').value;
         let safe = document.getElementById('safeMode').checked?'&safe-mode': '';
@@ -1973,16 +1993,13 @@
             outDiv.innerHTML = joke;
         } catch(e) { outDiv.innerHTML = 'Failed to fetch joke'; }
     };
-    // IP advanced - FIXED AND FULLY WORKING (real data)
     window.getIPAdvanced = async function() {
         let out = document.getElementById('ipOut');
         out.innerHTML = '<span>🔍 Fetching your IP and location...</span>';
         try {
-            // Fetch public IP using ipify (HTTPS)
             let ipRes = await fetch('https://api.ipify.org?format=json');
             let ipData = await ipRes.json();
             let ip = ipData.ip;
-            // Fetch detailed geolocation via ip-api.com (HTTPS, CORS enabled)
             let geoRes = await fetch(`https://ip-api.com/json/${ip}?fields=status,country,regionName,city,zip,lat,lon,isp,org,as,timezone,query`);
             let geo = await geoRes.json();
             if(geo.status === 'success') {
@@ -2006,7 +2023,6 @@
             console.error(err);
         }
     };
-    // ==================== End of enhanced functions ====================
     document.getElementById('globalSearch').addEventListener('input',function(e){ let q=e.target.value.trim().toLowerCase(); if(q===''){ document.getElementById('searchResults').style.display='none'; return; } let filtered = fullToolsList.filter(t=>t.name.toLowerCase().includes(q)); let html = filtered.map(t=>`<div style="padding:16px;border-bottom:1px solid var(--border);cursor:pointer;font-size:1rem;" onclick="selectTool('${t.id}');document.getElementById('globalSearch').value='';document.getElementById('searchResults').style.display='none';">${t.icon} ${t.name}</div>`).join(''); if(!html){ html = `<div style="padding:20px;text-align:center;"><div>No tools found for "<strong>${q}</strong>"</div><button class="tool-btn" style="margin-top:16px;" onclick="searchGoogle('${q}')">🔍 Search Google for "${q} free online"</button></div>`; } document.getElementById('searchResults').innerHTML=html; document.getElementById('searchResults').style.display='block'; });
     window.searchGoogle = function(query){ window.open(`https://www.google.com/search?q=${encodeURIComponent(query + ' free online')}`, '_blank'); document.getElementById('globalSearch').value = ''; document.getElementById('searchResults').style.display = 'none'; };
     document.addEventListener('click',(e)=>{ if(!e.target.closest('.search-container')) document.getElementById('searchResults').style.display='none'; });
@@ -2135,7 +2151,7 @@ const moviesSeries = [
     { name: 'Kanopy', icon: '🎥', url: 'https://www.kanopy.com', cat: 'Free Movies' },
     { name: 'Tubi', icon: '📺', url: 'https://tubitv.com', cat: 'Free Movies/TV' },
     { name: 'Pluto TV', icon: '🪐', url: 'https://pluto.tv', cat: 'Live TV' },
-    { name: 'Crackle', icon: '💎', url: 'https://www.crackle.com', cat: 'Free Movies' },
+    { name: 'Crackle', icon: '💎', url: 'https://www.crackle.com.in', cat: 'Free Movies' },
     { name: 'Vudu Free', icon: '💿', url: 'https://www.vudu.com/content/movies/featured/free', cat: 'Free Movies' }
 ];
 document.getElementById('moviesSeriesGrid').innerHTML = moviesSeries.map(s => `<div class="category-card" onclick="window.open('${s.url}', '_blank');"><div style="font-size:2.6rem;">${s.icon}</div><div style="font-weight:700;">${s.name}</div><div style="font-size:0.8rem;">${s.cat}</div></div>`).join('');
