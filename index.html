@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title data-i18n="app_name">Procreate+ Studio 3D</title>
+    <title data-i18n="app_name">Procreate+ Studio 360°</title>
     <style>
+        /* All CSS unchanged – same as before, just a tweak to button label */
         :root {
             --bg: #121212;
             --surface: #1e1e1e;
@@ -167,7 +168,7 @@
             <button id="loadDraftBtn"><span>📂</span> <span data-i18n="load_draft">Load Draft</span></button>
             <button id="uploadBtn"><span>📁</span> <span data-i18n="upload">Upload</span></button>
             <input type="file" id="uploadInput" accept="image/*, .svg, .pdf">
-            <button id="toggle3D" class="accent"><span>🌐</span> 3D Mode</button>
+            <button id="toggle3D" class="accent"><span>🌐</span> 360° / 3D</button>
             <div class="dropdown" style="position:relative;">
                 <button id="downloadBtn"><span>⬇️</span> <span data-i18n="download">Download</span></button>
                 <div id="downloadMenu" style="display:none; position:absolute; top:100%; left:0; background:var(--surface2); border-radius:12px; padding:8px; flex-direction:column; gap:4px; z-index:20;">
@@ -496,7 +497,6 @@ function drawShapePreview() {
 function startDraw(e) {
     e.preventDefault();
     if (is3D && (currentTool === 'brush' || currentTool === 'eraser')) {
-        // 3D painting via raycast
         const rect = renderer3D.domElement.getBoundingClientRect();
         const x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
         const y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
@@ -509,12 +509,11 @@ function startDraw(e) {
             saveSnapshot();
             lastX = uv.x * mainCanvas.width;
             lastY = (1 - uv.y) * mainCanvas.height;
-            // paint initial dot
             paintOnLayer(lastX, lastY);
         }
         return;
     }
-    if (is3D) return; // other tools not supported in 3D mode
+    if (is3D) return;
     const pos = getPos(e);
     startX = pos.x; startY = pos.y;
     lastX = pos.x; lastY = pos.y;
@@ -555,7 +554,6 @@ function draw(e) {
     if (!isDrawing) return;
     e.preventDefault();
     if (is3D) {
-        // 3D painting continuous
         const rect = renderer3D.domElement.getBoundingClientRect();
         const x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
         const y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
@@ -710,9 +708,7 @@ function animate3D() {
 }
 
 function update3DTexture() {
-    if (texture3D) {
-        texture3D.needsUpdate = true;
-    }
+    if (texture3D) texture3D.needsUpdate = true;
 }
 
 function enable3D() {
@@ -729,7 +725,7 @@ function enable3D() {
     }
     toggle3DBtn.classList.add('active');
     toggle3DBtn.innerHTML = '<span>🌐</span> 2D Mode';
-    compositeLayers(); // ensure texture is fresh
+    compositeLayers();
 }
 
 function disable3D() {
@@ -738,15 +734,12 @@ function disable3D() {
     previewCanvas.style.display = 'block';
     threeContainer.style.display = 'none';
     toggle3DBtn.classList.remove('active');
-    toggle3DBtn.innerHTML = '<span>🌐</span> 3D Mode';
+    toggle3DBtn.innerHTML = '<span>🌐</span> 360° / 3D';
 }
 
 toggle3DBtn.addEventListener('click', () => {
-    if (is3D) {
-        disable3D();
-    } else {
-        enable3D();
-    }
+    if (is3D) disable3D();
+    else enable3D();
 });
 
 // ---------- Upload ----------
