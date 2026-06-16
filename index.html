@@ -3,66 +3,97 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Procreate-Style Drawing App</title>
+    <title>Procreate Clone (HTML)</title>
     <style>
+        :root {
+            --bg: #1c1c1e;
+            --surface: #2c2c2e;
+            --slider-track: #3a3a3c;
+            --text: #f0f0f0;
+            --accent: #0a84ff;
+            --red: #ff453a;
+            --yellow: #ffd60a;
+        }
+
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
+
         body {
-            background: #1e1e1e;
+            background: #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            touch-action: none;
+            user-select: none;
+        }
+
+        .procreate-app {
+            width: 100vw;
+            height: 100vh;
+            max-width: 1200px;
+            max-height: 800px;
+            background: var(--bg);
             display: flex;
             flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
+            border-radius: 12px;
             overflow: hidden;
-            font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
-            touch-action: none;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.8);
         }
-        .toolbar {
+
+        /* Top Toolbar */
+        .top-toolbar {
             display: flex;
             align-items: center;
-            gap: 12px;
-            padding: 10px 16px;
-            background: #2c2c2e;
-            border-radius: 16px;
-            margin-bottom: 10px;
+            padding: 12px 16px;
+            background: var(--surface);
+            gap: 16px;
             flex-wrap: wrap;
-            justify-content: center;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+            border-bottom: 1px solid #3a3a3c;
         }
+
+        .tool-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
         .tool-btn {
             background: #3a3a3c;
             border: none;
-            color: #fff;
-            padding: 10px 16px;
-            border-radius: 20px;
+            color: var(--text);
+            padding: 8px 14px;
+            border-radius: 18px;
             font-size: 14px;
-            font-weight: 600;
+            font-weight: 500;
             cursor: pointer;
             display: flex;
             align-items: center;
-            gap: 6px;
-            transition: background 0.2s;
+            gap: 4px;
             white-space: nowrap;
+            transition: background 0.2s;
         }
+
         .tool-btn:active {
             background: #5a5a5c;
         }
+
         .tool-btn.active {
-            background: #0a84ff;
+            background: var(--accent);
         }
+
         input[type="color"] {
-            width: 38px;
-            height: 38px;
+            width: 36px;
+            height: 36px;
             border: 2px solid #555;
             border-radius: 50%;
             background: transparent;
             cursor: pointer;
             padding: 0;
-            -webkit-appearance: none;
         }
         input[type="color"]::-webkit-color-swatch-wrapper {
             padding: 0;
@@ -71,196 +102,471 @@
             border: none;
             border-radius: 50%;
         }
+
         input[type="range"] {
-            width: 80px;
-            accent-color: #0a84ff;
+            width: 90px;
+            accent-color: var(--accent);
         }
-        canvas {
-            display: block;
-            background: #ffffff;
-            border-radius: 16px;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.6);
-            max-width: 95vw;
-            max-height: 70vh;
-            touch-action: none;
-        }
-        .status {
+
+        .size-value, .opacity-value {
             color: #aaa;
-            margin-top: 8px;
-            font-size: 13px;
+            font-size: 12px;
+            min-width: 24px;
+            text-align: center;
         }
-        @media (max-width: 500px) {
-            .tool-btn {
-                padding: 8px 12px;
-                font-size: 12px;
+
+        /* Canvas Area */
+        .canvas-wrapper {
+            flex: 1;
+            display: flex;
+            background: #2c2c2e;
+            position: relative;
+            overflow: hidden;
+        }
+
+        canvas {
+            background: white;
+            margin: auto;
+            border-radius: 4px;
+            box-shadow: 0 0 30px rgba(0,0,0,0.5);
+            touch-action: none;
+            max-width: 100%;
+            max-height: 100%;
+        }
+
+        /* Layers Sidebar */
+        .layers-panel {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            width: 180px;
+            background: rgba(30,30,30,0.92);
+            backdrop-filter: blur(20px);
+            border-radius: 12px;
+            padding: 12px;
+            color: var(--text);
+            font-size: 13px;
+            display: none;
+            flex-direction: column;
+            gap: 6px;
+            border: 1px solid #3a3a3c;
+            z-index: 10;
+        }
+
+        .layers-panel.visible {
+            display: flex;
+        }
+
+        .layer-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #3a3a3c;
+            padding: 6px 10px;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .layer-item.active-layer {
+            background: var(--accent);
+        }
+
+        .layer-actions {
+            display: flex;
+            gap: 6px;
+            margin-top: 8px;
+        }
+
+        .layer-btn {
+            background: #3a3a3c;
+            border: none;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            cursor: pointer;
+        }
+
+        .layer-btn:active {
+            background: #5a5a5c;
+        }
+
+        /* Bottom bar */
+        .bottom-bar {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 10px;
+            background: var(--surface);
+            gap: 16px;
+            border-top: 1px solid #3a3a3c;
+        }
+
+        @media (max-width: 600px) {
+            .top-toolbar {
+                gap: 8px;
             }
-            .toolbar {
-                gap: 6px;
-                padding: 8px 10px;
+            .layers-panel {
+                width: 140px;
             }
         }
     </style>
 </head>
 <body>
-    <div class="toolbar">
-        <input type="color" id="colorPicker" value="#000000" title="Color">
-        <input type="range" id="brushSize" min="1" max="30" value="5" title="Brush size">
-        <button class="tool-btn" id="undoBtn">↩ Undo</button>
-        <button class="tool-btn" id="clearBtn">🗑 Clear</button>
-        <button class="tool-btn" id="saveBtn">💾 Save</button>
+    <div class="procreate-app">
+        <!-- Top toolbar -->
+        <div class="top-toolbar">
+            <div class="tool-group">
+                <button class="tool-btn active" id="brushTool">🖌️ Brush</button>
+                <button class="tool-btn" id="eraserTool">🧽 Eraser</button>
+            </div>
+            <div class="tool-group">
+                <label style="color:#aaa; font-size:12px;">Size</label>
+                <input type="range" id="brushSize" min="1" max="50" value="12">
+                <span class="size-value">12</span>
+            </div>
+            <div class="tool-group">
+                <label style="color:#aaa; font-size:12px;">Opacity</label>
+                <input type="range" id="brushOpacity" min="0.1" max="1" step="0.1" value="1">
+                <span class="opacity-value">100%</span>
+            </div>
+            <input type="color" id="colorPicker" value="#000000" title="Color">
+            <button class="tool-btn" id="layersToggle">📑 Layers</button>
+        </div>
+
+        <!-- Canvas + Layers panel -->
+        <div class="canvas-wrapper">
+            <canvas id="drawCanvas"></canvas>
+            <div class="layers-panel" id="layersPanel">
+                <div style="font-weight:500; margin-bottom:4px;">Layers</div>
+                <div id="layerList"></div>
+                <div class="layer-actions">
+                    <button class="layer-btn" id="addLayer">+ Layer</button>
+                    <button class="layer-btn" id="deleteLayer">Delete</button>
+                    <button class="layer-btn" id="mergeDown">Merge ↓</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bottom bar -->
+        <div class="bottom-bar">
+            <button class="tool-btn" id="undoBtn">↩ Undo</button>
+            <button class="tool-btn" id="redoBtn">↪ Redo</button>
+            <button class="tool-btn" id="clearBtn">🗑 Clear</button>
+            <button class="tool-btn" id="saveBtn">💾 Save</button>
+        </div>
     </div>
 
-    <canvas id="drawCanvas"></canvas>
-    <div class="status">Procreate-style sketch app • Works on Android</div>
-
     <script>
-        const canvas = document.getElementById('drawCanvas');
-        const ctx = canvas.getContext('2d');
+        (function() {
+            const canvas = document.getElementById('drawCanvas');
+            const ctx = canvas.getContext('2d');
+            const brushSizeInput = document.getElementById('brushSize');
+            const brushOpacityInput = document.getElementById('brushOpacity');
+            const colorPicker = document.getElementById('colorPicker');
+            const brushTool = document.getElementById('brushTool');
+            const eraserTool = document.getElementById('eraserTool');
+            const layersToggle = document.getElementById('layersToggle');
+            const layersPanel = document.getElementById('layersPanel');
+            const layerListDiv = document.getElementById('layerList');
+            const addLayerBtn = document.getElementById('addLayer');
+            const deleteLayerBtn = document.getElementById('deleteLayer');
+            const mergeDownBtn = document.getElementById('mergeDown');
+            const undoBtn = document.getElementById('undoBtn');
+            const redoBtn = document.getElementById('redoBtn');
+            const clearBtn = document.getElementById('clearBtn');
+            const saveBtn = document.getElementById('saveBtn');
+            const sizeValue = document.querySelector('.size-value');
+            const opacityValue = document.querySelector('.opacity-value');
 
-        // Set canvas size
-        function resizeCanvas() {
-            const maxWidth = window.innerWidth * 0.95;
-            const maxHeight = window.innerHeight * 0.65;
-            canvas.width = Math.min(800, maxWidth);
-            canvas.height = Math.min(500, maxHeight);
-            // Keep white background
-            ctx.fillStyle = '#ffffff';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-            // Restore last image if any (for undo stack)
-            if (undoStack.length > 0) {
-                let img = new Image();
-                img.onload = () => {
-                    ctx.drawImage(img, 0, 0);
-                };
-                img.src = undoStack[undoStack.length - 1];
-            }
-        }
-        window.addEventListener('resize', resizeCanvas);
-        resizeCanvas();
+            // State
+            let brushSize = 12;
+            let brushOpacity = 1;
+            let currentColor = '#000000';
+            let isEraser = false;
+            let isDrawing = false;
+            let lastX = 0, lastY = 0;
 
-        // Drawing state
-        let isDrawing = false;
-        let lastX = 0, lastY = 0;
-        let currentColor = '#000000';
-        let currentBrushSize = 5;
+            // Layer system
+            let layers = [];
+            let activeLayerIndex = 0;
+            let undoStack = []; // per layer separate? For simplicity, global undo/redo with snapshot of all layers.
+            let redoStack = [];
+            const MAX_UNDO = 30;
 
-        // Undo stack (stores data URLs)
-        let undoStack = [];
-        const MAX_UNDO = 20;
-
-        function saveState() {
-            if (undoStack.length >= MAX_UNDO) {
-                undoStack.shift();
-            }
-            undoStack.push(canvas.toDataURL());
-        }
-
-        function undo() {
-            if (undoStack.length <= 1) {
-                // Clear to white
-                ctx.fillStyle = '#ffffff';
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
+            function initLayers() {
+                layers = [];
+                const initialCanvas = document.createElement('canvas');
+                initialCanvas.width = canvas.width;
+                initialCanvas.height = canvas.height;
+                const initCtx = initialCanvas.getContext('2d');
+                initCtx.fillStyle = '#ffffff';
+                initCtx.fillRect(0, 0, initialCanvas.width, initialCanvas.height);
+                layers.push(initialCanvas);
+                activeLayerIndex = 0;
                 undoStack = [];
-                saveState(); // save blank state
-                return;
+                redoStack = [];
+                saveState();
+                renderLayerList();
+                compositeLayers();
             }
-            undoStack.pop(); // remove current
-            let img = new Image();
-            img.onload = () => {
+
+            function getActiveLayer() {
+                return layers[activeLayerIndex];
+            }
+
+            function saveState() {
+                // Save a snapshot of all layers as an array of data URLs
+                const snapshot = layers.map(layer => layer.toDataURL());
+                undoStack.push(snapshot);
+                if (undoStack.length > MAX_UNDO) undoStack.shift();
+                redoStack = []; // new action clears redo
+            }
+
+            function undo() {
+                if (undoStack.length <= 1) return;
+                redoStack.push(undoStack.pop()); // move current to redo
+                const snapshot = undoStack[undoStack.length - 1];
+                restoreFromSnapshot(snapshot);
+                renderLayerList();
+                compositeLayers();
+            }
+
+            function redo() {
+                if (redoStack.length === 0) return;
+                const snapshot = redoStack.pop();
+                undoStack.push(snapshot);
+                restoreFromSnapshot(snapshot);
+                renderLayerList();
+                compositeLayers();
+            }
+
+            function restoreFromSnapshot(snapshot) {
+                layers = [];
+                snapshot.forEach((dataURL, index) => {
+                    const img = new Image();
+                    img.onload = () => {
+                        const layerCanvas = document.createElement('canvas');
+                        layerCanvas.width = canvas.width;
+                        layerCanvas.height = canvas.height;
+                        const lctx = layerCanvas.getContext('2d');
+                        lctx.drawImage(img, 0, 0);
+                        layers[index] = layerCanvas;
+                        if (index === snapshot.length - 1) {
+                            compositeLayers();
+                            renderLayerList();
+                        }
+                    };
+                    img.src = dataURL;
+                });
+                if (activeLayerIndex >= layers.length) activeLayerIndex = layers.length - 1;
+            }
+
+            function compositeLayers() {
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
-                ctx.drawImage(img, 0, 0);
-            };
-            img.src = undoStack[undoStack.length - 1];
-        }
-
-        function startDraw(e) {
-            e.preventDefault();
-            const pos = getEventPos(e);
-            isDrawing = true;
-            lastX = pos.x;
-            lastY = pos.y;
-            saveState(); // save before starting a new stroke
-            ctx.beginPath();
-            ctx.moveTo(lastX, lastY);
-        }
-
-        function draw(e) {
-            if (!isDrawing) return;
-            e.preventDefault();
-            const pos = getEventPos(e);
-            ctx.strokeStyle = currentColor;
-            ctx.lineWidth = currentBrushSize;
-            ctx.lineCap = 'round';
-            ctx.lineJoin = 'round';
-            ctx.beginPath();
-            ctx.moveTo(lastX, lastY);
-            ctx.lineTo(pos.x, pos.y);
-            ctx.stroke();
-            lastX = pos.x;
-            lastY = pos.y;
-        }
-
-        function endDraw(e) {
-            if (!isDrawing) return;
-            isDrawing = false;
-            ctx.closePath();
-            // state already saved at start, so this stroke is complete
-        }
-
-        function getEventPos(e) {
-            const rect = canvas.getBoundingClientRect();
-            const scaleX = canvas.width / rect.width;   // canvas physical pixels
-            const scaleY = canvas.height / rect.height;
-            let clientX, clientY;
-
-            if (e.touches) {
-                clientX = e.touches[0].clientX;
-                clientY = e.touches[0].clientY;
-            } else {
-                clientX = e.clientX;
-                clientY = e.clientY;
+                layers.forEach(layer => {
+                    ctx.drawImage(layer, 0, 0);
+                });
             }
 
-            return {
-                x: (clientX - rect.left) * scaleX,
-                y: (clientY - rect.top) * scaleY
-            };
-        }
+            function renderLayerList() {
+                layerListDiv.innerHTML = '';
+                layers.forEach((layer, i) => {
+                    const div = document.createElement('div');
+                    div.className = 'layer-item' + (i === activeLayerIndex ? ' active-layer' : '');
+                    div.textContent = `Layer ${i+1}`;
+                    div.addEventListener('click', () => {
+                        activeLayerIndex = i;
+                        renderLayerList();
+                    });
+                    layerListDiv.appendChild(div);
+                });
+            }
 
-        // Event listeners
-        canvas.addEventListener('mousedown', startDraw);
-        canvas.addEventListener('mousemove', draw);
-        canvas.addEventListener('mouseup', endDraw);
-        canvas.addEventListener('mouseout', endDraw);
+            // Canvas sizing
+            function resizeCanvas() {
+                const wrapper = document.querySelector('.canvas-wrapper');
+                const w = wrapper.clientWidth - 40;
+                const h = wrapper.clientHeight - 40;
+                canvas.width = Math.min(1000, w);
+                canvas.height = Math.min(700, h);
+                // Reinitialize layers only if canvas size changed drastically; for simplicity, reload.
+                if (layers.length === 0 || layers[0].width !== canvas.width || layers[0].height !== canvas.height) {
+                    initLayers();
+                } else {
+                    compositeLayers();
+                }
+            }
+            window.addEventListener('resize', resizeCanvas);
+            resizeCanvas();
 
-        canvas.addEventListener('touchstart', startDraw, { passive: false });
-        canvas.addEventListener('touchmove', draw, { passive: false });
-        canvas.addEventListener('touchend', endDraw);
-        canvas.addEventListener('touchcancel', endDraw);
+            // Drawing functions
+            function getPos(e) {
+                const rect = canvas.getBoundingClientRect();
+                const scaleX = canvas.width / rect.width;
+                const scaleY = canvas.height / rect.height;
+                let clientX, clientY;
+                if (e.touches) {
+                    clientX = e.touches[0].clientX;
+                    clientY = e.touches[0].clientY;
+                } else {
+                    clientX = e.clientX;
+                    clientY = e.clientY;
+                }
+                return {
+                    x: (clientX - rect.left) * scaleX,
+                    y: (clientY - rect.top) * scaleY
+                };
+            }
 
-        // UI controls
-        document.getElementById('colorPicker').addEventListener('input', (e) => {
-            currentColor = e.target.value;
-        });
-        document.getElementById('brushSize').addEventListener('input', (e) => {
-            currentBrushSize = e.target.value;
-        });
-        document.getElementById('undoBtn').addEventListener('click', undo);
-        document.getElementById('clearBtn').addEventListener('click', () => {
-            ctx.fillStyle = '#ffffff';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-            undoStack = [];
-            saveState();
-        });
-        document.getElementById('saveBtn').addEventListener('click', () => {
-            const link = document.createElement('a');
-            link.download = 'procreate-sketch.png';
-            link.href = canvas.toDataURL('image/png');
-            link.click();
-        });
+            function startDraw(e) {
+                e.preventDefault();
+                const pos = getPos(e);
+                isDrawing = true;
+                lastX = pos.x;
+                lastY = pos.y;
+                saveState();
+                const layer = getActiveLayer();
+                const lctx = layer.getContext('2d');
+                lctx.beginPath();
+                lctx.moveTo(lastX, lastY);
+            }
 
-        // Initial blank state
-        saveState();
+            function draw(e) {
+                if (!isDrawing) return;
+                e.preventDefault();
+                const pos = getPos(e);
+                const layer = getActiveLayer();
+                const lctx = layer.getContext('2d');
+                lctx.lineWidth = brushSize;
+                lctx.lineCap = 'round';
+                lctx.lineJoin = 'round';
+                lctx.globalAlpha = brushOpacity;
+                if (isEraser) {
+                    lctx.globalCompositeOperation = 'destination-out';
+                } else {
+                    lctx.globalCompositeOperation = 'source-over';
+                    lctx.strokeStyle = currentColor;
+                }
+                lctx.beginPath();
+                lctx.moveTo(lastX, lastY);
+                lctx.lineTo(pos.x, pos.y);
+                lctx.stroke();
+                lastX = pos.x;
+                lastY = pos.y;
+                compositeLayers(); // show updated composite
+            }
+
+            function endDraw(e) {
+                if (!isDrawing) return;
+                isDrawing = false;
+                const layer = getActiveLayer();
+                const lctx = layer.getContext('2d');
+                lctx.closePath();
+                lctx.globalCompositeOperation = 'source-over';
+                lctx.globalAlpha = 1;
+                compositeLayers();
+            }
+
+            // Event listeners
+            canvas.addEventListener('mousedown', startDraw);
+            canvas.addEventListener('mousemove', draw);
+            canvas.addEventListener('mouseup', endDraw);
+            canvas.addEventListener('mouseleave', endDraw);
+            canvas.addEventListener('touchstart', startDraw, { passive: false });
+            canvas.addEventListener('touchmove', draw, { passive: false });
+            canvas.addEventListener('touchend', endDraw);
+            canvas.addEventListener('touchcancel', endDraw);
+
+            // UI controls
+            brushSizeInput.addEventListener('input', e => {
+                brushSize = parseInt(e.target.value);
+                sizeValue.textContent = brushSize;
+            });
+            brushOpacityInput.addEventListener('input', e => {
+                brushOpacity = parseFloat(e.target.value);
+                opacityValue.textContent = Math.round(brushOpacity * 100) + '%';
+            });
+            colorPicker.addEventListener('input', e => {
+                currentColor = e.target.value;
+                if (isEraser) {
+                    // switch back to brush when color changed
+                    isEraser = false;
+                    eraserTool.classList.remove('active');
+                    brushTool.classList.add('active');
+                }
+            });
+
+            brushTool.addEventListener('click', () => {
+                isEraser = false;
+                brushTool.classList.add('active');
+                eraserTool.classList.remove('active');
+            });
+            eraserTool.addEventListener('click', () => {
+                isEraser = true;
+                eraserTool.classList.add('active');
+                brushTool.classList.remove('active');
+            });
+
+            layersToggle.addEventListener('click', () => {
+                layersPanel.classList.toggle('visible');
+            });
+
+            addLayerBtn.addEventListener('click', () => {
+                const newLayer = document.createElement('canvas');
+                newLayer.width = canvas.width;
+                newLayer.height = canvas.height;
+                const nctx = newLayer.getContext('2d');
+                nctx.clearRect(0, 0, newLayer.width, newLayer.height); // transparent
+                saveState();
+                layers.push(newLayer);
+                activeLayerIndex = layers.length - 1;
+                renderLayerList();
+                compositeLayers();
+            });
+
+            deleteLayerBtn.addEventListener('click', () => {
+                if (layers.length <= 1) return;
+                saveState();
+                layers.splice(activeLayerIndex, 1);
+                if (activeLayerIndex >= layers.length) activeLayerIndex = layers.length - 1;
+                renderLayerList();
+                compositeLayers();
+            });
+
+            mergeDownBtn.addEventListener('click', () => {
+                if (activeLayerIndex === 0 || layers.length < 2) return;
+                saveState();
+                const upper = layers[activeLayerIndex];
+                const lower = layers[activeLayerIndex - 1];
+                lower.getContext('2d').drawImage(upper, 0, 0);
+                layers.splice(activeLayerIndex, 1);
+                activeLayerIndex--;
+                renderLayerList();
+                compositeLayers();
+            });
+
+            undoBtn.addEventListener('click', undo);
+            redoBtn.addEventListener('click', redo);
+            clearBtn.addEventListener('click', () => {
+                saveState();
+                layers.forEach(layer => {
+                    const lctx = layer.getContext('2d');
+                    lctx.clearRect(0, 0, layer.width, layer.height);
+                    if (layers.indexOf(layer) === 0) {
+                        lctx.fillStyle = '#ffffff';
+                        lctx.fillRect(0, 0, layer.width, layer.height);
+                    }
+                });
+                compositeLayers();
+            });
+            saveBtn.addEventListener('click', () => {
+                const link = document.createElement('a');
+                link.download = 'procreate-sketch.png';
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+            });
+        })();
     </script>
 </body>
 </html>
