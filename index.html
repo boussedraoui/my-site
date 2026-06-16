@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Procreate – Apps on Google Play (Mockup)</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Procreate-Style Drawing App</title>
     <style>
         * {
             margin: 0;
@@ -11,340 +11,256 @@
             box-sizing: border-box;
         }
         body {
-            font-family: 'Roboto', Arial, sans-serif;
-            background: #f1f3f4;
-            color: #202124;
-            max-width: 480px;
-            margin: 0 auto;
-            background: #ffffff;
-            box-shadow: 0 0 20px rgba(0,0,0,0.05);
-            min-height: 100vh;
-        }
-        /* Header */
-        .header {
+            background: #1e1e1e;
             display: flex;
-            align-items: center;
-            padding: 16px;
-            background: #fff;
-            border-bottom: 1px solid #dadce0;
-        }
-        .back-btn {
-            font-size: 24px;
-            margin-right: 16px;
-            color: #5f6368;
-            text-decoration: none;
-        }
-        .search-icon {
-            margin-left: auto;
-            font-size: 24px;
-            color: #5f6368;
-        }
-        /* Main content */
-        .app-icon-name {
-            display: flex;
-            align-items: center;
-            padding: 24px 16px 16px;
-        }
-        .app-icon {
-            width: 72px;
-            height: 72px;
-            border-radius: 16px;
-            background: linear-gradient(135deg, #2c2c2e 0%, #1c1c1e 100%);
-            display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
-            font-size: 36px;
-            color: white;
-            font-weight: bold;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-            margin-right: 20px;
-            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="50" fill="%231c1c1e"/><path d="M50 20 L60 40 L80 45 L65 55 L70 75 L50 65 L30 75 L35 55 L20 45 L40 40 Z" fill="none" stroke="white" stroke-width="3" stroke-linejoin="round"/><circle cx="45" cy="40" r="4" fill="white"/></svg>');
-            background-size: cover;
+            height: 100vh;
+            overflow: hidden;
+            font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
+            touch-action: none;
         }
-        .app-title {
-            font-size: 22px;
-            font-weight: 500;
-            margin-bottom: 4px;
-        }
-        .app-developer {
-            font-size: 14px;
-            color: #5f6368;
-        }
-        .app-developer a {
-            color: #1a73e8;
-            text-decoration: none;
-        }
-        /* Rating installs */
-        .stats {
+        .toolbar {
             display: flex;
             align-items: center;
-            padding: 0 16px 16px;
-            gap: 16px;
+            gap: 12px;
+            padding: 10px 16px;
+            background: #2c2c2e;
+            border-radius: 16px;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.4);
         }
-        .rating {
+        .tool-btn {
+            background: #3a3a3c;
+            border: none;
+            color: #fff;
+            padding: 10px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
             display: flex;
             align-items: center;
             gap: 6px;
+            transition: background 0.2s;
+            white-space: nowrap;
         }
-        .star {
-            color: #fbbc04;
-            font-size: 18px;
+        .tool-btn:active {
+            background: #5a5a5c;
         }
-        .rating-text {
-            font-size: 14px;
-            color: #5f6368;
+        .tool-btn.active {
+            background: #0a84ff;
         }
-        .installs {
-            font-size: 14px;
-            color: #5f6368;
+        input[type="color"] {
+            width: 38px;
+            height: 38px;
+            border: 2px solid #555;
+            border-radius: 50%;
+            background: transparent;
+            cursor: pointer;
+            padding: 0;
+            -webkit-appearance: none;
         }
-        /* Badges */
-        .badges {
-            display: flex;
-            gap: 8px;
-            padding: 0 16px 16px;
-            flex-wrap: wrap;
+        input[type="color"]::-webkit-color-swatch-wrapper {
+            padding: 0;
         }
-        .badge {
-            background: #e8f0fe;
-            color: #1967d2;
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 13px;
-            font-weight: 500;
-        }
-        /* Buttons */
-        .buttons {
-            display: flex;
-            gap: 12px;
-            padding: 0 16px 20px;
-        }
-        .install-btn {
-            background: #1a73e8;
-            color: white;
+        input[type="color"]::-webkit-color-swatch {
             border: none;
-            padding: 12px 24px;
-            border-radius: 24px;
-            font-size: 16px;
-            font-weight: 500;
-            flex: 1;
-            text-align: center;
-            text-decoration: none;
-            cursor: pointer;
+            border-radius: 50%;
         }
-        .wishlist-btn {
-            background: #fff;
-            border: 1px solid #dadce0;
-            color: #1a73e8;
-            padding: 12px 24px;
-            border-radius: 24px;
-            font-size: 16px;
-            font-weight: 500;
-            text-align: center;
+        input[type="range"] {
+            width: 80px;
+            accent-color: #0a84ff;
+        }
+        canvas {
+            display: block;
             background: #ffffff;
-            cursor: pointer;
+            border-radius: 16px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.6);
+            max-width: 95vw;
+            max-height: 70vh;
+            touch-action: none;
         }
-        /* Screenshots */
-        .screenshots {
-            padding: 16px;
-            overflow-x: auto;
-            display: flex;
-            gap: 12px;
-        }
-        .screenshot {
-            width: 160px;
-            height: 280px;
-            background: #f1f3f4;
-            border-radius: 12px;
-            flex-shrink: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #5f6368;
-            font-size: 14px;
-            background-image: linear-gradient(135deg, #d3e3fd, #e8d5e6);
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-        }
-        .screenshot:nth-child(1) { background-image: linear-gradient(135deg, #fce8e6, #d3e3fd); }
-        .screenshot:nth-child(2) { background-image: linear-gradient(135deg, #e6f5ea, #fce8e6); }
-        .screenshot:nth-child(3) { background-image: linear-gradient(135deg, #fef9e7, #e6f5ea); }
-        /* About */
-        .section {
-            padding: 16px;
-            border-top: 1px solid #dadce0;
-        }
-        .section h2 {
-            font-size: 18px;
-            font-weight: 500;
-            margin-bottom: 12px;
-        }
-        .description {
-            font-size: 14px;
-            line-height: 1.6;
-            color: #3c4043;
-        }
-        .description a {
-            color: #1a73e8;
-            text-decoration: none;
-        }
-        /* Data safety */
-        .data-safety {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding: 12px 0;
-        }
-        .shield-icon {
-            font-size: 24px;
-        }
-        /* Additional info */
-        .info-row {
-            display: flex;
-            justify-content: space-between;
-            padding: 12px 0;
-            font-size: 14px;
-            border-bottom: 1px solid #e8eaed;
-        }
-        .info-row:last-child {
-            border-bottom: none;
-        }
-        .label {
-            color: #5f6368;
-        }
-        .value {
-            text-align: right;
-            color: #202124;
-        }
-        .disclaimer {
-            background: #fef7e0;
-            padding: 12px 16px;
-            margin: 0 16px 16px;
-            border-radius: 8px;
+        .status {
+            color: #aaa;
+            margin-top: 8px;
             font-size: 13px;
-            color: #5f6368;
-            border: 1px solid #feefc3;
+        }
+        @media (max-width: 500px) {
+            .tool-btn {
+                padding: 8px 12px;
+                font-size: 12px;
+            }
+            .toolbar {
+                gap: 6px;
+                padding: 8px 10px;
+            }
         }
     </style>
 </head>
 <body>
-    <!-- Header -->
-    <div class="header">
-        <a href="#" class="back-btn">←</a>
-        <span style="font-size: 18px; font-weight: 500;">Google Play</span>
-        <span class="search-icon">🔍</span>
+    <div class="toolbar">
+        <input type="color" id="colorPicker" value="#000000" title="Color">
+        <input type="range" id="brushSize" min="1" max="30" value="5" title="Brush size">
+        <button class="tool-btn" id="undoBtn">↩ Undo</button>
+        <button class="tool-btn" id="clearBtn">🗑 Clear</button>
+        <button class="tool-btn" id="saveBtn">💾 Save</button>
     </div>
 
-    <!-- App icon and name -->
-    <div class="app-icon-name">
-        <div class="app-icon"></div>
-        <div>
-            <div class="app-title">Procreate</div>
-            <div class="app-developer">Savage Interactive Pty Ltd</div>
-            <div class="app-developer" style="margin-top: 4px;">
-                <span class="badge" style="background:#e8f0fe; color:#1967d2;">Art & Design</span>
-            </div>
-        </div>
-    </div>
+    <canvas id="drawCanvas"></canvas>
+    <div class="status">Procreate-style sketch app • Works on Android</div>
 
-    <!-- Rating & installs -->
-    <div class="stats">
-        <div class="rating">
-            <span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span>
-            <span class="rating-text">4.8</span>
-        </div>
-        <div class="installs">10M+ Downloads</div>
-        <span class="badge" style="background:#e6f4ea; color:#137333;">Editors' Choice</span>
-    </div>
+    <script>
+        const canvas = document.getElementById('drawCanvas');
+        const ctx = canvas.getContext('2d');
 
-    <!-- Badges (features) -->
-    <div class="badges">
-        <span class="badge">Best App 2025</span>
-        <span class="badge">iPad Pro ready</span>
-        <span class="badge">No ads</span>
-    </div>
+        // Set canvas size
+        function resizeCanvas() {
+            const maxWidth = window.innerWidth * 0.95;
+            const maxHeight = window.innerHeight * 0.65;
+            canvas.width = Math.min(800, maxWidth);
+            canvas.height = Math.min(500, maxHeight);
+            // Keep white background
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            // Restore last image if any (for undo stack)
+            if (undoStack.length > 0) {
+                let img = new Image();
+                img.onload = () => {
+                    ctx.drawImage(img, 0, 0);
+                };
+                img.src = undoStack[undoStack.length - 1];
+            }
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
 
-    <!-- Install buttons -->
-    <div class="buttons">
-        <a href="#" class="install-btn" onclick="alert('This is a mockup. Procreate is not actually available on Android.')">Install</a>
-        <a href="#" class="wishlist-btn">+ Wishlist</a>
-    </div>
+        // Drawing state
+        let isDrawing = false;
+        let lastX = 0, lastY = 0;
+        let currentColor = '#000000';
+        let currentBrushSize = 5;
 
-    <!-- Screenshots -->
-    <div class="screenshots">
-        <div class="screenshot">🎨 Canvas</div>
-        <div class="screenshot">🖌️ Brushes</div>
-        <div class="screenshot">🌈 Layers</div>
-        <div class="screenshot">✏️ Sketch</div>
-    </div>
+        // Undo stack (stores data URLs)
+        let undoStack = [];
+        const MAX_UNDO = 20;
 
-    <!-- About this app -->
-    <div class="section">
-        <h2>About this app</h2>
-        <div class="description">
-            <p><strong>Procreate</strong> is the most powerful and intuitive digital illustration app available for iPad. Loved by creative professionals and aspiring artists, it offers hundreds of handmade brushes, a stunning collection of tools, an advanced layer system, and the revolutionary Valkyrie graphics engine.</p>
-            <br>
-            <p>Features:<br>
-            • Ultra High Definition canvases up to 16k by 8k<br>
-            • 200+ handmade brushes<br>
-            • Full layer system with blend modes<br>
-            • Color Harmony and Dynamics<br>
-            • Time-lapse recording<br>
-            • Import/export PSD files</p>
-            <br>
-            <p><em>Note: This is a fan-made mockup. Procreate is exclusive to iOS and iPadOS. There is no official Android version.</em></p>
-        </div>
-    </div>
+        function saveState() {
+            if (undoStack.length >= MAX_UNDO) {
+                undoStack.shift();
+            }
+            undoStack.push(canvas.toDataURL());
+        }
 
-    <!-- Data safety -->
-    <div class="section">
-        <h2>Data safety</h2>
-        <div class="data-safety">
-            <span class="shield-icon">🛡️</span>
-            <span>No data shared with third parties</span>
-        </div>
-        <div class="data-safety">
-            <span class="shield-icon">🔒</span>
-            <span>No data collected</span>
-        </div>
-        <p style="font-size:13px; color:#5f6368; margin-top:8px;">The developer says this app doesn’t collect any user data.</p>
-    </div>
+        function undo() {
+            if (undoStack.length <= 1) {
+                // Clear to white
+                ctx.fillStyle = '#ffffff';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                undoStack = [];
+                saveState(); // save blank state
+                return;
+            }
+            undoStack.pop(); // remove current
+            let img = new Image();
+            img.onload = () => {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.drawImage(img, 0, 0);
+            };
+            img.src = undoStack[undoStack.length - 1];
+        }
 
-    <!-- App info -->
-    <div class="section">
-        <h2>App info</h2>
-        <div class="info-row">
-            <span class="label">Version</span>
-            <span class="value">5.3.8 (iOS)</span>
-        </div>
-        <div class="info-row">
-            <span class="label">Updated on</span>
-            <span class="value">Jun 10, 2026</span>
-        </div>
-        <div class="info-row">
-            <span class="label">Downloads</span>
-            <span class="value">10,000,000+</span>
-        </div>
-        <div class="info-row">
-            <span class="label">Content rating</span>
-            <span class="value">Everyone</span>
-        </div>
-        <div class="info-row">
-            <span class="label">Offered by</span>
-            <span class="value">Savage Interactive Pty Ltd</span>
-        </div>
-        <div class="info-row">
-            <span class="label">Developer contact</span>
-            <span class="value">procreate.art</span>
-        </div>
-    </div>
+        function startDraw(e) {
+            e.preventDefault();
+            const pos = getEventPos(e);
+            isDrawing = true;
+            lastX = pos.x;
+            lastY = pos.y;
+            saveState(); // save before starting a new stroke
+            ctx.beginPath();
+            ctx.moveTo(lastX, lastY);
+        }
 
-    <!-- Mockup disclaimer -->
-    <div class="disclaimer">
-        ⚠️ <strong>This is a mockup.</strong> Procreate is not available on Android. This page was generated for demonstration purposes only. The real app is exclusive to Apple's App Store.
-    </div>
+        function draw(e) {
+            if (!isDrawing) return;
+            e.preventDefault();
+            const pos = getEventPos(e);
+            ctx.strokeStyle = currentColor;
+            ctx.lineWidth = currentBrushSize;
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+            ctx.beginPath();
+            ctx.moveTo(lastX, lastY);
+            ctx.lineTo(pos.x, pos.y);
+            ctx.stroke();
+            lastX = pos.x;
+            lastY = pos.y;
+        }
 
-    <div style="text-align: center; padding: 24px; color: #9aa0a6; font-size: 13px;">
-        Google Play and the Google Play logo are trademarks of Google LLC.
-    </div>
+        function endDraw(e) {
+            if (!isDrawing) return;
+            isDrawing = false;
+            ctx.closePath();
+            // state already saved at start, so this stroke is complete
+        }
+
+        function getEventPos(e) {
+            const rect = canvas.getBoundingClientRect();
+            const scaleX = canvas.width / rect.width;   // canvas physical pixels
+            const scaleY = canvas.height / rect.height;
+            let clientX, clientY;
+
+            if (e.touches) {
+                clientX = e.touches[0].clientX;
+                clientY = e.touches[0].clientY;
+            } else {
+                clientX = e.clientX;
+                clientY = e.clientY;
+            }
+
+            return {
+                x: (clientX - rect.left) * scaleX,
+                y: (clientY - rect.top) * scaleY
+            };
+        }
+
+        // Event listeners
+        canvas.addEventListener('mousedown', startDraw);
+        canvas.addEventListener('mousemove', draw);
+        canvas.addEventListener('mouseup', endDraw);
+        canvas.addEventListener('mouseout', endDraw);
+
+        canvas.addEventListener('touchstart', startDraw, { passive: false });
+        canvas.addEventListener('touchmove', draw, { passive: false });
+        canvas.addEventListener('touchend', endDraw);
+        canvas.addEventListener('touchcancel', endDraw);
+
+        // UI controls
+        document.getElementById('colorPicker').addEventListener('input', (e) => {
+            currentColor = e.target.value;
+        });
+        document.getElementById('brushSize').addEventListener('input', (e) => {
+            currentBrushSize = e.target.value;
+        });
+        document.getElementById('undoBtn').addEventListener('click', undo);
+        document.getElementById('clearBtn').addEventListener('click', () => {
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            undoStack = [];
+            saveState();
+        });
+        document.getElementById('saveBtn').addEventListener('click', () => {
+            const link = document.createElement('a');
+            link.download = 'procreate-sketch.png';
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        });
+
+        // Initial blank state
+        saveState();
+    </script>
 </body>
 </html>
