@@ -467,14 +467,6 @@ const username = 'User' + Math.floor(Math.random()*1000);
 let chatRooms = JSON.parse(localStorage.getItem('chatRooms') || '["general"]');
 let messages = JSON.parse(localStorage.getItem('chatMessages') || '[]');
 
-const channel = new BroadcastChannel('procreate_chat');
-channel.onmessage = (event) => {
-    const msg = event.data;
-    messages.push(msg);
-    saveMessages();
-    if (msg.room === currentRoom && !isBlocked(msg.from)) renderMessages();
-};
-
 function saveMessages() { localStorage.setItem('chatMessages', JSON.stringify(messages)); }
 function isBlocked(user) { return blockedUsers.includes(user); }
 
@@ -525,8 +517,7 @@ function sendMessage(text, type='text', fileData=null, fileType='') {
     };
     messages.push(msg);
     saveMessages();
-    channel.postMessage(msg);
-    if (!isBlocked(msg.from)) renderMessages();
+    renderMessages();
 }
 
 function blockUser(user) {
@@ -677,11 +668,11 @@ function redo() {
     restoreSnapshot(snapshot);
 }
 
-// Define the base compositeLayers
 function compositeLayers() {
     ctx.clearRect(0, 0, mainCanvas.width, mainCanvas.height);
     layers.forEach(layer => { if (layer.visible) ctx.drawImage(layer.canvas, 0, 0); });
     if (is3D && texture3D) texture3D.needsUpdate = true;
+    if (isFullscreen) compositeLayersToFullscreen();
 }
 
 function renderLayerList() {
@@ -710,10 +701,10 @@ toolItems.forEach(item => item.addEventListener('click', () => {
     setActiveTool(item.dataset.tool);
 }));
 
-function getPos(e) {
-    const rect = mainCanvas.getBoundingClientRect();
-    const scaleX = mainCanvas.width / rect.width;
-    const scaleY = mainCanvas.height / rect.height;
+function getPos(e, canvas = mainCanvas) {
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
     let clientX, clientY;
     if (e.touches) { clientX = e.touches[0].clientX; clientY = e.touches[0].clientY; }
     else { clientX = e.clientX; clientY = e.clientY; }
@@ -741,31 +732,12 @@ function drawShapePreview() {
     pctx.globalAlpha = 1;
 }
 
-function startDraw(e) {
-    e.preventDefault();
-    if (is3D && (currentTool === 'brush' || currentTool === 'eraser')) {
-        const rect = renderer3D.domElement.getBoundingClientRect();
-        const x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
-        const y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
-        const mouse = new THREE.Vector2(x, y);
-        raycaster.setFromCamera(mouse, camera3D);
-        const intersects = raycaster.intersectObject(sphereMesh);
-        if (intersects.length > 0) {
-            const uv = intersects[0].uv;
-            isDrawing = true;
-            saveSnapshot();
-            lastX = uv.x * mainCanvas.width;
-            lastY = (1 - uv.y) * mainCanvas.height;
-            paintOnLayer(lastX, lastY);
-        }
-        return;
-    }
-    if (is3D) return;
-    const pos = getPos(e);
-    startX = pos.x; startY = pos.y;
-    lastX = pos.x; lastY = pos.y;
+// Core drawing functions that accept x,y directly
+function startDrawAt(x, y) {
     isDrawing = true;
     saveSnapshot();
+    startX = x; startY = y;
+    lastX = x; lastY = y;
     if (currentTool === 'brush' || currentTool === 'eraser') {
         const lctx = getActiveLayerCanvas().getContext('2d');
         lctx.beginPath(); lctx.moveTo(lastX, lastY);
@@ -781,42 +753,8 @@ function startDraw(e) {
     }
 }
 
-function paintOnLayer(x, y) {
-    const layerCanvas = getActiveLayerCanvas();
-    const lctx = layerCanvas.getContext('2d');
-    lctx.lineWidth = brushSize;
-    lctx.lineCap = 'round'; lctx.lineJoin = 'round';
-    lctx.globalAlpha = brushOpacity;
-    lctx.globalCompositeOperation = (currentTool === 'eraser') ? 'destination-out' : 'source-over';
-    if (currentTool !== 'eraser') lctx.strokeStyle = currentColor;
-    lctx.beginPath();
-    lctx.moveTo(lastX, lastY);
-    lctx.lineTo(x, y);
-    lctx.stroke();
-    lastX = x; lastY = y;
-    compositeLayers();
-}
-
-function draw(e) {
+function drawAt(x, y) {
     if (!isDrawing) return;
-    e.preventDefault();
-    if (is3D) {
-        const rect = renderer3D.domElement.getBoundingClientRect();
-        const x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
-        const y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
-        const mouse = new THREE.Vector2(x, y);
-        raycaster.setFromCamera(mouse, camera3D);
-        const intersects = raycaster.intersectObject(sphereMesh);
-        if (intersects.length > 0) {
-            const uv = intersects[0].uv;
-            const px = uv.x * mainCanvas.width;
-            const py = (1 - uv.y) * mainCanvas.height;
-            paintOnLayer(px, py);
-        }
-        return;
-    }
-    const pos = getPos(e);
-    const x = pos.x, y = pos.y;
     if (currentTool === 'brush' || currentTool === 'eraser') {
         const lctx = getActiveLayerCanvas().getContext('2d');
         lctx.lineWidth = brushSize;
@@ -833,18 +771,18 @@ function draw(e) {
     }
 }
 
-function endDraw(e) {
+function endDrawAt() {
     if (!isDrawing) return;
     isDrawing = false;
-    if (is3D) { compositeLayers(); return; }
-    const lctx = getActiveLayerCanvas().getContext('2d');
     if (currentTool === 'brush' || currentTool === 'eraser') {
+        const lctx = getActiveLayerCanvas().getContext('2d');
         lctx.closePath();
         lctx.globalCompositeOperation = 'source-over'; lctx.globalAlpha = 1;
         compositeLayers();
     } else if (shapePreview) {
         clearPreview();
         const { type, x0, y0, x1, y1 } = shapePreview;
+        const lctx = getActiveLayerCanvas().getContext('2d');
         lctx.globalAlpha = brushOpacity;
         lctx.strokeStyle = currentColor; lctx.lineWidth = brushSize;
         lctx.setLineDash([]);
@@ -861,6 +799,133 @@ function endDraw(e) {
     }
 }
 
+// Original event-based drawing (for 2D normal mode)
+function startDraw(e) {
+    e.preventDefault();
+    if (is3D && (currentTool === 'brush' || currentTool === 'eraser')) {
+        const rect = renderer3D.domElement.getBoundingClientRect();
+        const x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+        const y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+        const mouse = new THREE.Vector2(x, y);
+        raycaster.setFromCamera(mouse, camera3D);
+        const intersects = raycaster.intersectObject(sphereMesh);
+        if (intersects.length > 0) {
+            const uv = intersects[0].uv;
+            startDrawAt(uv.x * mainCanvas.width, (1 - uv.y) * mainCanvas.height);
+        }
+        return;
+    }
+    if (is3D) return;
+    const pos = getPos(e);
+    startDrawAt(pos.x, pos.y);
+}
+
+function draw(e) {
+    if (!isDrawing) return;
+    e.preventDefault();
+    if (is3D) {
+        const rect = renderer3D.domElement.getBoundingClientRect();
+        const x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+        const y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+        const mouse = new THREE.Vector2(x, y);
+        raycaster.setFromCamera(mouse, camera3D);
+        const intersects = raycaster.intersectObject(sphereMesh);
+        if (intersects.length > 0) {
+            const uv = intersects[0].uv;
+            drawAt(uv.x * mainCanvas.width, (1 - uv.y) * mainCanvas.height);
+        }
+        return;
+    }
+    const pos = getPos(e);
+    drawAt(pos.x, pos.y);
+}
+
+function endDraw(e) {
+    if (!isDrawing) return;
+    isDrawing = false;
+    if (is3D) { compositeLayers(); return; }
+    endDrawAt();
+}
+
+// Fullscreen drawing mapping
+function mapFullscreenCoords(clientX, clientY) {
+    const rect = fullscreenCanvas.getBoundingClientRect();
+    const fx = (clientX - rect.left) / rect.width * fullscreenCanvas.width;
+    const fy = (clientY - rect.top) / rect.height * fullscreenCanvas.height;
+    const scale = Math.min(fullscreenCanvas.width / mainCanvas.width, fullscreenCanvas.height / mainCanvas.height);
+    const dx = (fullscreenCanvas.width - mainCanvas.width * scale) / 2;
+    const dy = (fullscreenCanvas.height - mainCanvas.height * scale) / 2;
+    return { x: (fx - dx) / scale, y: (fy - dy) / scale };
+}
+
+function handleFullscreenStart(e) {
+    e.preventDefault();
+    const { x, y } = mapFullscreenCoords(e.clientX, e.clientY);
+    startDrawAt(x, y);
+}
+function handleFullscreenMove(e) {
+    if (!isDrawing) return;
+    e.preventDefault();
+    const { x, y } = mapFullscreenCoords(e.clientX, e.clientY);
+    drawAt(x, y);
+}
+function handleFullscreenEnd(e) {
+    endDrawAt();
+}
+
+// Fullscreen management
+function compositeLayersToFullscreen() {
+    fullscreenCtx.clearRect(0, 0, fullscreenCanvas.width, fullscreenCanvas.height);
+    const scale = Math.min(fullscreenCanvas.width / mainCanvas.width, fullscreenCanvas.height / mainCanvas.height);
+    const dx = (fullscreenCanvas.width - mainCanvas.width * scale) / 2;
+    const dy = (fullscreenCanvas.height - mainCanvas.height * scale) / 2;
+    layers.forEach(layer => {
+        fullscreenCtx.drawImage(layer.canvas, dx, dy, mainCanvas.width * scale, mainCanvas.height * scale);
+    });
+}
+
+function enterFullscreen() {
+    isFullscreen = true;
+    fullscreenOverlay.classList.add('active');
+    fullscreenCanvas.width = window.innerWidth;
+    fullscreenCanvas.height = window.innerHeight;
+    compositeLayersToFullscreen();
+    // Attach fullscreen drawing events
+    fullscreenCanvas.addEventListener('mousedown', handleFullscreenStart);
+    fullscreenCanvas.addEventListener('mousemove', handleFullscreenMove);
+    fullscreenCanvas.addEventListener('mouseup', handleFullscreenEnd);
+    fullscreenCanvas.addEventListener('mouseleave', handleFullscreenEnd);
+    fullscreenCanvas.addEventListener('touchstart', handleFullscreenStart, { passive: false });
+    fullscreenCanvas.addEventListener('touchmove', handleFullscreenMove, { passive: false });
+    fullscreenCanvas.addEventListener('touchend', handleFullscreenEnd);
+    fullscreenCanvas.addEventListener('touchcancel', handleFullscreenEnd);
+}
+
+function exitFullscreen() {
+    isFullscreen = false;
+    fullscreenOverlay.classList.remove('active');
+    // Remove event listeners
+    fullscreenCanvas.removeEventListener('mousedown', handleFullscreenStart);
+    fullscreenCanvas.removeEventListener('mousemove', handleFullscreenMove);
+    fullscreenCanvas.removeEventListener('mouseup', handleFullscreenEnd);
+    fullscreenCanvas.removeEventListener('mouseleave', handleFullscreenEnd);
+    fullscreenCanvas.removeEventListener('touchstart', handleFullscreenStart);
+    fullscreenCanvas.removeEventListener('touchmove', handleFullscreenMove);
+    fullscreenCanvas.removeEventListener('touchend', handleFullscreenEnd);
+    fullscreenCanvas.removeEventListener('touchcancel', handleFullscreenEnd);
+}
+
+document.getElementById('fullscreenBtn').addEventListener('click', enterFullscreen);
+document.getElementById('exitFullscreenBtn').addEventListener('click', exitFullscreen);
+
+// Override compositeLayers to also update fullscreen if active
+const _compositeLayers = compositeLayers;
+compositeLayers = function() {
+    _compositeLayers();
+    if (isFullscreen) compositeLayersToFullscreen();
+};
+
+// ---------- Other drawing helpers ----------
 function floodFill(startX, startY) {
     const layerCanvas = getActiveLayerCanvas();
     const lctx = layerCanvas.getContext('2d');
@@ -988,37 +1053,6 @@ toggle3DBtn.addEventListener('click', () => {
     if (is3D) disable3D();
     else enable3D();
 });
-
-// ---------- Fullscreen ----------
-function compositeLayersToFullscreen() {
-    fullscreenCtx.clearRect(0, 0, fullscreenCanvas.width, fullscreenCanvas.height);
-    const scale = Math.min(fullscreenCanvas.width / mainCanvas.width, fullscreenCanvas.height / mainCanvas.height);
-    const dx = (fullscreenCanvas.width - mainCanvas.width * scale) / 2;
-    const dy = (fullscreenCanvas.height - mainCanvas.height * scale) / 2;
-    layers.forEach(layer => {
-        fullscreenCtx.drawImage(layer.canvas, dx, dy, mainCanvas.width * scale, mainCanvas.height * scale);
-    });
-}
-
-document.getElementById('fullscreenBtn').addEventListener('click', () => {
-    isFullscreen = true;
-    fullscreenOverlay.classList.add('active');
-    fullscreenCanvas.width = window.innerWidth;
-    fullscreenCanvas.height = window.innerHeight;
-    compositeLayersToFullscreen();
-});
-
-document.getElementById('exitFullscreenBtn').addEventListener('click', () => {
-    isFullscreen = false;
-    fullscreenOverlay.classList.remove('active');
-});
-
-// Override compositeLayers to also update fullscreen if active
-const _originalCompositeLayers = compositeLayers;
-compositeLayers = function() {
-    _originalCompositeLayers();
-    if (isFullscreen) compositeLayersToFullscreen();
-};
 
 // ---------- Upload ----------
 const uploadBtn = document.getElementById('uploadBtn');
@@ -1174,7 +1208,7 @@ document.getElementById('recordBtn').addEventListener('click', () => {
     downloadMenu.style.display = 'none';
 });
 
-// Event listeners
+// Event listeners (normal mode)
 mainCanvas.addEventListener('mousedown', startDraw);
 mainCanvas.addEventListener('mousemove', draw);
 mainCanvas.addEventListener('mouseup', endDraw);
