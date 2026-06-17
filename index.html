@@ -166,50 +166,46 @@
             width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;
         }
 
-        /* Chat Panel */
-        #chatPanel {
+        /* AI Assistant Panel */
+        #aiPanel {
             position: absolute; top:0; right:0; width: 320px; height:100%;
             background: var(--surface); border-left: 1px solid var(--border);
             display: none; flex-direction: column; z-index:20; transition: width 0.3s;
         }
-        #chatPanel.visible { display: flex; }
-        #chatPanel.maximized { width: 100%; }
-        .chat-header {
+        #aiPanel.visible { display: flex; }
+        #aiPanel.maximized { width: 100%; }
+        .ai-header {
             display: flex; align-items: center; justify-content: space-between;
             padding: 10px 12px; background: var(--surface2); border-bottom: 1px solid var(--border);
         }
-        .chat-tabs { display: flex; gap: 4px; overflow-x: auto; padding: 4px; }
-        .chat-tab {
-            background: var(--surface2); border: 1px solid var(--border); padding: 6px 12px;
-            border-radius: 16px; font-size: 12px; cursor: pointer; white-space: nowrap;
+        .ai-content {
+            flex:1; overflow-y: auto; padding: 12px; display: flex; flex-direction: column; gap: 12px;
         }
-        .chat-tab.active { background: var(--accent); color:#fff; }
-        .chat-messages {
-            flex:1; overflow-y: auto; padding: 12px; display: flex; flex-direction: column; gap: 8px;
+        .tip-bubble {
+            background: var(--surface2); border-radius: 12px; padding: 10px 14px;
         }
-        .message {
-            background: var(--surface2); border-radius: 12px; padding: 8px 12px; max-width: 80%;
-            align-self: flex-start; position: relative;
+        .tip-bubble .tip {
+            font-size: 13px; color: var(--text);
         }
-        .message.own { align-self: flex-end; background: var(--accent); color:#fff; }
-        .message .username { font-weight: 600; font-size: 11px; margin-bottom: 2px; }
-        .message .time { font-size: 10px; color: #888; }
-        .message img, .message video { max-width: 100%; border-radius: 8px; margin-top: 4px; }
-        .message a { color: var(--accent2); }
-        .chat-input-area {
+        .ai-actions {
+            display: flex; gap: 8px; flex-wrap: wrap;
+        }
+        .ai-actions button {
+            font-size: 12px; padding: 6px 12px;
+        }
+        .ai-input-area {
             display: flex; align-items: center; padding: 8px 12px; gap: 8px;
             border-top: 1px solid var(--border); background: var(--surface2);
         }
-        .chat-input-area input[type="text"] {
+        .ai-input-area input[type="text"] {
             flex:1; padding: 10px; border-radius: 20px; background: var(--surface);
             border: 1px solid var(--border); color: var(--text); outline: none;
         }
-        .chat-input-area button { padding: 8px; }
-        .chat-file-btn { font-size: 18px; cursor: pointer; }
-        #chatFileInput { display: none; }
-        .voice-video-preview { position: fixed; bottom: 20px; left:20px; background: #000; border-radius:12px; padding:8px; display:none; z-index:300; }
-        .blocked { opacity: 0.4; }
-        .context-menu { position: absolute; background: var(--surface); border:1px solid var(--border); border-radius:8px; padding:4px; z-index:250; display:none; }
+        .ai-response {
+            margin-top: 8px;
+            background: var(--accent); color: #000;
+            border-radius: 12px; padding: 10px 14px; font-size: 13px;
+        }
     </style>
 </head>
 <body>
@@ -224,7 +220,7 @@
             <input type="file" id="uploadInput" accept="image/*, .svg, .pdf">
             <button id="toggle3D" class="accent"><span>🌐</span> 360° / 3D</button>
             <button id="fullscreenBtn" title="Fullscreen drawing"><span>⛶</span></button>
-            <button id="chatBtn" title="Toggle chat"><span>💬</span> Chat</button>
+            <button id="aiBtn" title="AI Drawing Assistant"><span>🤖</span> AI Help</button>
             <div class="dropdown" style="position:relative;">
                 <button id="downloadBtn"><span>⬇️</span> <span data-i18n="download">Download</span></button>
                 <div id="downloadMenu" style="display:none; position:absolute; top:100%; left:0; background:var(--surface2); border-radius:12px; padding:8px; flex-direction:column; gap:4px; z-index:20;">
@@ -298,30 +294,28 @@
             </div>
         </div>
 
-        <!-- Chat Panel -->
-        <div id="chatPanel">
-            <div class="chat-header">
-                <span style="font-weight:600;">Chat</span>
+        <!-- AI Assistant Panel -->
+        <div id="aiPanel">
+            <div class="ai-header">
+                <span style="font-weight:600;">AI Drawing Assistant</span>
                 <div style="display:flex; gap:4px;">
-                    <button id="chatMaxBtn" title="Maximize">🗖</button>
-                    <button id="chatCloseBtn">✕</button>
+                    <button id="aiMaxBtn" title="Maximize">🗖</button>
+                    <button id="aiCloseBtn">✕</button>
                 </div>
             </div>
-            <div class="chat-tabs" id="chatTabs">
-                <div class="chat-tab active" data-room="general"># general</div>
-            </div>
-            <div class="chat-messages" id="chatMessages"></div>
-            <div class="chat-input-area">
-                <input type="text" id="chatInput" placeholder="Type a message...">
-                <input type="file" id="chatFileInput" multiple>
-                <label for="chatFileInput" class="chat-file-btn">📎</label>
-                <button id="voiceBtn" title="Start voice (demo)">🎤</button>
-                <button id="videoBtn" title="Start video (demo)">📹</button>
-                <button id="sendBtn">➤</button>
-            </div>
-            <div class="voice-video-preview" id="previewContainer">
-                <video id="previewVideo" autoplay muted playsinline style="width:120px; border-radius:8px;"></video>
-                <button id="closePreview">✕</button>
+            <div class="ai-content" id="aiContent">
+                <div class="tip-bubble">
+                    <div class="tip">Tip: Try using a larger brush for backgrounds and a smaller one for details.</div>
+                </div>
+                <div class="ai-actions">
+                    <button id="tipBtn">💡 Get Drawing Tip</button>
+                    <button id="paletteBtn">🎨 Suggest Palette</button>
+                </div>
+                <div class="ai-input-area">
+                    <input type="text" id="aiInput" placeholder="Ask for drawing help...">
+                    <button id="aiAskBtn">➤</button>
+                </div>
+                <div id="aiResponse" class="ai-response" style="display:none;"></div>
             </div>
         </div>
     </div>
@@ -341,7 +335,7 @@
 <!-- Fullscreen overlay -->
 <div class="fullscreen-overlay" id="fullscreenOverlay">
     <div class="fullscreen-canvas-container" id="fullscreenCanvasContainer">
-        <canvas id="fullscreenCanvas" style="background:white; box-shadow:0 0 30px rgba(0,0,0,0.5);"></canvas>
+        <canvas id="fullscreenCanvas" style="background:white; box-shadow:0 0 30px rgba(0,0,0,0.5); touch-action: none;"></canvas>
     </div>
     <button id="exitFullscreenBtn" style="position:absolute; top:10px; right:10px; background:var(--surface2); color:white; border:none; padding:8px 16px; border-radius:12px; cursor:pointer;">✕ Exit Fullscreen</button>
 </div>
@@ -448,145 +442,76 @@ const fullscreenOverlay = document.getElementById('fullscreenOverlay');
 const fullscreenCanvas = document.getElementById('fullscreenCanvas');
 const fullscreenCtx = fullscreenCanvas.getContext('2d');
 
-// Chat state
-const chatPanel = document.getElementById('chatPanel');
-const chatMessages = document.getElementById('chatMessages');
-const chatInput = document.getElementById('chatInput');
-const sendBtn = document.getElementById('sendBtn');
-const chatFileInput = document.getElementById('chatFileInput');
-const voiceBtn = document.getElementById('voiceBtn');
-const videoBtn = document.getElementById('videoBtn');
-const chatTabs = document.getElementById('chatTabs');
-const previewContainer = document.getElementById('previewContainer');
-const previewVideo = document.getElementById('previewVideo');
-const closePreview = document.getElementById('closePreview');
-let currentRoom = 'general';
-let localStream = null;
-let blockedUsers = JSON.parse(localStorage.getItem('chatBlocked') || '[]');
-const username = 'User' + Math.floor(Math.random()*1000);
-let chatRooms = JSON.parse(localStorage.getItem('chatRooms') || '["general"]');
-let messages = JSON.parse(localStorage.getItem('chatMessages') || '[]');
+// AI Panel
+const aiPanel = document.getElementById('aiPanel');
+const aiContent = document.getElementById('aiContent');
+const aiInput = document.getElementById('aiInput');
+const aiResponse = document.getElementById('aiResponse');
 
-function saveMessages() { localStorage.setItem('chatMessages', JSON.stringify(messages)); }
-function isBlocked(user) { return blockedUsers.includes(user); }
-
-function renderTabs() {
-    chatTabs.innerHTML = '';
-    chatRooms.forEach(room => {
-        const tab = document.createElement('div');
-        tab.className = 'chat-tab' + (room === currentRoom ? ' active' : '');
-        tab.textContent = '#' + room;
-        tab.dataset.room = room;
-        tab.onclick = () => { currentRoom = room; renderTabs(); renderMessages(); };
-        chatTabs.appendChild(tab);
-    });
+// Drawing tips (rule-based)
+const drawingTips = [
+    "Start with a rough sketch using a light brush.",
+    "Use layers to separate elements like background, characters, and effects.",
+    "Try using the eyedropper to pick existing colors for blending.",
+    "For shading, use a low opacity black brush on a separate layer.",
+    "Experiment with different brush sizes for texture.",
+    "Use the shape tools for precise lines and circles.",
+    "Undo (Ctrl+Z) is your best friend – don't be afraid to experiment!",
+    "Try flipping the canvas horizontally to check proportions.",
+    "Use a limited color palette for a cohesive look.",
+    "Save drafts frequently to avoid losing progress."
+];
+function getRandomTip() {
+    return drawingTips[Math.floor(Math.random() * drawingTips.length)];
 }
 
-function renderMessages() {
-    chatMessages.innerHTML = '';
-    const roomMsgs = messages.filter(m => m.room === currentRoom && !isBlocked(m.from));
-    roomMsgs.forEach(msg => {
-        const div = document.createElement('div');
-        div.className = 'message' + (msg.from === username ? ' own' : '');
-        div.innerHTML = `<div class="username">${msg.from}</div>`;
-        if (msg.type === 'text') div.innerHTML += `<div>${msg.text}</div>`;
-        else if (msg.type === 'file') {
-            if (msg.fileType.startsWith('image/')) div.innerHTML += `<img src="${msg.data}" />`;
-            else if (msg.fileType.startsWith('video/')) div.innerHTML += `<video src="${msg.data}" controls></video>`;
-            else div.innerHTML += `<a href="${msg.data}" download="file">Download file</a>`;
-        }
-        div.innerHTML += `<div class="time">${new Date(msg.time).toLocaleTimeString()}</div>`;
-        div.oncontextmenu = (e) => {
-            e.preventDefault();
-            blockUser(msg.from);
-        };
-        chatMessages.appendChild(div);
-    });
-    chatMessages.scrollTop = chatMessages.scrollHeight;
+// Color palette suggestion (random complementary colors)
+function getRandomPalette() {
+    const hue1 = Math.floor(Math.random() * 360);
+    const hue2 = (hue1 + 180) % 360;
+    const palette = [
+        `hsl(${hue1}, 70%, 60%)`,
+        `hsl(${hue1}, 80%, 40%)`,
+        `hsl(${hue2}, 70%, 60%)`,
+        `hsl(${hue2}, 80%, 40%)`,
+        `hsl(${(hue1 + hue2) / 2}, 80%, 60%)`
+    ];
+    return palette.map(c => `<span style="display:inline-block; width:20px; height:20px; background:${c}; border-radius:50%; margin:2px;"></span>`).join('');
 }
 
-function sendMessage(text, type='text', fileData=null, fileType='') {
-    const msg = {
-        from: username,
-        room: currentRoom,
-        type: type,
-        text: text || '',
-        data: fileData || null,
-        fileType: fileType,
-        time: Date.now()
-    };
-    messages.push(msg);
-    saveMessages();
-    renderMessages();
+// Simple AI response (mock)
+function aiRespondTo(query) {
+    query = query.toLowerCase();
+    if (query.includes('shade') || query.includes('light')) return "Try adding a new layer, set it to Multiply, and paint with a soft brush.";
+    if (query.includes('color') || query.includes('palette')) return getRandomPalette();
+    if (query.includes('proportion') || query.includes('face')) return "Use guidelines: the eyes are halfway down the head, nose halfway between eyes and chin.";
+    if (query.includes('brush')) return "Experiment with brush size and opacity. Low opacity builds up color gradually.";
+    return getRandomTip();
 }
 
-function blockUser(user) {
-    if (user === username) return;
-    if (!blockedUsers.includes(user)) {
-        blockedUsers.push(user);
-        localStorage.setItem('chatBlocked', JSON.stringify(blockedUsers));
-        alert(`${user} blocked`);
-        renderMessages();
-    }
-}
-function unblockUser(user) {
-    blockedUsers = blockedUsers.filter(u => u !== user);
-    localStorage.setItem('chatBlocked', JSON.stringify(blockedUsers));
-    renderMessages();
-}
-
-sendBtn.addEventListener('click', () => {
-    const text = chatInput.value.trim();
-    if (text) { sendMessage(text); chatInput.value = ''; }
+// Toggle AI panel
+document.getElementById('aiBtn').addEventListener('click', () => {
+    aiPanel.classList.toggle('visible');
 });
-chatInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') sendBtn.click(); });
+document.getElementById('aiCloseBtn').addEventListener('click', () => aiPanel.classList.remove('visible'));
+document.getElementById('aiMaxBtn').addEventListener('click', () => aiPanel.classList.toggle('maximized'));
 
-chatFileInput.addEventListener('change', (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = () => {
-        sendMessage(file.name, 'file', reader.result, file.type);
-    };
-    reader.readAsDataURL(file);
+document.getElementById('tipBtn').addEventListener('click', () => {
+    aiResponse.style.display = 'block';
+    aiResponse.innerHTML = getRandomTip();
 });
-
-// Voice/Video demo
-async function startMedia(kind) {
-    if (localStream) stopMedia();
-    try {
-        localStream = await navigator.mediaDevices.getUserMedia({ video: kind==='video', audio: true });
-        previewVideo.srcObject = localStream;
-        previewContainer.style.display = 'block';
-    } catch(e) { alert('Could not access camera/mic'); }
-}
-function stopMedia() {
-    if (localStream) { localStream.getTracks().forEach(track => track.stop()); localStream = null; }
-    previewContainer.style.display = 'none';
-}
-voiceBtn.addEventListener('click', () => startMedia('audio'));
-videoBtn.addEventListener('click', () => startMedia('video'));
-closePreview.addEventListener('click', stopMedia);
-
-// Chat panel toggles
-document.getElementById('chatBtn').addEventListener('click', () => {
-    chatPanel.classList.toggle('visible');
+document.getElementById('paletteBtn').addEventListener('click', () => {
+    aiResponse.style.display = 'block';
+    aiResponse.innerHTML = "Palette: " + getRandomPalette();
 });
-document.getElementById('chatCloseBtn').addEventListener('click', () => chatPanel.classList.remove('visible'));
-document.getElementById('chatMaxBtn').addEventListener('click', () => chatPanel.classList.toggle('maximized'));
-
-// Room creation (double-click on tabs)
-chatTabs.addEventListener('dblclick', (e) => {
-    const room = prompt('Enter room name:');
-    if (room && !chatRooms.includes(room)) {
-        chatRooms.push(room);
-        localStorage.setItem('chatRooms', JSON.stringify(chatRooms));
-        renderTabs();
+document.getElementById('aiAskBtn').addEventListener('click', () => {
+    const query = aiInput.value.trim();
+    if (query) {
+        aiResponse.style.display = 'block';
+        aiResponse.innerHTML = aiRespondTo(query);
+        aiInput.value = '';
     }
 });
-
-renderTabs();
-renderMessages();
 
 // ---------- Canvas sizing ----------
 function resizeCanvas() {
@@ -847,7 +772,18 @@ function endDraw(e) {
     endDrawAt();
 }
 
-// Fullscreen drawing mapping
+// ---------- Fullscreen drawing ----------
+function compositeLayersToFullscreen() {
+    fullscreenCtx.clearRect(0, 0, fullscreenCanvas.width, fullscreenCanvas.height);
+    const scale = Math.min(fullscreenCanvas.width / mainCanvas.width, fullscreenCanvas.height / mainCanvas.height);
+    const dx = (fullscreenCanvas.width - mainCanvas.width * scale) / 2;
+    const dy = (fullscreenCanvas.height - mainCanvas.height * scale) / 2;
+    layers.forEach(layer => {
+        fullscreenCtx.drawImage(layer.canvas, dx, dy, mainCanvas.width * scale, mainCanvas.height * scale);
+    });
+}
+
+// Map fullscreen coords to original canvas coords
 function mapFullscreenCoords(clientX, clientY) {
     const rect = fullscreenCanvas.getBoundingClientRect();
     const fx = (clientX - rect.left) / rect.width * fullscreenCanvas.width;
@@ -860,28 +796,17 @@ function mapFullscreenCoords(clientX, clientY) {
 
 function handleFullscreenStart(e) {
     e.preventDefault();
-    const { x, y } = mapFullscreenCoords(e.clientX, e.clientY);
+    const { x, y } = mapFullscreenCoords(e.touches ? e.touches[0].clientX : e.clientX, e.touches ? e.touches[0].clientY : e.clientY);
     startDrawAt(x, y);
 }
 function handleFullscreenMove(e) {
     if (!isDrawing) return;
     e.preventDefault();
-    const { x, y } = mapFullscreenCoords(e.clientX, e.clientY);
+    const { x, y } = mapFullscreenCoords(e.touches ? e.touches[0].clientX : e.clientX, e.touches ? e.touches[0].clientY : e.clientY);
     drawAt(x, y);
 }
 function handleFullscreenEnd(e) {
     endDrawAt();
-}
-
-// Fullscreen management
-function compositeLayersToFullscreen() {
-    fullscreenCtx.clearRect(0, 0, fullscreenCanvas.width, fullscreenCanvas.height);
-    const scale = Math.min(fullscreenCanvas.width / mainCanvas.width, fullscreenCanvas.height / mainCanvas.height);
-    const dx = (fullscreenCanvas.width - mainCanvas.width * scale) / 2;
-    const dy = (fullscreenCanvas.height - mainCanvas.height * scale) / 2;
-    layers.forEach(layer => {
-        fullscreenCtx.drawImage(layer.canvas, dx, dy, mainCanvas.width * scale, mainCanvas.height * scale);
-    });
 }
 
 function enterFullscreen() {
@@ -890,7 +815,6 @@ function enterFullscreen() {
     fullscreenCanvas.width = window.innerWidth;
     fullscreenCanvas.height = window.innerHeight;
     compositeLayersToFullscreen();
-    // Attach fullscreen drawing events
     fullscreenCanvas.addEventListener('mousedown', handleFullscreenStart);
     fullscreenCanvas.addEventListener('mousemove', handleFullscreenMove);
     fullscreenCanvas.addEventListener('mouseup', handleFullscreenEnd);
@@ -904,7 +828,6 @@ function enterFullscreen() {
 function exitFullscreen() {
     isFullscreen = false;
     fullscreenOverlay.classList.remove('active');
-    // Remove event listeners
     fullscreenCanvas.removeEventListener('mousedown', handleFullscreenStart);
     fullscreenCanvas.removeEventListener('mousemove', handleFullscreenMove);
     fullscreenCanvas.removeEventListener('mouseup', handleFullscreenEnd);
