@@ -156,7 +156,6 @@
         }
         #uploadInput { display: none; }
 
-        /* Fullscreen overlay */
         .fullscreen-overlay {
             position: fixed; top:0; left:0; width:100%; height:100%; background: black; z-index:200;
             display: none; flex-direction: column; align-items: center; justify-content: center;
@@ -166,7 +165,6 @@
             width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;
         }
 
-        /* AI Assistant Panel */
         #aiPanel {
             position: absolute; top:0; right:0; width: 320px; height:100%;
             background: var(--surface); border-left: 1px solid var(--border);
@@ -181,18 +179,8 @@
         .ai-content {
             flex:1; overflow-y: auto; padding: 12px; display: flex; flex-direction: column; gap: 12px;
         }
-        .tip-bubble {
-            background: var(--surface2); border-radius: 12px; padding: 10px 14px;
-        }
-        .tip-bubble .tip {
-            font-size: 13px; color: var(--text);
-        }
-        .ai-actions {
-            display: flex; gap: 8px; flex-wrap: wrap;
-        }
-        .ai-actions button {
-            font-size: 12px; padding: 6px 12px;
-        }
+        .ai-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+        .ai-actions button { font-size: 12px; padding: 6px 12px; }
         .ai-input-area {
             display: flex; align-items: center; padding: 8px 12px; gap: 8px;
             border-top: 1px solid var(--border); background: var(--surface2);
@@ -202,9 +190,13 @@
             border: 1px solid var(--border); color: var(--text); outline: none;
         }
         .ai-response {
-            margin-top: 8px;
             background: var(--accent); color: #000;
             border-radius: 12px; padding: 10px 14px; font-size: 13px;
+            display: none;
+        }
+        .ai-quick-tip {
+            font-size: 13px; color: var(--text);
+            background: var(--surface2); border-radius: 12px; padding: 10px 14px;
         }
     </style>
 </head>
@@ -304,18 +296,17 @@
                 </div>
             </div>
             <div class="ai-content" id="aiContent">
-                <div class="tip-bubble">
-                    <div class="tip">Tip: Try using a larger brush for backgrounds and a smaller one for details.</div>
-                </div>
+                <div class="ai-quick-tip" id="aiQuickTip">Tap the brush icon and start drawing!</div>
                 <div class="ai-actions">
-                    <button id="tipBtn">💡 Get Drawing Tip</button>
-                    <button id="paletteBtn">🎨 Suggest Palette</button>
+                    <button id="tipBtn">💡 Pro Tip</button>
+                    <button id="paletteBtn">🎨 Random Palette</button>
+                    <button id="toolTipBtn">🔧 Tool Help</button>
                 </div>
                 <div class="ai-input-area">
-                    <input type="text" id="aiInput" placeholder="Ask for drawing help...">
+                    <input type="text" id="aiInput" placeholder="Ask anything...">
                     <button id="aiAskBtn">➤</button>
                 </div>
-                <div id="aiResponse" class="ai-response" style="display:none;"></div>
+                <div id="aiResponse" class="ai-response"></div>
             </div>
         </div>
     </div>
@@ -332,7 +323,6 @@
     </div>
 </div>
 
-<!-- Fullscreen overlay -->
 <div class="fullscreen-overlay" id="fullscreenOverlay">
     <div class="fullscreen-canvas-container" id="fullscreenCanvasContainer">
         <canvas id="fullscreenCanvas" style="background:white; box-shadow:0 0 30px rgba(0,0,0,0.5); touch-action: none;"></canvas>
@@ -340,14 +330,8 @@
     <button id="exitFullscreenBtn" style="position:absolute; top:10px; right:10px; background:var(--surface2); color:white; border:none; padding:8px 16px; border-radius:12px; cursor:pointer;">✕ Exit Fullscreen</button>
 </div>
 
-<!-- Three.js -->
 <script type="importmap">
-    {
-        "imports": {
-            "three": "https://unpkg.com/three@0.128.0/build/three.module.js",
-            "three/addons/": "https://unpkg.com/three@0.128.0/examples/jsm/"
-        }
-    }
+    { "imports": { "three": "https://unpkg.com/three@0.128.0/build/three.module.js", "three/addons/": "https://unpkg.com/three@0.128.0/examples/jsm/" } }
 </script>
 
 <script type="module">
@@ -444,74 +428,143 @@ const fullscreenCtx = fullscreenCanvas.getContext('2d');
 
 // AI Panel
 const aiPanel = document.getElementById('aiPanel');
-const aiContent = document.getElementById('aiContent');
-const aiInput = document.getElementById('aiInput');
 const aiResponse = document.getElementById('aiResponse');
+const aiQuickTip = document.getElementById('aiQuickTip');
+const aiInput = document.getElementById('aiInput');
+const isMobile = /Android|iPhone|iPad|iPod|webOS/i.test(navigator.userAgent);
 
-// Drawing tips (rule-based)
-const drawingTips = [
-    "Start with a rough sketch using a light brush.",
-    "Use layers to separate elements like background, characters, and effects.",
-    "Try using the eyedropper to pick existing colors for blending.",
-    "For shading, use a low opacity black brush on a separate layer.",
-    "Experiment with different brush sizes for texture.",
-    "Use the shape tools for precise lines and circles.",
-    "Undo (Ctrl+Z) is your best friend – don't be afraid to experiment!",
-    "Try flipping the canvas horizontally to check proportions.",
-    "Use a limited color palette for a cohesive look.",
-    "Save drafts frequently to avoid losing progress."
-];
-function getRandomTip() {
-    return drawingTips[Math.floor(Math.random() * drawingTips.length)];
-}
+// ---------- Enhanced AI Engine ----------
+const toolInfo = {
+    brush: { name: 'Brush', desc: 'Freehand drawing with adjustable size and opacity.' },
+    eraser: { name: 'Eraser', desc: 'Erase parts of the current layer.' },
+    line: { name: 'Line', desc: 'Draw a straight line between two points.' },
+    rect: { name: 'Rectangle', desc: 'Draw a rectangle. Drag to define size.' },
+    circle: { name: 'Circle', desc: 'Draw an ellipse/circle. Drag to define size.' },
+    fill: { name: 'Fill', desc: 'Bucket fill an area with the current color.' },
+    text: { name: 'Text', desc: 'Place text on the canvas.' },
+    eyedropper: { name: 'Eyedropper', desc: 'Pick a color from the canvas.' }
+};
+const allToolNames = Object.keys(toolInfo);
+let lastTipIndex = -1;
 
-// Color palette suggestion (random complementary colors)
-function getRandomPalette() {
-    const hue1 = Math.floor(Math.random() * 360);
-    const hue2 = (hue1 + 180) % 360;
-    const palette = [
-        `hsl(${hue1}, 70%, 60%)`,
-        `hsl(${hue1}, 80%, 40%)`,
-        `hsl(${hue2}, 70%, 60%)`,
-        `hsl(${hue2}, 80%, 40%)`,
-        `hsl(${(hue1 + hue2) / 2}, 80%, 60%)`
+function getRandomDrawingTip() {
+    const tips = [
+        "Work on a new layer for each major element – that way you can edit or remove them later without affecting the rest.",
+        "Use the eyedropper to pick an existing color from your artwork for perfect blending.",
+        "Shadows and highlights on separate layers with low opacity add depth.",
+        "Try flipping the canvas (use 3D mode!) to spot mistakes in symmetry.",
+        "Save drafts often – your browser remembers them even if you close the tab.",
+        "Use the shape tools (line, rect, circle) for precise guides before sketching.",
+        "Experiment with brush opacity for soft shading.",
+        "Keep your layers organized – rename them mentally by their content."
     ];
-    return palette.map(c => `<span style="display:inline-block; width:20px; height:20px; background:${c}; border-radius:50%; margin:2px;"></span>`).join('');
+    let idx;
+    do { idx = Math.floor(Math.random() * tips.length); } while (idx === lastTipIndex && tips.length > 1);
+    lastTipIndex = idx;
+    return tips[idx];
 }
 
-// Simple AI response (mock)
-function aiRespondTo(query) {
-    query = query.toLowerCase();
-    if (query.includes('shade') || query.includes('light')) return "Try adding a new layer, set it to Multiply, and paint with a soft brush.";
-    if (query.includes('color') || query.includes('palette')) return getRandomPalette();
-    if (query.includes('proportion') || query.includes('face')) return "Use guidelines: the eyes are halfway down the head, nose halfway between eyes and chin.";
-    if (query.includes('brush')) return "Experiment with brush size and opacity. Low opacity builds up color gradually.";
-    return getRandomTip();
+function getRandomPalette() {
+    const hue = Math.floor(Math.random() * 360);
+    const cols = [
+        `hsl(${hue}, 70%, 60%)`,
+        `hsl(${hue}, 80%, 40%)`,
+        `hsl(${(hue + 60) % 360}, 70%, 60%)`,
+        `hsl(${(hue + 180) % 360}, 70%, 60%)`,
+        `hsl(${(hue + 300) % 360}, 70%, 60%)`
+    ];
+    return cols.map(c => `<span style="display:inline-block; width:18px; height:18px; background:${c}; border-radius:50%; margin:2px;"></span>`).join('');
 }
 
-// Toggle AI panel
-document.getElementById('aiBtn').addEventListener('click', () => {
-    aiPanel.classList.toggle('visible');
-});
-document.getElementById('aiCloseBtn').addEventListener('click', () => aiPanel.classList.remove('visible'));
-document.getElementById('aiMaxBtn').addEventListener('click', () => aiPanel.classList.toggle('maximized'));
+function getToolHelp(tool) {
+    if (!tool || !toolInfo[tool]) return null;
+    const info = toolInfo[tool];
+    let help = `${info.name}: ${info.desc}`;
+    if (tool === 'brush') help += ` Current size: ${brushSize}, opacity: ${Math.round(brushOpacity*100)}%.`;
+    if (tool === 'eraser') help += ` Eraser uses the same size as the brush.`;
+    if (tool === 'line') help += ` Click and drag to create a straight line.`;
+    if (tool === 'rect') help += ` Drag to draw a rectangle.`;
+    if (tool === 'circle') help += ` Drag to draw an ellipse.`;
+    if (tool === 'fill') help += ` Tap an area to fill it with the selected color.`;
+    if (tool === 'text') help += ` Tap where you want the text, then type. Font size changes with brush size.`;
+    if (tool === 'eyedropper') help += ` Tap anywhere on the canvas to pick that color.`;
+    return help;
+}
 
-document.getElementById('tipBtn').addEventListener('click', () => {
+function generateResponse(query) {
+    query = query.trim().toLowerCase();
+    if (!query) return getRandomDrawingTip();
+
+    if (query.length === 1) {
+        const letter = query;
+        const foundTool = allToolNames.find(t => t.startsWith(letter));
+        if (foundTool) {
+            return `It looks like you're interested in the **${toolInfo[foundTool].name}** tool! ${toolInfo[foundTool].desc} ${isMobile ? 'Tap' : 'Click'} the icon in the toolbar to select it.`;
+        }
+        if (letter === 'u') return isMobile ? 'Undo: Use the Undo button (↩) in the bottom bar.' : 'Undo: press Ctrl+Z, or click the Undo button.';
+        if (letter === 'r') return isMobile ? 'Redo: use the Redo button (↪) in the bottom bar.' : 'Redo: press Ctrl+Y, or click the Redo button.';
+        if (letter === 's') return 'Save your work? Use the Save Draft button (💾) to store it locally.';
+        if (letter === 'l') return 'Layers are in the right panel. Add a new layer to separate your work.';
+        if (letter === 'f') return 'Fullscreen mode: press the ⛶ button to expand the canvas.';
+        if (letter === 'd') return 'Download your art in various formats via the ⬇️ menu.';
+        return `I'm not sure what "${query}" means. Try typing a tool name or a question like "how to shade".`;
+    }
+
+    if (query.includes('undo')) return isMobile ? 'Tap the Undo button (↩) in the bottom bar.' : 'Undo: press Ctrl+Z or click the Undo button.';
+    if (query.includes('redo')) return isMobile ? 'Redo: tap the Redo button (↪) in the bottom bar.' : 'Redo: press Ctrl+Y or click the Redo button.';
+    if (query.includes('save')) return 'Use Save Draft (💾) to store layers locally. Load later with Load Draft (📂).';
+    if (query.includes('load')) return 'Load a saved draft with the Load Draft button (📂).';
+    if (query.includes('download')) return 'Download as PNG, JPEG, WebP, AVIF, SVG or PDF from the ⬇️ menu.';
+    if (query.includes('fullscreen') || query.includes('full screen')) return 'Click the ⛶ button to go fullscreen and draw directly on the expanded canvas.';
+    if (query.includes('layer')) return `You have ${layers.length} layer(s). Use the right panel to manage them.`;
+    if (query.includes('brush')) return `Current brush: size ${brushSize}, opacity ${Math.round(brushOpacity*100)}%. Adjust in the left panel.`;
+    if (query.includes('color') || query.includes('palette')) {
+        return 'Try this color palette: ' + getRandomPalette() + '. You can also pick colors with the eyedropper.';
+    }
+    if (query.includes('shade') || query.includes('shadow')) return 'Create a new layer, set its opacity to 20-30%, and paint with black for soft shadows.';
+    if (query.includes('blend')) return 'Use a low opacity brush on a new layer to blend colors gradually.';
+    if (query.includes('zoom')) return isMobile ? 'Pinch with two fingers to zoom in/out of the canvas.' : 'Use your mouse wheel to zoom.';
+    if (query.includes('text')) return 'Select the Text tool (🔤), then tap on the canvas where you want the text. Brush size affects the font size.';
+    if (query.includes('3d') || query.includes('sphere')) return 'Click the 360°/3D button to see your art on a rotating sphere! You can paint directly on it.';
+    if (query.includes('tool')) return `You are using the **${toolInfo[currentTool].name}** tool. ${toolInfo[currentTool].desc}`;
+
+    const tip = getRandomDrawingTip();
+    const deviceHint = isMobile ? 'Tip: Pinch to zoom, tap to draw.' : 'Tip: Use Ctrl+Z/Y for undo/redo.';
+    return `${deviceHint} ${tip}`;
+}
+
+function showAIResponse(text) {
     aiResponse.style.display = 'block';
-    aiResponse.innerHTML = getRandomTip();
-});
-document.getElementById('paletteBtn').addEventListener('click', () => {
-    aiResponse.style.display = 'block';
-    aiResponse.innerHTML = "Palette: " + getRandomPalette();
+    aiResponse.innerHTML = text;
+}
+
+document.getElementById('tipBtn').addEventListener('click', () => showAIResponse(getRandomDrawingTip()));
+document.getElementById('paletteBtn').addEventListener('click', () => showAIResponse('Palette: ' + getRandomPalette()));
+document.getElementById('toolTipBtn').addEventListener('click', () => {
+    const help = getToolHelp(currentTool);
+    showAIResponse(help || getRandomDrawingTip());
 });
 document.getElementById('aiAskBtn').addEventListener('click', () => {
     const query = aiInput.value.trim();
-    if (query) {
-        aiResponse.style.display = 'block';
-        aiResponse.innerHTML = aiRespondTo(query);
-        aiInput.value = '';
-    }
+    showAIResponse(generateResponse(query));
+    aiInput.value = '';
 });
+aiInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') document.getElementById('aiAskBtn').click(); });
+
+function updateQuickTip() {
+    if (currentTool === 'brush' || currentTool === 'eraser') {
+        aiQuickTip.textContent = `Current: ${toolInfo[currentTool].name} | Size: ${brushSize} | Opacity: ${Math.round(brushOpacity*100)}%`;
+    } else {
+        aiQuickTip.textContent = `Tool: ${toolInfo[currentTool].name}. ${toolInfo[currentTool].desc}`;
+    }
+}
+brushSizeInput.addEventListener('input', updateQuickTip);
+brushOpacityInput.addEventListener('input', updateQuickTip);
+updateQuickTip();
+
+document.getElementById('aiBtn').addEventListener('click', () => aiPanel.classList.toggle('visible'));
+document.getElementById('aiCloseBtn').addEventListener('click', () => aiPanel.classList.remove('visible'));
+document.getElementById('aiMaxBtn').addEventListener('click', () => aiPanel.classList.toggle('maximized'));
 
 // ---------- Canvas sizing ----------
 function resizeCanvas() {
@@ -532,7 +585,6 @@ function resizeCanvas() {
     }
     if (is3D) update3DTexture();
 }
-
 window.addEventListener('resize', resizeCanvas);
 
 // ---------- Layer management ----------
@@ -620,11 +672,10 @@ function setActiveTool(tool) {
     document.querySelector(`.tool-item[data-tool="${tool}"]`).classList.add('active');
     shapePreview = null;
     clearPreview();
+    updateQuickTip();
 }
 
-toolItems.forEach(item => item.addEventListener('click', () => {
-    setActiveTool(item.dataset.tool);
-}));
+toolItems.forEach(item => item.addEventListener('click', () => setActiveTool(item.dataset.tool)));
 
 function getPos(e, canvas = mainCanvas) {
     const rect = canvas.getBoundingClientRect();
@@ -657,7 +708,6 @@ function drawShapePreview() {
     pctx.globalAlpha = 1;
 }
 
-// Core drawing functions that accept x,y directly
 function startDrawAt(x, y) {
     isDrawing = true;
     saveSnapshot();
@@ -724,7 +774,6 @@ function endDrawAt() {
     }
 }
 
-// Original event-based drawing (for 2D normal mode)
 function startDraw(e) {
     e.preventDefault();
     if (is3D && (currentTool === 'brush' || currentTool === 'eraser')) {
@@ -783,7 +832,6 @@ function compositeLayersToFullscreen() {
     });
 }
 
-// Map fullscreen coords to original canvas coords
 function mapFullscreenCoords(clientX, clientY) {
     const rect = fullscreenCanvas.getBoundingClientRect();
     const fx = (clientX - rect.left) / rect.width * fullscreenCanvas.width;
@@ -805,9 +853,7 @@ function handleFullscreenMove(e) {
     const { x, y } = mapFullscreenCoords(e.touches ? e.touches[0].clientX : e.clientX, e.touches ? e.touches[0].clientY : e.clientY);
     drawAt(x, y);
 }
-function handleFullscreenEnd(e) {
-    endDrawAt();
-}
+function handleFullscreenEnd(e) { endDrawAt(); }
 
 function enterFullscreen() {
     isFullscreen = true;
@@ -841,12 +887,8 @@ function exitFullscreen() {
 document.getElementById('fullscreenBtn').addEventListener('click', enterFullscreen);
 document.getElementById('exitFullscreenBtn').addEventListener('click', exitFullscreen);
 
-// Override compositeLayers to also update fullscreen if active
 const _compositeLayers = compositeLayers;
-compositeLayers = function() {
-    _compositeLayers();
-    if (isFullscreen) compositeLayersToFullscreen();
-};
+compositeLayers = function() { _compositeLayers(); if (isFullscreen) compositeLayersToFullscreen(); };
 
 // ---------- Other drawing helpers ----------
 function floodFill(startX, startY) {
@@ -919,45 +961,27 @@ function init3D() {
     controls3D = new OrbitControls(camera3D, renderer3D.domElement);
     controls3D.enableDamping = true; controls3D.dampingFactor = 0.05;
     controls3D.rotateSpeed = 0.8;
-
     const geometry = new THREE.SphereGeometry(2, 64, 64);
     texture3D = new THREE.CanvasTexture(mainCanvas);
     const material = new THREE.MeshStandardMaterial({ map: texture3D });
     sphereMesh = new THREE.Mesh(geometry, material);
     scene3D.add(sphereMesh);
-
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
-    scene3D.add(ambientLight);
+    scene3D.add(new THREE.AmbientLight(0xffffff, 0.5));
     const dirLight = new THREE.DirectionalLight(0xffffff, 0.5);
     dirLight.position.set(1, 1, 1);
     scene3D.add(dirLight);
-
     animate3D();
 }
 
-function animate3D() {
-    if (!is3D) return;
-    requestAnimationFrame(animate3D);
-    controls3D.update();
-    renderer3D.render(scene3D, camera3D);
-}
-
-function update3DTexture() {
-    if (texture3D) texture3D.needsUpdate = true;
-}
+function animate3D() { if (!is3D) return; requestAnimationFrame(animate3D); controls3D.update(); renderer3D.render(scene3D, camera3D); }
+function update3DTexture() { if (texture3D) texture3D.needsUpdate = true; }
 
 function enable3D() {
     is3D = true;
-    mainCanvas.style.display = 'none';
-    previewCanvas.style.display = 'none';
+    mainCanvas.style.display = 'none'; previewCanvas.style.display = 'none';
     threeContainer.style.display = 'block';
-    if (!renderer3D) {
-        init3D();
-    } else {
-        renderer3D.setSize(container.clientWidth, container.clientHeight);
-        camera3D.aspect = container.clientWidth / container.clientHeight;
-        camera3D.updateProjectionMatrix();
-    }
+    if (!renderer3D) init3D();
+    else { renderer3D.setSize(container.clientWidth, container.clientHeight); camera3D.aspect = container.clientWidth / container.clientHeight; camera3D.updateProjectionMatrix(); }
     toggle3DBtn.classList.add('active');
     toggle3DBtn.innerHTML = '<span>🌐</span> 2D Mode';
     compositeLayers();
@@ -965,17 +989,12 @@ function enable3D() {
 
 function disable3D() {
     is3D = false;
-    mainCanvas.style.display = 'block';
-    previewCanvas.style.display = 'block';
+    mainCanvas.style.display = 'block'; previewCanvas.style.display = 'block';
     threeContainer.style.display = 'none';
     toggle3DBtn.classList.remove('active');
     toggle3DBtn.innerHTML = '<span>🌐</span> 360° / 3D';
 }
-
-toggle3DBtn.addEventListener('click', () => {
-    if (is3D) disable3D();
-    else enable3D();
-});
+toggle3DBtn.addEventListener('click', () => { if (is3D) disable3D(); else enable3D(); });
 
 // ---------- Upload ----------
 const uploadBtn = document.getElementById('uploadBtn');
@@ -984,8 +1003,7 @@ uploadBtn.addEventListener('click', () => uploadInput.click());
 uploadInput.addEventListener('change', handleFileUpload);
 
 function handleFileUpload(event) {
-    const file = event.target.files[0];
-    if (!file) return;
+    const file = event.target.files[0]; if (!file) return;
     const reader = new FileReader();
     const isPDF = file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf');
     const isSVG = file.type === 'image/svg+xml' || file.name.toLowerCase().endsWith('.svg');
@@ -993,22 +1011,13 @@ function handleFileUpload(event) {
         if (typeof pdfjsLib === 'undefined') {
             const script = document.createElement('script');
             script.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js';
-            script.onload = () => {
-                pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
-                loadPDF(file);
-            };
+            script.onload = () => { pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js'; loadPDF(file); };
             document.head.appendChild(script);
         } else loadPDF(file);
     } else if (isSVG || file.type.startsWith('image/')) {
-        reader.onload = (e) => {
-            const img = new Image();
-            img.onload = () => { addImageToNewLayer(img); uploadInput.value = ''; };
-            img.src = e.target.result;
-        };
+        reader.onload = (e) => { const img = new Image(); img.onload = () => { addImageToNewLayer(img); uploadInput.value = ''; }; img.src = e.target.result; };
         reader.readAsDataURL(file);
-    } else {
-        alert(t('upload_error') + ' Unsupported file type.');
-    }
+    } else { alert(t('upload_error') + ' Unsupported file type.'); }
 }
 
 function loadPDF(file) {
@@ -1019,12 +1028,9 @@ function loadPDF(file) {
             pdf.getPage(1).then(page => {
                 const viewport = page.getViewport({ scale: 1 });
                 const canvas = document.createElement('canvas');
-                const context = canvas.getContext('2d');
                 canvas.width = viewport.width; canvas.height = viewport.height;
-                page.render({ canvasContext: context, viewport: viewport }).promise.then(() => {
-                    const img = new Image();
-                    img.onload = () => addImageToNewLayer(img);
-                    img.src = canvas.toDataURL();
+                page.render({ canvasContext: canvas.getContext('2d'), viewport }).promise.then(() => {
+                    const img = new Image(); img.onload = () => addImageToNewLayer(img); img.src = canvas.toDataURL();
                 });
             });
         }).catch(err => alert(t('upload_error')));
@@ -1048,10 +1054,7 @@ function addImageToNewLayer(img) {
 
 // ---------- Download ----------
 const downloadMenu = document.getElementById('downloadMenu');
-document.getElementById('downloadBtn').addEventListener('click', (e) => {
-    e.stopPropagation();
-    downloadMenu.style.display = downloadMenu.style.display === 'flex' ? 'none' : 'flex';
-});
+document.getElementById('downloadBtn').addEventListener('click', (e) => { e.stopPropagation(); downloadMenu.style.display = downloadMenu.style.display === 'flex' ? 'none' : 'flex'; });
 document.addEventListener('click', () => { downloadMenu.style.display = 'none'; });
 downloadMenu.addEventListener('click', (e) => e.stopPropagation());
 
@@ -1070,13 +1073,7 @@ document.querySelectorAll('.download-option').forEach(btn => {
 
 function downloadCanvas(mimeType, filename, quality) {
     if (mimeType === 'image/avif' || mimeType === 'image/webp') {
-        mainCanvas.toBlob(blob => {
-            if (blob) {
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a'); a.href = url; a.download = filename; a.click();
-                URL.revokeObjectURL(url);
-            }
-        }, mimeType, quality);
+        mainCanvas.toBlob(blob => { if (blob) { const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = filename; a.click(); URL.revokeObjectURL(url); } }, mimeType, quality);
     } else {
         const dataUrl = mainCanvas.toDataURL(mimeType, quality);
         const a = document.createElement('a'); a.href = dataUrl; a.download = filename; a.click();
@@ -1087,17 +1084,13 @@ function downloadSVG() {
     const dataUrl = mainCanvas.toDataURL('image/png');
     const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${mainCanvas.width}" height="${mainCanvas.height}"><image href="${dataUrl}" width="${mainCanvas.width}" height="${mainCanvas.height}"/></svg>`;
     const blob = new Blob([svg], {type: 'image/svg+xml'});
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a'); a.href = url; a.download = 'drawing.svg'; a.click();
-    URL.revokeObjectURL(url);
+    const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = 'drawing.svg'; a.click(); URL.revokeObjectURL(url);
 }
 
 function generatePDF() {
     if (typeof window.jspdf === 'undefined') {
-        const script = document.createElement('script');
-        script.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
-        script.onload = () => exportPDF();
-        document.head.appendChild(script);
+        const script = document.createElement('script'); script.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
+        script.onload = () => exportPDF(); document.head.appendChild(script);
     } else exportPDF();
 }
 function exportPDF() {
@@ -1107,31 +1100,23 @@ function exportPDF() {
     doc.save('drawing.pdf');
 }
 
-// Recording
 document.getElementById('recordBtn').addEventListener('click', () => {
-    if (isRecording) {
-        mediaRecorder.stop();
-        isRecording = false;
-        document.getElementById('recordBtn').innerHTML = '🎥 Record MP4';
-    } else {
+    if (isRecording) { mediaRecorder.stop(); isRecording = false; document.getElementById('recordBtn').innerHTML = '🎥 Record MP4'; }
+    else {
         const stream = mainCanvas.captureStream(30);
         mediaRecorder = new MediaRecorder(stream, { mimeType: 'video/webm' });
         recordedChunks = [];
         mediaRecorder.ondataavailable = e => recordedChunks.push(e.data);
         mediaRecorder.onstop = () => {
             const blob = new Blob(recordedChunks, { type: 'video/webm' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a'); a.href = url; a.download = 'drawing.webm'; a.click();
-            URL.revokeObjectURL(url);
+            const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = 'drawing.webm'; a.click(); URL.revokeObjectURL(url);
         };
-        mediaRecorder.start();
-        isRecording = true;
-        document.getElementById('recordBtn').innerHTML = '⏹️ Stop Recording';
+        mediaRecorder.start(); isRecording = true; document.getElementById('recordBtn').innerHTML = '⏹️ Stop Recording';
     }
     downloadMenu.style.display = 'none';
 });
 
-// Event listeners (normal mode)
+// ---------- Event listeners (normal mode) ----------
 mainCanvas.addEventListener('mousedown', startDraw);
 mainCanvas.addEventListener('mousemove', draw);
 mainCanvas.addEventListener('mouseup', endDraw);
@@ -1141,12 +1126,10 @@ mainCanvas.addEventListener('touchmove', draw, { passive: false });
 mainCanvas.addEventListener('touchend', endDraw);
 mainCanvas.addEventListener('touchcancel', endDraw);
 
-// Settings
 brushSizeInput.addEventListener('input', () => { brushSize = parseInt(brushSizeInput.value); sizeValue.textContent = brushSize; });
 brushOpacityInput.addEventListener('input', () => { brushOpacity = parseFloat(brushOpacityInput.value); opacityValue.textContent = Math.round(brushOpacity * 100) + '%'; });
 colorPicker.addEventListener('input', () => { currentColor = colorPicker.value; });
 
-// Layer buttons
 document.getElementById('addLayerBtn').addEventListener('click', () => {
     saveSnapshot();
     const newCanvas = createLayerCanvas(mainCanvas.width, mainCanvas.height, false);
@@ -1164,29 +1147,25 @@ document.getElementById('deleteLayerBtn').addEventListener('click', () => {
 document.getElementById('mergeDownBtn').addEventListener('click', () => {
     if (activeLayerIndex === 0 || layers.length < 2) return;
     saveSnapshot();
-    const upper = layers[activeLayerIndex].canvas;
-    const lower = layers[activeLayerIndex - 1].canvas;
-    lower.getContext('2d').drawImage(upper, 0, 0);
+    layers[activeLayerIndex - 1].canvas.getContext('2d').drawImage(layers[activeLayerIndex].canvas, 0, 0);
     layers.splice(activeLayerIndex, 1);
     activeLayerIndex--;
     renderLayerList(); compositeLayers();
 });
 document.getElementById('duplicateLayerBtn').addEventListener('click', () => {
     saveSnapshot();
-    const dupCanvas = createLayerCanvas(mainCanvas.width, mainCanvas.height, false);
-    dupCanvas.getContext('2d').drawImage(layers[activeLayerIndex].canvas, 0, 0);
-    layers.splice(activeLayerIndex+1, 0, { canvas: dupCanvas, name: `${layers[activeLayerIndex].name} copy`, visible: true });
+    const dup = createLayerCanvas(mainCanvas.width, mainCanvas.height, false);
+    dup.getContext('2d').drawImage(layers[activeLayerIndex].canvas, 0, 0);
+    layers.splice(activeLayerIndex + 1, 0, { canvas: dup, name: `${layers[activeLayerIndex].name} copy`, visible: true });
     activeLayerIndex++;
     renderLayerList(); compositeLayers();
 });
 
-// Undo/Redo
 document.addEventListener('keydown', (e) => {
     if (e.ctrlKey && e.key === 'z') { e.preventDefault(); undo(); }
     else if (e.ctrlKey && e.key === 'y') { e.preventDefault(); redo(); }
 });
 
-// New, Save/Load Draft
 document.getElementById('newBtn').addEventListener('click', () => { if (confirm(t('new')+'?')) newCanvas(); });
 document.getElementById('saveDraftBtn').addEventListener('click', () => {
     localStorage.setItem('procreate_draft', JSON.stringify(layers.map(l => l.canvas.toDataURL())));
@@ -1200,19 +1179,13 @@ document.getElementById('loadDraftBtn').addEventListener('click', () => {
     dataURLs.forEach((dataURL, i) => {
         const c = createLayerCanvas(mainCanvas.width, mainCanvas.height, false);
         const img = new Image();
-        img.onload = () => {
-            c.getContext('2d').drawImage(img, 0, 0);
-            if (i === dataURLs.length - 1) { compositeLayers(); renderLayerList(); }
-        };
+        img.onload = () => { c.getContext('2d').drawImage(img, 0, 0); if (i === dataURLs.length - 1) { compositeLayers(); renderLayerList(); } };
         img.src = dataURL;
         layers.push({ canvas: c, name: `Layer ${i+1}`, visible: true });
     });
-    activeLayerIndex = 0;
-    saveSnapshot(); renderLayerList();
-    alert(t('draft_loaded'));
+    activeLayerIndex = 0; saveSnapshot(); renderLayerList(); alert(t('draft_loaded'));
 });
 
-// Responsive panels
 function toggleLeftPanel() { leftPanel.classList.toggle('open'); }
 function toggleRightPanel() { rightPanel.classList.toggle('open'); }
 leftToggle.addEventListener('click', toggleLeftPanel);
@@ -1226,7 +1199,6 @@ function checkMobile() {
 window.addEventListener('resize', checkMobile);
 checkMobile();
 
-// Initialize
 resizeCanvas();
 newCanvas();
 </script>
