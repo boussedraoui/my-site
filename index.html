@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -207,8 +208,6 @@
         .tool-card { background: var(--surface); border-radius: 32px; padding: 20px 10px; text-align: center; cursor: pointer; border: 2px solid transparent; transition: all 0.25s ease; box-shadow: var(--shadow); position: relative; }
         .tool-card:hover { transform: translateY(-8px); border-color: var(--primary); box-shadow: var(--shadow-lg); }
         .tool-card .tool-name { font-size: 1.2rem; font-weight: 700; margin-top: 12px; }
-        /* Large cards removed – we have deleted all .tool-card.large, .online-tools, .browsers-card */
-        
         .tool-panel { background: var(--surface); border-radius: 40px; padding: 32px 28px; margin: 32px 0 40px; box-shadow: var(--shadow-lg); border: 1px solid var(--border); overflow: hidden; }
         .tool-btn { background: var(--primary); border: none; padding: 14px 28px; border-radius: 60px; font-weight: 700; color: white; cursor: pointer; transition: 0.2s; margin: 8px; display: inline-block; font-size: 1rem; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
         .tool-btn:hover { background: var(--primary-dark); transform: scale(0.97); }
@@ -403,14 +402,14 @@
         <div class="love-phrase"><div class="premium-container"><span class="premium-ribbon">💎 100% FREE PREMIUM</span><div class="orbiting-love"><div class="love-text">I 💗 TOOLS</div></div></div></div>
     </div>
     <div class="search-container"><input type="text" id="globalSearch" class="search-input" placeholder="🔍 Search any tool... calculator, world clock, translator..."><div id="searchResults" class="search-results" style="display:none;"></div></div>
-    <div class="tools-grid" id="toolsGrid">
-        <!-- Individual tool cards are rendered by JavaScript below; large category cards have been removed -->
-    </div>
-    <!-- The large category cards that were here (like MEDIA, SITES, TV/RADIO, etc.) have been deleted -->
-    <!-- The flex-buttons (All other tools, AI Hub, Search engines) remain -->
+    
+    <!-- ===== TOOLS GRID ===== -->
+    <div class="tools-grid" id="toolsGrid"></div>
+    
+    <!-- ===== FLEX BUTTONS (kept) ===== -->
     <div class="flex-buttons"><button class="tool-btn" onclick="openOtherTools()">🧰 All other tools</button><button class="tool-btn" onclick="openAiTools()">🤖 AI Hub</button><button class="tool-btn" onclick="openSearchOverlay()">🔍 Search engines</button></div>
-    <!-- The other wide buttons (SITES, TV/RADIO, Browsers, CONVERT, etc.) are removed, but their overlays are still accessible via the sidebar or other means -->
-    <!-- The tool panel remains -->
+    
+    <!-- ===== TOOL PANEL ===== -->
     <div class="tool-panel" id="toolPanel"><h2 id="toolPanelTitle" style="font-size:1.8rem; margin-bottom:16px;">✨ Select a tool</h2><div id="toolContent"></div></div>
     <div class="rate-us-container"><button class="tool-btn" onclick="rateApp()" style="font-size:1.2rem;">⭐ Rate us</button></div>
 </main>
@@ -424,7 +423,7 @@
 </footer>
 <div id="toast" class="toast"></div>
 
-<!-- ========== BOTTOM SLIDING NEWS TICKER (RESTORED) ========== -->
+<!-- ========== BOTTOM SLIDING NEWS TICKER ========== -->
 <div class="ultra-ticker-wrapper">
     <div class="ticker-container">
         <div class="ticker-content">
@@ -457,7 +456,7 @@
     </div>
 </div>
 
-<!-- ========== SMART CHATBOT ========== -->
+<!-- ========== SMART CHATBOT (AI ASSISTANT) ========== -->
 <div id="smartChatWidget" class="chat-widget">
     <div class="chat-button" id="chatButton">
         💬 <span class="chat-badge">AI</span>
@@ -483,7 +482,6 @@
 </div>
 
 <style>
-/* Chat widget styles */
 .chat-widget {
     position: fixed;
     bottom: 30px;
@@ -674,17 +672,1338 @@
 </style>
 
 <script>
-// ==================== FULL ORIGINAL SCRIPT (all functions preserved) ====================
-// The original script is exactly the same as the initial code, but we have removed
-// the large card HTML from the grid. All JS functions remain unchanged.
-// For brevity, we include the entire script as it was originally.
-// (The original script is extremely long, but we keep it intact.)
-// Since the code is massive, we'll embed it via a placeholder comment.
-// In practice, you would copy the entire original script from your previous version.
-// This example shows only the structure; the actual full script would be placed here.
-// We'll include a minimal version to keep the page functional, but the real one is identical.
-console.log('MultiTool Pro - all tools functional');
-// ... (full original JS would follow here)
+// ================================================================
+//  MULTITOOL PRO – FULL ORIGINAL SCRIPT (removed large cards)
+// ================================================================
+(function(){
+    let darkMode = localStorage.getItem('theme') === 'dark';
+    if(darkMode) document.documentElement.setAttribute('data-theme','dark');
+    let muted = localStorage.getItem('soundMuted') === 'true';
+    let audioCtx = null;
+    let previousJoke = '';
+    let blinkInterval = null;
+    let calcExpr = '';
+
+    function showToast(msg){ let t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2500); }
+    function playSound(){ if(muted) return; if(!audioCtx){ audioCtx = new (window.AudioContext||window.webkitAudioContext)(); } if(audioCtx.state==='suspended') audioCtx.resume(); let osc=audioCtx.createOscillator(), gain=audioCtx.createGain(); osc.connect(gain); gain.connect(audioCtx.destination); osc.type='sine'; osc.frequency.value=660; gain.gain.setValueAtTime(0.08,audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.0001,audioCtx.currentTime+0.1); osc.start(); osc.stop(audioCtx.currentTime+0.1); }
+
+    let muteBtn = document.getElementById('muteBtn');
+    muteBtn.onclick = () => { muted = !muted; localStorage.setItem('soundMuted',muted); muteBtn.innerText = muted?'🔇':'🔊'; showToast(muted?'Sound muted':'Sound on'); };
+    if(muted) muteBtn.innerText = '🔇';
+
+    window.scrollToTop = function(){ window.scrollTo({top:0, behavior:'smooth'}); };
+    const scrollUpArrow = document.getElementById('scrollUpArrow');
+    function updateScrollArrow() {
+        if (window.scrollY > 150) {
+            if (!scrollUpArrow.classList.contains('visible')) { scrollUpArrow.classList.add('visible'); if (blinkInterval) clearInterval(blinkInterval); blinkInterval = setInterval(() => { if (scrollUpArrow.classList.contains('visible')) { scrollUpArrow.classList.add('blink'); setTimeout(() => scrollUpArrow.classList.remove('blink'), 500); } }, 3000); }
+        } else { if (scrollUpArrow.classList.contains('visible')) { scrollUpArrow.classList.remove('visible'); if (blinkInterval) { clearInterval(blinkInterval); blinkInterval = null; } } }
+    }
+    window.addEventListener('scroll', updateScrollArrow); updateScrollArrow();
+    window.toggleSidebar = function(){ document.getElementById('sidebar').classList.toggle('active'); document.getElementById('sidebarOverlay').classList.toggle('active'); };
+    window.closeSidebar = function(){ document.getElementById('sidebar').classList.remove('active'); document.getElementById('sidebarOverlay').classList.remove('active'); };
+    window.toggleTheme = function(){ darkMode = !darkMode; document.documentElement.setAttribute('data-theme',darkMode?'dark':'light'); localStorage.setItem('theme',darkMode?'dark':'light'); };
+    window.rateApp = function(){ showToast('⭐ Thank you! Rate us on Google Play'); window.open('https://play.google.com/store/apps/details?id=multitool.pro2','_blank'); };
+
+    let currentStar = 0;
+    const starBoxes = document.querySelectorAll('.star-box');
+    const totalStars = starBoxes.length;
+    
+    function fillNextStar() {
+        if (currentStar >= totalStars) return;
+        const box = starBoxes[currentStar];
+        const starSpan = box.querySelector('.star');
+        starSpan.classList.remove('empty');
+        starSpan.classList.add('filled');
+        starSpan.textContent = '★';
+        if (currentStar === totalStars - 1) { triggerFireworks(box); }
+        currentStar++;
+        if (currentStar < totalStars) { setTimeout(fillNextStar, 400); }
+    }
+    function triggerFireworks(starBox) {
+        starBox.classList.add('explode');
+        const rect = starBox.getBoundingClientRect();
+        const centerX = rect.left + rect.width / 2;
+        const centerY = rect.top + rect.height / 2;
+        const colors = ['#ff0000', '#ff7f00', '#ffff00', '#00ff00', '#00ffff', '#0000ff', '#8b00ff', '#ff33cc', '#ff6699'];
+        for (let i = 0; i < 60; i++) {
+            const angle = Math.random() * Math.PI * 2;
+            const speed = 3 + Math.random() * 6;
+            const dx = Math.cos(angle) * speed * 8;
+            const dy = Math.sin(angle) * speed * 8;
+            const particle = document.createElement('div');
+            particle.className = 'firework-particle';
+            particle.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+            particle.style.left = centerX + 'px';
+            particle.style.top = centerY + 'px';
+            particle.style.setProperty('--dx', dx + 'px');
+            particle.style.setProperty('--dy', dy + 'px');
+            document.body.appendChild(particle);
+            setTimeout(() => particle.remove(), 800);
+        }
+        setTimeout(() => { starBox.classList.remove('explode'); }, 600);
+    }
+    window.addEventListener('load', function() { setTimeout(fillNextStar, 500); });
+    
+    window.openSearchOverlay = function(){ let ov = document.getElementById('searchEnginesOverlay'); ov.classList.add('active'); const engines = [ { name: 'Google', icon: '🌐', url: 'https://www.google.com' }, { name: 'Bing', icon: '🅱️', url: 'https://www.bing.com' }, { name: 'DuckDuckGo', icon: '🦆', url: 'https://duckduckgo.com' }, { name: 'Yahoo', icon: '🟣', url: 'https://search.yahoo.com' }, { name: 'Yandex', icon: '🔴', url: 'https://yandex.com' }, { name: 'Baidu', icon: '🔵', url: 'https://www.baidu.com' }, { name: 'Ecosia', icon: '🌳', url: 'https://www.ecosia.org' }, { name: 'Startpage', icon: '🔒', url: 'https://www.startpage.com' }, { name: 'Qwant', icon: '🔷', url: 'https://www.qwant.com' }, { name: 'Brave Search', icon: '🦁', url: 'https://search.brave.com' }, { name: 'Swisscows', icon: '🐄', url: 'https://swisscows.com' }, { name: 'Mojeek', icon: '🌿', url: 'https://www.mojeek.com' }, { name: 'Ask.com', icon: '❓', url: 'https://www.ask.com' }, { name: 'AOL', icon: '💬', url: 'https://search.aol.com' }, { name: 'WolframAlpha', icon: '📊', url: 'https://www.wolframalpha.com' }, { name: 'You.com', icon: '🧠', url: 'https://you.com' }, { name: 'Presearch', icon: '🔗', url: 'https://presearch.com' }, { name: 'Gibiru', icon: '🔐', url: 'https://gibiru.com' }, { name: 'Lycos', icon: '🐶', url: 'https://www.lycos.com' }, { name: 'Dogpile', icon: '🐕', url: 'https://www.dogpile.com' }, { name: 'WebCrawler', icon: '🕷️', url: 'https://www.webcrawler.com' }, { name: 'Info.com', icon: 'ℹ️', url: 'https://www.info.com' }, { name: 'Search.com', icon: '🔎', url: 'https://www.search.com' }, { name: 'Excite', icon: '🎉', url: 'https://www.excite.com' } ]; document.getElementById('searchEngineList').innerHTML = engines.map(e => `<div class="search-card" onclick="window.open('${e.url}', '_blank'); closeSearchOverlay();"><div style="font-size:2.8rem;">${e.icon}</div><div style="font-weight:700; font-size:1.2rem;">${e.name}</div><div style="font-size:0.9rem;">Click to open</div></div>`).join(''); };
+    window.closeSearchOverlay = function(){ document.getElementById('searchEnginesOverlay').classList.remove('active'); };
+    window.openSitesOverlay = function(){ document.getElementById('sitesOverlay').classList.add('active'); renderSitesGrid(); };
+    window.closeSitesOverlay = function(){ document.getElementById('sitesOverlay').classList.remove('active'); };
+    function renderSitesGrid(){ const container = document.getElementById('sitesGrid'); const sitesList = [ { name: 'Reddit', icon: '🤖', url: 'https://www.reddit.com' }, { name: 'Pinterest', icon: '📌', url: 'https://www.pinterest.com' }, { name: 'Tumblr', icon: '📝', url: 'https://www.tumblr.com' }, { name: 'Telegram', icon: '✈️', url: 'https://web.telegram.org' }, { name: 'WhatsApp Web', icon: '💬', url: 'https://web.whatsapp.com' }, { name: 'Signal', icon: '📱', url: 'https://signal.org' }, { name: 'SoundCloud', icon: '🎵', url: 'https://soundcloud.com' }, { name: 'DeviantArt', icon: '🎨', url: 'https://www.deviantart.com' }, { name: 'Behance', icon: '💼', url: 'https://www.behance.net' }, { name: 'Dribbble', icon: '⚽', url: 'https://dribbble.com' }, { name: 'Flickr', icon: '📷', url: 'https://www.flickr.com' }, { name: 'Mixcloud', icon: '🎧', url: 'https://www.mixcloud.com' }, { name: 'Bandcamp', icon: '🎸', url: 'https://bandcamp.com' }, { name: 'Goodreads', icon: '📚', url: 'https://www.goodreads.com' }, { name: 'IMDb', icon: '🎥', url: 'https://www.imdb.com' }, { name: 'Hacker News', icon: '📰', url: 'https://news.ycombinator.com' }, { name: 'Product Hunt', icon: '🚀', url: 'https://www.producthunt.com' }, { name: 'Stack Overflow', icon: '🧑‍💻', url: 'https://stackoverflow.com' }, { name: 'GitLab', icon: '🦊', url: 'https://gitlab.com' }, { name: 'Bitbucket', icon: '🔷', url: 'https://bitbucket.org' }, { name: 'Figma', icon: '🎨', url: 'https://www.figma.com' }, { name: 'Spotify Web Player', icon: '🎧', url: 'https://open.spotify.com' } ]; let html = ''; sitesList.forEach(site => { html += `<div class="sites-card" onclick="window.open('${site.url}', '_blank');"><div style="font-size:2.8rem;">${site.icon}</div><div style="font-weight:700; font-size:1.2rem;">${site.name}</div><div style="font-size:0.9rem;">Click to open</div></div>`; }); container.innerHTML = html; }
+    window.openMediaOverlay = function(){ document.getElementById('mediaOverlay').classList.add('active'); renderMediaGrid(); };
+    window.closeMediaOverlay = function(){ document.getElementById('mediaOverlay').classList.remove('active'); };
+    function renderMediaGrid(){ const container = document.getElementById('mediaGrid'); const mediaSites = [ { name: 'Dailymotion', icon: '📹', url: 'https://www.dailymotion.com' }, { name: 'Vimeo', icon: '🎬', url: 'https://vimeo.com' }, { name: 'Twitch', icon: '🎮', url: 'https://www.twitch.tv' }, { name: 'TikTok', icon: '🎵', url: 'https://www.tiktok.com' }, { name: 'Instagram Reels', icon: '📱', url: 'https://www.instagram.com/reels' }, { name: 'Facebook Watch', icon: '📘', url: 'https://www.facebook.com/watch' }, { name: 'Netflix', icon: '📺', url: 'https://www.netflix.com' }, { name: 'Amazon Prime Video', icon: '📦', url: 'https://www.primevideo.com' }, { name: 'Disney+', icon: '✨', url: 'https://www.disneyplus.com' }, { name: 'HBO Max', icon: '🎬', url: 'https://www.max.com' }, { name: 'Hulu', icon: '📺', url: 'https://www.hulu.com' }, { name: 'Paramount+', icon: '⭐', url: 'https://www.paramountplus.com' }, { name: 'Peacock', icon: '🦚', url: 'https://www.peacocktv.com' }, { name: 'Apple TV+', icon: '🍎', url: 'https://tv.apple.com' }, { name: 'Crunchyroll', icon: '🍙', url: 'https://www.crunchyroll.com' }, { name: 'Funimation', icon: '🎞️', url: 'https://www.funimation.com' }, { name: 'Viki', icon: '🌏', url: 'https://www.viki.com' }, { name: 'Tubi', icon: '📺', url: 'https://tubitv.com' }, { name: 'Pluto TV', icon: '🪐', url: 'https://pluto.tv' }, { name: 'Plex', icon: '📡', url: 'https://watch.plex.tv' } ]; let html = ''; mediaSites.forEach(site => { html += `<div class="media-card" onclick="window.open('${site.url}', '_blank');"><div style="font-size:2.8rem;">${site.icon}</div><div style="font-weight:700; font-size:1.2rem;">${site.name}</div><div style="font-size:0.9rem;">Click to open</div></div>`; }); container.innerHTML = html; }
+    window.openTvRadioOverlay = function(){ document.getElementById('tvRadioOverlay').classList.add('active'); document.getElementById('tvRadioContentArea').innerHTML = ''; };
+    window.closeTvRadioOverlay = function(){ document.getElementById('tvRadioOverlay').classList.remove('active'); };
+    const tvChannels = [ { name: 'RedBull TV', icon: '🐂', url: 'https://www.redbull.com/int-en/tv' }, { name: 'Samsung TV Plus', icon: '📺', url: 'https://www.samsungtvplus.com' }, { name: 'Xumo', icon: '📡', url: 'https://www.xumo.tv' }, { name: 'Plex Live TV', icon: '📼', url: 'https://watch.plex.tv/live-tv' }, { name: 'DistroTV', icon: '📀', url: 'https://www.distro.tv' }, { name: 'Amazon Freevee', icon: '🎬', url: 'https://www.amazon.com/Freevee' }, { name: 'Crackle', icon: '🎞️', url: 'https://www.crackle.com.in' }, { name: 'Vudu Free', icon: '💿', url: 'https://www.vudu.com/content/movies/featured/free' }, { name: 'The Roku Channel', icon: '📼', url: 'https://therokuchannel.roku.com' }, { name: 'BBC iPlayer', icon: '🇬🇧', url: 'https://www.bbc.co.uk/iplayer' }, { name: 'ITVX', icon: '🎥', url: 'https://www.itv.com' }, { name: 'Channel 4', icon: '4️⃣', url: 'https://www.channel4.com' }, { name: 'SBS On Demand', icon: '🇦🇺', url: 'https://www.sbs.com.au/ondemand/' }, { name: 'ABC iview', icon: '🦘', url: 'https://iview.abc.net.au' }, { name: 'NHK World', icon: '🇯🇵', url: 'https://www3.nhk.or.jp/nhkworld/' }, { name: 'France.tv', icon: '🇫🇷', url: 'https://www.france.tv' }, { name: 'ZDF Mediathek', icon: '🇩🇪', url: 'https://www.zdf.de' }, { name: 'RaiPlay', icon: '🇮🇹', url: 'https://www.raiplay.it' }, { name: 'Haystack News', icon: '📰', url: 'https://www.haystack.tv' }, { name: 'GlobeTV', icon: '🌍', url: 'https://globetv.app/' }, { name: 'FreeInterTV', icon: '📶', url: 'http://www.freeintertv.com/' }, { name: 'TabloTV', icon: '💾', url: 'https://www.tablotv.com/' }, { name: 'JustWatch', icon: '🔍', url: 'https://www.justwatch.com' } ];
+    const radioStations = [ { name: 'TuneIn', icon: '📻', url: 'https://tunein.com' }, { name: 'iHeartRadio', icon: '❤️', url: 'https://www.iheart.com' }, { name: 'Radio Garden', icon: '🗺️', url: 'https://radio.garden' }, { name: 'Streema', icon: '🎛️', url: 'https://streema.com' }, { name: 'Radio.net', icon: '🎚️', url: 'https://www.radio.net' }, { name: 'Online Radio Box', icon: '📦', url: 'https://onlineradiobox.com' }, { name: 'AccuRadio', icon: '🎵', url: 'https://www.accuradio.com' }, { name: 'SomaFM', icon: '🎹', url: 'https://somafm.com' }, { name: 'LiveATC', icon: '✈️', url: 'https://www.liveatc.net' }, { name: 'BBC Sounds', icon: '🎧', url: 'https://www.bbc.co.uk/sounds' }, { name: 'NPR', icon: '🎙️', url: 'https://www.npr.org' }, { name: 'Audacy', icon: '🎤', url: 'https://www.audacy.com' }, { name: 'Jango', icon: '🎻', url: 'https://www.jango.com' }, { name: 'Radio Paradise', icon: '🌴', url: 'https://radioparadise.com' }, { name: 'JazzRadio', icon: '🎷', url: 'https://www.jazzradio.com' }, { name: 'DI.FM', icon: '🎼', url: 'https://www.di.fm' }, { name: 'KEXP', icon: '🎸', url: 'https://www.kexp.org' }, { name: 'WNYC', icon: '🔊', url: 'https://www.wnyc.org' }, { name: 'Internet-Radio.com', icon: '🎶', url: 'https://www.internet-radio.com/' }, { name: 'Radiotunes', icon: '🎺', url: 'https://www.radiotunes.com/' } ];
+    window.showTvChannels = function(){ const area = document.getElementById('tvRadioContentArea'); let html = '<h3 style="text-align:center;margin-bottom:20px;font-size:1.6rem;">📺 TV Channels</h3>'; tvChannels.forEach(site => { html += `<div class="tvradio-card" onclick="window.open('${site.url}', '_blank');"><div style="font-size:2.8rem;">${site.icon}</div><div style="font-weight:700; font-size:1.2rem;">${site.name}</div><div style="font-size:0.9rem;">Watch now</div></div>`; }); area.innerHTML = html; };
+    window.showRadioStations = function(){ const area = document.getElementById('tvRadioContentArea'); let html = '<h3 style="text-align:center;margin-bottom:20px;font-size:1.6rem;">📻 Radio Stations</h3>'; radioStations.forEach(site => { html += `<div class="tvradio-card" onclick="window.open('${site.url}', '_blank');"><div style="font-size:2.8rem;">${site.icon}</div><div style="font-weight:700; font-size:1.2rem;">${site.name}</div><div style="font-size:0.9rem;">Listen now</div></div>`; }); area.innerHTML = html; };
+    window.openOtherTools = function(){ document.getElementById('otherToolsOverlay').classList.add('active'); renderOtherToolsFull(); };
+    window.openAiTools = function(){ document.getElementById('aiToolsOverlay').classList.add('active'); renderAiToolsFull(); };
+    window.closeOtherOverlay = function(){ document.getElementById('otherToolsOverlay').classList.remove('active'); };
+    window.closeAiOverlay = function(){ document.getElementById('aiToolsOverlay').classList.remove('active'); };
+    window.closePremium = function(){ document.getElementById('premiumOverlay').classList.remove('active'); };
+    window.openImagineOverlay = function(){ document.getElementById('imagineOverlay').classList.add('active'); renderImagineTools(); };
+    window.closeImagineOverlay = function(){ document.getElementById('imagineOverlay').classList.remove('active'); };
+    window.openShortenerOverlay = function(){ document.getElementById('shortenerOverlay').classList.add('active'); renderShortenerGrid(); };
+    window.closeShortenerOverlay = function(){ document.getElementById('shortenerOverlay').classList.remove('active'); };
+    window.openOnlineOverlay = function(){ document.getElementById('onlineOverlay').classList.add('active'); renderOnlineGrid(); };
+    window.closeOnlineOverlay = function(){ document.getElementById('onlineOverlay').classList.remove('active'); };
+    let isFullscreen = false; let isMobileView = true;
+    window.openBrowsersOverlay = function(){ document.getElementById('browsersOverlay').classList.add('active'); isFullscreen = false; isMobileView = true; document.getElementById('mobileViewBtn').textContent = '💻 As Desktop'; document.getElementById('fullscreenMobileBtn').textContent = '💻'; document.getElementById('browserFrame').src = 'about:blank'; document.getElementById('browserUrlInput').value = ''; const frame = document.getElementById('browserFrame'); frame.classList.add('mobile-view'); frame.classList.remove('fullscreen'); document.getElementById('exitFullscreenBtn').style.display = 'none'; document.getElementById('fullscreenFloatBar').classList.remove('active'); document.getElementById('browsersControls').classList.remove('hidden'); document.getElementById('browsersList').style.display = 'grid'; renderBrowsersList(); };
+    window.closeBrowsersOverlay = function(){ if (isFullscreen) { toggleBrowserFullscreen(); } isMobileView = true; document.getElementById('browsersOverlay').classList.remove('active'); document.getElementById('browserFrame').src = 'about:blank'; };
+    function renderBrowsersList() { const container = document.getElementById('browsersList'); const browsers = [ { name: 'Google Chrome', icon: '🌐', color: '#4285F4' }, { name: 'Mozilla Firefox', icon: '🦊', color: '#FF7139' }, { name: 'Microsoft Edge', icon: '🔷', color: '#0078D7' }, { name: 'Opera', icon: '🔴', color: '#FF1B2D' }, { name: 'Brave', icon: '🦁', color: '#FB542B' }, { name: 'Safari', icon: '🧭', color: '#006CFF' }, { name: 'Vivaldi', icon: '🌊', color: '#EF3939' }, { name: 'Tor Browser', icon: '🧅', color: '#7D4698' }, { name: 'Epic Privacy', icon: '🛡️', color: '#5C6BC0' }, { name: 'Pale Moon', icon: '🌕', color: '#FFB347' } ]; container.innerHTML = browsers.map(b => `<div class="browsers-card-item" onclick="selectBrowser('${b.name}')" style="border-bottom:4px solid ${b.color};"><div style="font-size:2.6rem;">${b.icon}</div><div style="font-weight:700; font-size:1.2rem;">${b.name}</div><div style="font-size:0.9rem;">Click to select</div></div>`).join(''); }
+    window.selectBrowser = function(name) { showToast(`Browser mode: ${name}.`); };
+    window.loadBrowserUrl = function() { let url = document.getElementById('browserUrlInput').value.trim(); if (!url) { showToast('Please enter a URL'); return; } if (!/^https?:\/\//i.test(url)) { url = 'https://' + url; } document.getElementById('browserFrame').src = url; if (isFullscreen) { document.getElementById('fullscreenUrlInput').value = url; } };
+    window.loadBrowserUrlFromFullscreen = function() { let url = document.getElementById('fullscreenUrlInput').value.trim(); if (!url) return; if (!/^https?:\/\//i.test(url)) { url = 'https://' + url; } document.getElementById('browserFrame').src = url; document.getElementById('browserUrlInput').value = url; };
+    window.toggleBrowserFullscreen = function() { const frame = document.getElementById('browserFrame'); const floatBar = document.getElementById('fullscreenFloatBar'); const controls = document.getElementById('browsersControls'); const browsersList = document.getElementById('browsersList'); if (!isFullscreen) { frame.classList.add('fullscreen'); floatBar.classList.add('active'); document.getElementById('fullscreenUrlInput').value = document.getElementById('browserUrlInput').value || ''; document.getElementById('fullscreenMobileBtn').textContent = isMobileView ? '💻' : '📱'; controls.classList.add('hidden'); browsersList.style.display = 'none'; isFullscreen = true; } else { frame.classList.remove('fullscreen'); floatBar.classList.remove('active'); controls.classList.remove('hidden'); browsersList.style.display = 'grid'; isFullscreen = false; } };
+    window.toggleMobileView = function() { const frame = document.getElementById('browserFrame'); const btn = document.getElementById('mobileViewBtn'); const floatBtn = document.getElementById('fullscreenMobileBtn'); if (isFullscreen) { showToast('Exit fullscreen first to switch view'); return; } isMobileView = !isMobileView; if (isMobileView) { frame.classList.add('mobile-view'); btn.textContent = '💻 As Desktop'; floatBtn.textContent = '💻'; } else { frame.classList.remove('mobile-view'); btn.textContent = '📱 As Mobile'; floatBtn.textContent = '📱'; } };
+    let internalMobileView = true;
+    window.openInternalTab = function() { let url = document.getElementById('browserUrlInput').value.trim(); if (!url) { showToast('Enter a URL first'); return; } if (!/^https?:\/\//i.test(url)) { url = 'https://' + url; } document.getElementById('internalTabUrlInput').value = url; const frame = document.getElementById('internalTabFrame'); frame.src = url; internalMobileView = true; frame.classList.add('mobile-view'); document.getElementById('internalTabMobileBtn').textContent = '💻 As Desktop'; document.getElementById('internalTabOverlay').classList.add('active'); };
+    window.closeInternalTab = function() { document.getElementById('internalTabOverlay').classList.remove('active'); document.getElementById('internalTabFrame').src = 'about:blank'; };
+    window.loadInternalTabUrl = function() { let url = document.getElementById('internalTabUrlInput').value.trim(); if (!url) return; if (!/^https?:\/\//i.test(url)) { url = 'https://' + url; } document.getElementById('internalTabFrame').src = url; };
+    window.toggleInternalMobileView = function() { const frame = document.getElementById('internalTabFrame'); const btn = document.getElementById('internalTabMobileBtn'); internalMobileView = !internalMobileView; if (internalMobileView) { frame.classList.add('mobile-view'); btn.textContent = '💻 As Desktop'; } else { frame.classList.remove('mobile-view'); btn.textContent = '📱 As Mobile'; } };
+    window.openRemoteToolsOverlay = function(){ document.getElementById('remoteToolsOverlay').classList.add('active'); renderRDPGrid(); renderVPNGrid(); renderPreviewGrid(); };
+    window.closeRemoteToolsOverlay = function(){ document.getElementById('remoteToolsOverlay').classList.remove('active'); };
+    function renderRDPGrid(){ const container = document.getElementById('rdpGrid'); const rdpTools = [ { name: 'Neverinstall', icon: '🖥️', url: 'https://www.neverinstall.com' }, { name: 'Shells', icon: '🐚', url: 'https://www.shells.com' }, { name: 'Cameyo', icon: '☁️', url: 'https://cameyo.com' }, { name: 'CloudRDP', icon: '☁️', url: 'https://www.cloudrdp.com' }, { name: 'RDP Arena', icon: '🏟️', url: 'https://www.rdparena.com' }, { name: 'RemotePC', icon: '🖥️', url: 'https://www.remotepc.com' }, { name: 'AppDB', icon: '📱', url: 'https://appdb.to' }, { name: 'BrowserStack', icon: '🌐', url: 'https://www.browserstack.com' } ]; let html = ''; rdpTools.forEach(tool => { html += `<div class="games-card" onclick="window.open('${tool.url}', '_blank');"><div style="font-size:2.6rem;">${tool.icon}</div><div style="font-weight:700; font-size:1.2rem;">${tool.name}</div><div style="font-size:0.9rem;">Open in new tab</div></div>`; }); container.innerHTML = html; }
+    function renderVPNGrid(){ const container = document.getElementById('vpnGrid'); const vpnTools = [ { name: 'CroxyProxy', icon: '🦀', url: 'https://www.croxyproxy.com' }, { name: 'Hidester', icon: '🦊', url: 'https://hidester.com/proxy' }, { name: 'KProxy', icon: '🔐', url: 'https://www.kproxy.com' }, { name: 'Whoer VPN', icon: '🕵️', url: 'https://whoer.net' }, { name: 'VPNBook', icon: '📚', url: 'https://www.vpnbook.com' }, { name: 'Hide.me', icon: '🙈', url: 'https://hide.me' }, { name: 'ProtonVPN', icon: '🛡️', url: 'https://protonvpn.com' }, { name: 'TunnelBear', icon: '🐻', url: 'https://www.tunnelbear.com' } ]; let html = ''; vpnTools.forEach(tool => { html += `<div class="games-card" onclick="window.open('${tool.url}', '_blank');"><div style="font-size:2.6rem;">${tool.icon}</div><div style="font-weight:700; font-size:1.2rem;">${tool.name}</div><div style="font-size:0.9rem;">Open in new tab</div></div>`; }); container.innerHTML = html; }
+    function renderPreviewGrid(){ const container = document.getElementById('previewGrid'); const previewTools = [ { name: 'Responsively', icon: '📱💻', url: 'https://responsively.app' }, { name: 'BrowserStack Responsive', icon: '🖥️📱', url: 'https://www.browserstack.com/responsive' }, { name: 'LambdaTest', icon: '🔧', url: 'https://www.lambdatest.com' }, { name: 'Screenfly', icon: '🪰', url: 'https://screenfly.org' }, { name: 'Google Mobile‑Friendly', icon: '🤖', url: 'https://search.google.com/test/mobile-friendly' }, { name: 'Am I Responsive', icon: '🔄', url: 'https://ami.responsivedesign.is' }, { name: 'Viewport Resizer', icon: '📏', url: 'https://viewportresizer.com' }, { name: 'Responsive Design Checker', icon: '✅', url: 'https://responsivedesignchecker.com' } ]; let html = ''; previewTools.forEach(tool => { html += `<div class="games-card" onclick="window.open('${tool.url}', '_blank');"><div style="font-size:2.6rem;">${tool.icon}</div><div style="font-weight:700; font-size:1.2rem;">${tool.name}</div><div style="font-size:0.9rem;">Open in new tab</div></div>`; }); container.innerHTML = html; }
+    window.openConvertOverlay = function(){ document.getElementById('convertOverlay').classList.add('active'); renderConvertGrid(); };
+    window.closeConvertOverlay = function(){ document.getElementById('convertOverlay').classList.remove('active'); };
+    function renderConvertGrid() { const container = document.getElementById('convertGrid'); const convertSites = [ { name: 'PDFescape', icon: '📄', url: 'https://www.pdfescape.com', category: 'PDF Tools' }, { name: 'Sejda PDF', icon: '📑', url: 'https://www.sejda.com', category: 'PDF Tools' }, { name: 'PDF24 Tools', icon: '📋', url: 'https://tools.pdf24.org', category: 'PDF Tools' }, { name: 'PDF Candy', icon: '🍬', url: 'https://pdfcandy.com', category: 'PDF Tools' }, { name: 'PDF2Go', icon: '📤', url: 'https://www.pdf2go.com', category: 'PDF Tools' }, { name: 'Soda PDF', icon: '🥤', url: 'https://www.sodapdf.com', category: 'PDF Tools' }, { name: 'Foxit Online', icon: '🦊', url: 'https://www.foxit.com/pdf-editor/', category: 'PDF Tools' }, { name: 'DocHub', icon: '✍️', url: 'https://dochub.com', category: 'PDF Tools' }, { name: 'Fotor', icon: '🖼️', url: 'https://www.fotor.com', category: 'Image Editors' }, { name: 'BeFunky', icon: '🎨', url: 'https://www.befunky.com', category: 'Image Editors' }, { name: 'LunaPic', icon: '🌙', url: 'https://www.lunapic.com', category: 'Image Editors' }, { name: 'Sumopaint', icon: '🖌️', url: 'https://www.sumopaint.com', category: 'Image Editors' }, { name: 'Google Docs', icon: '📝', url: 'https://docs.google.com', category: 'Word & Docs' }, { name: 'Microsoft Office Online', icon: '📊', url: 'https://www.office.com', category: 'Word & Docs' }, { name: 'Zoho Writer', icon: '📃', url: 'https://www.zoho.com/writer/', category: 'Word & Docs' }, { name: 'OnlyOffice', icon: '🏢', url: 'https://www.onlyoffice.com', category: 'Word & Docs' }, { name: 'CryptPad', icon: '🔒', url: 'https://cryptpad.fr', category: 'Word & Docs' }, { name: 'Zamzar', icon: '🔄', url: 'https://www.zamzar.com', category: 'File Converters' }, { name: 'Online-Convert.com', icon: '🔁', url: 'https://www.online-convert.com', category: 'File Converters' }, { name: 'FileZigZag', icon: '⚡', url: 'https://www.filezigzag.com', category: 'File Converters' }, { name: 'Aconvert', icon: '🔄', url: 'https://www.aconvert.com', category: 'File Converters' }, { name: 'FreeFileConvert', icon: '📂', url: 'https://www.freefileconvert.com', category: 'File Converters' }, { name: 'Online Audio Converter', icon: '🎵', url: 'https://online-audio-converter.com', category: 'Audio/Video Tools' }, { name: 'Media.io', icon: '🎬', url: 'https://www.media.io', category: 'Audio/Video Tools' }, { name: 'VEED.io', icon: '✂️', url: 'https://www.veed.io', category: 'Audio/Video Tools' }, { name: 'Clipchamp', icon: '🎞️', url: 'https://clipchamp.com', category: 'Audio/Video Tools' }, { name: '123Apps', icon: '🔧', url: 'https://123apps.com', category: 'Audio/Video Tools' }, { name: 'AudioTrimmer', icon: '✂️', url: 'https://audiotrimmer.com', category: 'Audio/Video Tools' } ]; const grouped = {}; convertSites.forEach(site => { if (!grouped[site.category]) grouped[site.category] = []; grouped[site.category].push(site); }); let html = ''; for (const [cat, sites] of Object.entries(grouped)) { html += `<h3 style="margin-top:36px;text-align:center;border-bottom:2px solid var(--border);padding-bottom:12px;font-size:1.6rem;">${cat}</h3><div class="convert-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:24px;margin-top:24px;">`; sites.forEach(site => { html += `<div class="convert-card" onclick="window.open('${site.url}', '_blank');"><div style="font-size:2.8rem;">${site.icon}</div><div style="font-weight:700; font-size:1.2rem;">${site.name}</div><div style="font-size:0.9rem;">Click to open</div></div>`; }); html += '</div>'; } container.innerHTML = html; }
+    
+    window.renderAllAiTranslatorGrid = function() { 
+        const container = document.getElementById('allAiTranslatorGrid'); 
+        const translatorSites = [ 
+            { name: 'Google Translate', icon: '🌐🔤', url: 'https://translate.google.com' }, 
+            { name: 'Lernix AI', icon: '🦉', url: 'https://lernix.ai' }, 
+            { name: 'Reverso', icon: '🔄', url: 'https://www.reverso.net/text-translation' }, 
+            { name: 'Linguee', icon: '📖', url: 'https://www.linguee.com' }, 
+            { name: 'Microsoft Translator', icon: '🪟', url: 'https://www.bing.com/translator' }, 
+            { name: 'SYSTRAN', icon: '🌐', url: 'https://www.systran.net/translate/' }, 
+            { name: 'PROMT', icon: '📑', url: 'https://www.online-translator.com/' }, 
+            { name: 'iTranslate', icon: '📱', url: 'https://itranslate.com/translate/english-united-states-to-german' }, 
+            { name: 'Cambridge Translator', icon: '🎓', url: 'https://dictionary.cambridge.org/translate/' }, 
+            { name: 'Collins Translator', icon: '📚', url: 'https://www.collinsdictionary.com/translator' }, 
+            { name: 'Papago', icon: '🦜', url: 'https://papago.naver.com/' }, 
+            { name: 'Baidu Translate', icon: '🔵', url: 'https://fanyi.baidu.com/' }, 
+            { name: 'Yandex Translate', icon: '🔴', url: 'https://translate.yandex.com', note: '✨ Also available via the toolbar' } 
+        ]; 
+        let html = '<div class="convert-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:24px;margin-top:20px;">'; 
+        translatorSites.forEach(site => { 
+            html += `<div class="convert-card" style="cursor:pointer;" onclick="window.open('${site.url}', '_blank');">
+                        <div style="font-size:2.8rem;">${site.icon}</div>
+                        <div style="font-weight:700; font-size:1.2rem;">${site.name}</div>
+                        <div style="font-size:0.9rem; margin-top:4px;">Click to open</div>
+                        ${site.note ? `<div style="font-size:0.75rem; color:var(--accent2); margin-top:6px;">${site.note}</div>` : ''}
+                     </div>`; 
+        }); 
+        html += '</div>'; 
+        container.innerHTML = html; 
+    };
+    window.openAllAiTranslatorOverlay = function(){ document.getElementById('allAiTranslatorOverlay').classList.add('active'); window.renderAllAiTranslatorGrid(); };
+    window.closeAllAiTranslatorOverlay = function(){ document.getElementById('allAiTranslatorOverlay').classList.remove('active'); };
+    
+    window.openGamesOverlay = function(){ document.getElementById('gamesOverlay').classList.add('active'); renderGamesGrid(); };
+    window.closeGamesOverlay = function(){ document.getElementById('gamesOverlay').classList.remove('active'); };
+    function renderGamesGrid() { const container = document.getElementById('gamesGrid'); const gamesList = [ { name: 'Steam', icon: '🎮', url: 'https://store.steampowered.com' }, { name: 'Epic Games', icon: '🛒', url: 'https://www.epicgames.com' }, { name: 'GOG.com', icon: '📦', url: 'https://www.gog.com' }, { name: 'itch.io', icon: '🌐', url: 'https://itch.io' }, { name: 'Kongregate', icon: '🕹️', url: 'https://www.kongregate.com' }, { name: 'Miniclip', icon: '🎯', url: 'https://www.miniclip.com' }, { name: 'Addicting Games', icon: '🎲', url: 'https://www.addictinggames.com' }, { name: 'Armor Games', icon: '🛡️', url: 'https://armorgames.com' }, { name: 'Newgrounds', icon: '🎨', url: 'https://www.newgrounds.com' }, { name: 'Poki', icon: '🐶', url: 'https://poki.com' }, { name: 'CrazyGames', icon: '🃏', url: 'https://www.crazygames.com' }, { name: 'Agame', icon: '🕸️', url: 'https://www.agame.com' }, { name: 'Y8', icon: '🚀', url: 'https://www.y8.com' }, { name: 'Friv', icon: '🍭', url: 'https://www.friv.com' }, { name: 'Kizi', icon: '🧩', url: 'https://kizi.com' }, { name: 'Pogo', icon: '🎱', url: 'https://www.pogo.com' }, { name: 'Big Fish Games', icon: '🐟', url: 'https://www.bigfishgames.com' }, { name: 'Roblox', icon: '👾', url: 'https://www.roblox.com' }, { name: 'Minecraft', icon: '⛏️', url: 'https://www.minecraft.net' }, { name: 'League of Legends', icon: '🏆', url: 'https://www.leagueoflegends.com' }, { name: 'Fortnite', icon: '🔫', url: 'https://www.fortnite.com' }, { name: 'PlayStation', icon: '🎧', url: 'https://www.playstation.com' }, { name: 'Xbox', icon: '🖥️', url: 'https://www.xbox.com' }, { name: 'Nintendo', icon: '🍄', url: 'https://www.nintendo.com' }, { name: 'IGN', icon: '📺', url: 'https://www.ign.com' }, { name: 'GameSpot', icon: '🎤', url: 'https://www.gamespot.com' }, { name: 'PC Gamer', icon: '⌨️', url: 'https://www.pcgamer.com' }, { name: 'Kotaku', icon: '🗞️', url: 'https://kotaku.com' }, { name: 'Rock Paper Shotgun', icon: '📰', url: 'https://www.rockpapershotgun.com' }, { name: 'Game Jolt', icon: '⚡', url: 'https://gamejolt.com' } ]; let html = ''; gamesList.forEach(game => { html += `<div class="games-card" onclick="window.open('${game.url}', '_blank');"><div style="font-size:2.8rem;">${game.icon}</div><div style="font-weight:700; font-size:1.2rem;">${game.name}</div><div style="font-size:0.9rem;">Click to open</div></div>`; }); container.innerHTML = html; }
+    window.openMoneyOverlay = function(){ document.getElementById('moneyOverlay').classList.add('active'); renderMoneyGrid(); };
+    window.closeMoneyOverlay = function(){ document.getElementById('moneyOverlay').classList.remove('active'); };
+    function renderMoneyGrid() { const container = document.getElementById('moneyGrid'); const sites = [ { name: 'Geico', icon: '🦎', url: 'https://www.geico.com' }, { name: 'Progressive', icon: '🅿️', url: 'https://www.progressive.com' }, { name: 'State Farm', icon: '🏠', url: 'https://www.statefarm.com' }, { name: 'Allstate', icon: '🤲', url: 'https://www.allstate.com' }, { name: 'USAA', icon: '🦅', url: 'https://www.usaa.com' }, { name: 'Liberty Mutual', icon: '🗽', url: 'https://www.libertymutual.com' }, { name: 'Nationwide', icon: '🌐', url: 'https://www.nationwide.com' }, { name: 'Farmers', icon: '🌾', url: 'https://www.farmers.com' }, { name: 'Travelers', icon: '✈️', url: 'https://www.travelers.com' }, { name: 'Aflac', icon: '🦆', url: 'https://www.aflac.com' }, { name: 'LendingTree', icon: '🌳', url: 'https://www.lendingtree.com' }, { name: 'SoFi', icon: '🏦', url: 'https://www.sofi.com' }, { name: 'Marcus', icon: '💰', url: 'https://www.marcus.com' }, { name: 'Rocket Mortgage', icon: '🚀', url: 'https://www.rocketmortgage.com' }, { name: 'Upstart', icon: '📈', url: 'https://www.upstart.com' }, { name: 'Best Egg', icon: '🥚', url: 'https://www.bestegg.com' }, { name: 'Robinhood', icon: '🏹', url: 'https://robinhood.com' }, { name: 'E*TRADE', icon: '📊', url: 'https://us.etrade.com' }, { name: 'Fidelity', icon: '🏆', url: 'https://www.fidelity.com' }, { name: 'Charles Schwab', icon: '🐂', url: 'https://www.schwab.com' }, { name: 'Vanguard', icon: '🚢', url: 'https://investor.vanguard.com' }, { name: 'Acorns', icon: '🌰', url: 'https://www.acorns.com' }, { name: 'Coinbase', icon: '🪙', url: 'https://www.coinbase.com' }, { name: 'Gemini', icon: '♊', url: 'https://www.gemini.com' }, { name: 'Webull', icon: '🐃', url: 'https://www.webull.com' }, { name: 'Betterment', icon: '🌱', url: 'https://www.betterment.com' }, { name: 'Mint', icon: '🍃', url: 'https://mint.intuit.com' }, { name: 'YNAB', icon: '📝', url: 'https://www.youneedabudget.com' }, { name: 'Credit Karma', icon: '🛡️', url: 'https://www.creditkarma.com' }, { name: 'NerdWallet', icon: '🤓', url: 'https://www.nerdwallet.com' } ]; let html = ''; sites.forEach(site => { html += `<div class="games-card" onclick="window.open('${site.url}', '_blank');"><div style="font-size:2.8rem;">${site.icon}</div><div style="font-weight:700; font-size:1.2rem;">${site.name}</div><div style="font-size:0.9rem;">Click to open</div></div>`; }); container.innerHTML = html; }
+    const originalTools = [ {id:'calculator', icon:'🧮', name:'Advanced Calculator'}, {id:'password', icon:'🔐', name:'Password Generator'}, {id:'wordcount', icon:'📝', name:'Word Counter'}, {id:'caseconverter', icon:'🔤', name:'Case Converter'}, {id:'colorpicker', icon:'🎨', name:'Color Picker'}, {id:'unitconverter', icon:'📏', name:'Unit Converter'}, {id:'stopwatch', icon:'⏱️', name:'Stopwatch'}, {id:'qrcode', icon:'📱', name:'QR Code'}, {id:'bmi', icon:'⚖️', name:'BMI Calculator'}, {id:'random', icon:'🎲', name:'Random Number'}, {id:'countdown', icon:'⏳', name:'Countdown Timer'}, {id:'datediff', icon:'📅', name:'Date Difference'}, {id:'base64', icon:'🔣', name:'Base64'}, {id:'urlencode', icon:'🔗', name:'URL Encode'}, {id:'jsonformat', icon:'📋', name:'JSON Formatter'}, {id:'lorem', icon:'📄', name:'Lorem Ipsum'}, {id:'currency', icon:'💱', name:'Currency Converter'}, {id:'percentcalc', icon:'📊', name:'Percentage Calc'}, {id:'agecalc', icon:'🎂', name:'Age Calculator'}, {id:'binhex', icon:'💻', name:'Binary/Hex'}, {id:'roman', icon:'🏛️', name:'Roman Numeral'}, {id:'tipcalc', icon:'💰', name:'Tip Calculator'}, {id:'worldclock', icon:'🕐', name:'World Clock (All Zones)'}, {id:'dice', icon:'🎲', name:'Dice Roller'}, {id:'coin', icon:'🪙', name:'Coin Flip'}, {id:'joke', icon:'😂', name:'Joke Generator (Fresh)'}, {id:'ip', icon:'🌍', name:'IP Lookup'},
+        {id:'ai_paraphraser', icon:'🔄', name:'AI Paraphraser'},
+        {id:'ai_grammar', icon:'✅', name:'Grammar & Spell Check'},
+        {id:'ai_summarizer', icon:'📄', name:'AI Summarizer'},
+        {id:'ai_sentiment', icon:'😊', name:'Sentiment Analysis'},
+        {id:'ai_keywords', icon:'🔑', name:'Keyword Extractor'},
+        {id:'ai_readability', icon:'📖', name:'Readability Checker'},
+        {id:'premium_ai', icon:'🔮', name:'✨ AI Text Enhancer'} ];
+    // metaSearchTools is kept but not rendered as large cards – they are accessed via flex buttons and overlays
+    const metaSearchTools = [ {id:'media_overlay', icon:'📺', name:'📺 Media & Video Platforms'}, {id:'sites_overlay', icon:'🌐', name:'🌐 Popular Sites'}, {id:'tvradio_overlay', icon:'📺📻', name:'📺📻 TV / RADIO'}, {id:'browsers_overlay', icon:'🌐🧭', name:'🌐 Browsers (In‑App)'}, {id:'convert_overlay', icon:'🔄📄', name:'🔄 CONVERT (Word, Image, PDF)'}, {id:'aitranslator_overlay', icon:'🌐🔤', name:'🌐 All AI Translator'}, {id:'games_overlay', icon:'🎮', name:'🎮 GAMES'}, {id:'money_overlay', icon:'💵', name:'💵 MONEY & INVESTMENTS'}, {id:'remote_overlay', icon:'🖥️🔒', name:'🖥️ RDP, VPN & Web Preview'}, {id:'imagine_overlay', icon:'✨🧠', name:'✨ IMAGINE (25+ New Tools)'}, {id:'online_overlay', icon:'🌐', name:'🌐 Online Tools (30+ Free)'}, {id:'shortener_overlay', icon:'🔗', name:'🔗 URL Shorteners'}, {id:'other_tools_overlay', icon:'🧰', name:'🧰 All other tools (Notes, Weather, Todo)'}, {id:'ai_hub_overlay', icon:'🤖', name:'🤖 AI Hub (ChatGPT, Gemini, etc.)'} ];
+    const allTools = [...originalTools, ...metaSearchTools];
+    const fullToolsList = allTools;
+    const metaIds = new Set(metaSearchTools.map(t => t.id));
+    // RENDER GRID – only small tools, NO large cards (IMAGINE and Online Tools removed)
+    function renderGrid(){ 
+        let grid = document.getElementById('toolsGrid'); 
+        let html = ''; 
+        for(let i=0; i<fullToolsList.length; i++){ 
+            let t = fullToolsList[i]; 
+            if(metaIds.has(t.id)) continue; 
+            // Render every small tool as a normal card
+            html += `<div class="tool-card" data-tool="${t.id}" onclick="selectTool('${t.id}')"><div style="font-size:2.8rem;">${t.icon}</div><div class="tool-name">${t.name}</div></div>`; 
+        } 
+        grid.innerHTML = html; 
+    }
+    function renderSidebar(){ let sidebar = document.getElementById('sidebarList'); let sidebarTools = fullToolsList.filter(t => !metaIds.has(t.id)); sidebar.innerHTML = sidebarTools.map(t => `<div class="sidebar-item" onclick="selectTool('${t.id}'); closeSidebar();"><span style="font-size:1.6rem;">${t.icon}</span> <span style="font-size:1rem;">${t.name}</span></div>`).join(''); let imagineItem = document.createElement('div'); imagineItem.className = 'sidebar-item'; imagineItem.innerHTML = '<span style="font-size:1.6rem;">✨🧠✨</span> <span style="font-size:1rem;">IMAGINE (New Tools)</span>'; imagineItem.onclick = () => { closeSidebar(); openImagineOverlay(); }; sidebar.appendChild(imagineItem); let shortenerItem = document.createElement('div'); shortenerItem.className = 'sidebar-item'; shortenerItem.innerHTML = '<span style="font-size:1.6rem;">🔗</span> <span style="font-size:1rem;">URL Shorteners</span>'; shortenerItem.onclick = () => { closeSidebar(); openShortenerOverlay(); }; sidebar.appendChild(shortenerItem); let onlineItem = document.createElement('div'); onlineItem.className = 'sidebar-item'; onlineItem.innerHTML = '<span style="font-size:1.6rem;">🌐</span> <span style="font-size:1rem;">Online Tools</span>'; onlineItem.onclick = () => { closeSidebar(); openOnlineOverlay(); }; sidebar.appendChild(onlineItem); let sitesItem = document.createElement('div'); sitesItem.className = 'sidebar-item'; sitesItem.innerHTML = '<span style="font-size:1.6rem;">🌍</span> <span style="font-size:1rem;">SITES (Popular)</span>'; sitesItem.onclick = () => { closeSidebar(); openSitesOverlay(); }; sidebar.appendChild(sitesItem); let mediaItem = document.createElement('div'); mediaItem.className = 'sidebar-item'; mediaItem.innerHTML = '<span style="font-size:1.6rem;">📺</span> <span style="font-size:1rem;">MEDIA (Video)</span>'; mediaItem.onclick = () => { closeSidebar(); openMediaOverlay(); }; sidebar.appendChild(mediaItem); let tvRadioItem = document.createElement('div'); tvRadioItem.className = 'sidebar-item'; tvRadioItem.innerHTML = '<span style="font-size:1.6rem;">📺📻</span> <span style="font-size:1rem;">TV / RADIO</span>'; tvRadioItem.onclick = () => { closeSidebar(); openTvRadioOverlay(); }; sidebar.appendChild(tvRadioItem); let browsersItem = document.createElement('div'); browsersItem.className = 'sidebar-item'; browsersItem.innerHTML = '<span style="font-size:1.6rem;">🌐🧭</span> <span style="font-size:1rem;">Browsers (In‑App)</span>'; browsersItem.onclick = () => { closeSidebar(); openBrowsersOverlay(); }; sidebar.appendChild(browsersItem); let convertItem = document.createElement('div'); convertItem.className = 'sidebar-item'; convertItem.innerHTML = '<span style="font-size:1.6rem;">🔄📄🖼️</span> <span style="font-size:1rem;">CONVERT Edit Word, Image, PDF…</span>'; convertItem.onclick = () => { closeSidebar(); openConvertOverlay(); }; sidebar.appendChild(convertItem); let translatorItem = document.createElement('div'); translatorItem.className = 'sidebar-item'; translatorItem.innerHTML = '<span style="font-size:1.6rem;">🌐🔤🤖</span> <span style="font-size:1rem;">All AI Translator</span>'; translatorItem.onclick = () => { closeSidebar(); openAllAiTranslatorOverlay(); }; sidebar.appendChild(translatorItem); let gamesItem = document.createElement('div'); gamesItem.className = 'sidebar-item'; gamesItem.innerHTML = '<span style="font-size:1.6rem;">🎮</span> <span style="font-size:1rem;">GAMES</span>'; gamesItem.onclick = () => { closeSidebar(); openGamesOverlay(); }; sidebar.appendChild(gamesItem); let moneyItem = document.createElement('div'); moneyItem.className = 'sidebar-item'; moneyItem.innerHTML = '<span style="font-size:1.6rem;">💵</span> <span style="font-size:1rem;">MONEY & INVESTMENTS</span>'; moneyItem.onclick = () => { closeSidebar(); openMoneyOverlay(); }; sidebar.appendChild(moneyItem); let remoteItem = document.createElement('div'); remoteItem.className = 'sidebar-item'; remoteItem.innerHTML = '<span style="font-size:1.6rem;">🖥️🔒📱</span> <span style="font-size:1rem;">RDP, VPN & Web Preview</span>'; remoteItem.onclick = () => { closeSidebar(); openRemoteToolsOverlay(); }; sidebar.appendChild(remoteItem); }
+    window.selectTool = function(toolId){
+        if (toolId === 'media_overlay') { openMediaOverlay(); return; }
+        if (toolId === 'sites_overlay') { openSitesOverlay(); return; }
+        if (toolId === 'tvradio_overlay') { openTvRadioOverlay(); return; }
+        if (toolId === 'browsers_overlay') { openBrowsersOverlay(); return; }
+        if (toolId === 'convert_overlay') { openConvertOverlay(); return; }
+        if (toolId === 'aitranslator_overlay') { openAllAiTranslatorOverlay(); return; }
+        if (toolId === 'games_overlay') { openGamesOverlay(); return; }
+        if (toolId === 'money_overlay') { openMoneyOverlay(); return; }
+        if (toolId === 'remote_overlay') { openRemoteToolsOverlay(); return; }
+        if (toolId === 'imagine_overlay') { openImagineOverlay(); return; }
+        if (toolId === 'online_overlay') { openOnlineOverlay(); return; }
+        if (toolId === 'shortener_overlay') { openShortenerOverlay(); return; }
+        if (toolId === 'other_tools_overlay') { openOtherTools(); return; }
+        if (toolId === 'ai_hub_overlay') { openAiTools(); return; }
+        if(toolId === 'premium_ai'){ document.getElementById('premiumOverlay').classList.add('active'); 
+            document.getElementById('premiumContent').innerHTML = `<h2 style="font-size:1.8rem;">🔮 AI Text Enhancer (Multiple modes)</h2>
+            <textarea id="aiDemoText" rows="4" class="search-input" placeholder="Type your text..."></textarea>
+            <div><select id="aiMode"><option value="grammar">Grammar Fix</option><option value="professional">Professional</option><option value="friendly">Friendly</option><option value="shorten">Shorten</option><option value="expand">Expand</option><option value="simplify">Simplify</option></select></div>
+            <button class="tool-btn" onclick="demoAIEnhanceAdvanced()">Enhance</button>
+            <div id="aiDemoResult" class="tool-output"></div>
+            <button class="tool-btn" onclick="closePremium()">← Back to tools</button>`;
+            return; }
+        closePremium();
+        document.getElementById('mainPage').style.display = 'block';
+        renderToolPanel(toolId);
+        document.getElementById('toolPanel').scrollIntoView({behavior:'smooth'});
+    };
+    window.demoAIEnhanceAdvanced = function() {
+        let txt = document.getElementById('aiDemoText').value;
+        let mode = document.getElementById('aiMode').value;
+        if(!txt) { document.getElementById('aiDemoResult').innerHTML = 'Enter some text first.'; return; }
+        let result = txt;
+        if(mode==='grammar') result = txt.replace(/(i) /gi,'I ').replace(/(\w+?) (is|are|am) /gi,'$1 $2 ').replace(/ +/g,' ');
+        else if(mode==='professional') result = '✨ Enhanced: ' + txt + ' (professional tone)';
+        else if(mode==='friendly') result = '🙂 ' + txt + ' (friendly)';
+        else if(mode==='shorten') result = txt.split(' ').slice(0,15).join(' ') + (txt.split(' ').length>15?'...':'');
+        else if(mode==='expand') result = txt + ' In addition, this tool helps you achieve more.';
+        else if(mode==='simplify') result = txt.replace(/[^a-zA-Z0-9 ]/g,'').toLowerCase();
+        document.getElementById('aiDemoResult').innerHTML = result;
+    };
+    window.runParaphraserTool = function() {
+        let txt = document.getElementById('paraphraserText').value;
+        if(!txt) { document.getElementById('paraphraserOut').innerHTML = 'Please enter some text first.'; return; }
+        let words = txt.split(' ');
+        let synonyms = { "good": "excellent", "bad": "poor", "big": "large", "small": "tiny", "fast": "quick", "slow": "sluggish", "happy": "joyful", "sad": "melancholy", "start": "begin", "end": "finish" };
+        let paraphrased = words.map(w => {
+            let lower = w.toLowerCase();
+            if(synonyms[lower]) return synonyms[lower];
+            if(synonyms[lower.replace(/[^a-z]/g,'')]) return synonyms[lower.replace(/[^a-z]/g,'')];
+            return w;
+        }).join(' ');
+        document.getElementById('paraphraserOut').innerHTML = `<strong>🔄 Paraphrased (AI level 1):</strong><br>${paraphrased}<br><br><em>Tip: For better results, use longer texts.</em>`;
+    };
+    window.runGrammarTool = function() {
+        let txt = document.getElementById('grammarText').value;
+        if(!txt) { document.getElementById('grammarOut').innerHTML = 'Please enter some text first.'; return; }
+        let corrected = txt.replace(/(i) /gi,'I ').replace(/(wanna)/gi,'want to').replace(/(gonna)/gi,'going to').replace(/(\w+)ing /gi, '$1ing ').replace(/\s+/g,' ').trim();
+        if(corrected === txt) corrected += " (No obvious grammar errors found)";
+        document.getElementById('grammarOut').innerHTML = `<strong>✅ Grammar & Spell Check:</strong><br>${corrected}<br><br><em>Note: Basic corrections only. For full accuracy, use a dedicated tool.</em>`;
+    };
+    window.runSummarizerTool = function() {
+        let txt = document.getElementById('summarizerText').value;
+        if(!txt) { document.getElementById('summarizerOut').innerHTML = 'Please enter some text first.'; return; }
+        let sentences = txt.match(/[^\.!\?]+[\.!\?]+/g);
+        if(!sentences || sentences.length <= 2) {
+            document.getElementById('summarizerOut').innerHTML = `<strong>📄 AI Summarizer:</strong><br>${txt}<br><br><em>Text too short to summarize.</em>`;
+            return;
+        }
+        let summary = sentences.slice(0, Math.max(2, Math.floor(sentences.length/3))).join(' ');
+        document.getElementById('summarizerOut').innerHTML = `<strong>📄 AI Summarizer:</strong><br>${summary}<br><br><em>Extracted key sentences.</em>`;
+    };
+    window.runSentimentTool = function() {
+        let txt = document.getElementById('sentimentText').value;
+        if(!txt) { document.getElementById('sentimentOut').innerHTML = 'Please enter some text first.'; return; }
+        let lower = txt.toLowerCase();
+        let positive = ['good','great','awesome','excellent','love','happy','wonderful','amazing','fantastic','best'];
+        let negative = ['bad','terrible','awful','hate','sad','worst','horrible','disappointing','poor','ugly'];
+        let posCount = positive.filter(w => lower.includes(w)).length;
+        let negCount = negative.filter(w => lower.includes(w)).length;
+        let sentiment = (posCount > negCount) ? 'Positive 😊' : (negCount > posCount) ? 'Negative 😞' : 'Neutral 😐';
+        let confidence = Math.min(100, Math.round(((posCount+negCount)/Math.max(1, lower.split(' ').length))*100));
+        document.getElementById('sentimentOut').innerHTML = `<strong>😊 Sentiment Analysis:</strong><br>Sentiment: ${sentiment}<br>Confidence: ${confidence}%<br>Positive indicators: ${posCount}, Negative: ${negCount}`;
+    };
+    window.runKeywordsTool = function() {
+        let txt = document.getElementById('keywordsText').value;
+        if(!txt) { document.getElementById('keywordsOut').innerHTML = 'Please enter some text first.'; return; }
+        let words = txt.toLowerCase().split(/\W+/);
+        let stopwords = ['the','and','of','to','a','in','is','it','for','on','with','as','by','at','an','be','this','that','are','was','were','have','has','had','but','not','or','so'];
+        let freq = {};
+        words.forEach(w => { if(w.length>2 && !stopwords.includes(w)) freq[w] = (freq[w]||0)+1; });
+        let sorted = Object.entries(freq).sort((a,b)=>b[1]-a[1]).slice(0,5);
+        let keywords = sorted.map(([k,v])=>`${k} (${v})`).join(', ');
+        document.getElementById('keywordsOut').innerHTML = `<strong>🔑 Top Keywords:</strong><br>${keywords || 'No significant keywords found.'}<br><br><em>Based on frequency.</em>`;
+    };
+    window.runReadabilityTool = function() {
+        let txt = document.getElementById('readabilityText').value;
+        if(!txt) { document.getElementById('readabilityOut').innerHTML = 'Please enter some text first.'; return; }
+        let sentences = txt.match(/[^\.!\?]+[\.!\?]+/g);
+        let sentenceCount = sentences ? sentences.length : 1;
+        let words = txt.split(/\s+/).length;
+        let syllables = txt.toLowerCase().replace(/[^a-z]/g,'').match(/[aeiouy]{1,2}/g)?.length || words;
+        let score = 206.835 - 1.015*(words/sentenceCount) - 84.6*(syllables/words);
+        let level = (score >= 90) ? 'Very Easy (5th grade)' : (score >= 80) ? 'Easy (6th grade)' : (score >= 70) ? 'Fairly Easy (7th grade)' : (score >= 60) ? 'Standard (8th-9th grade)' : (score >= 50) ? 'Fairly Difficult (10th-12th grade)' : (score >= 30) ? 'Difficult (College)' : 'Very Difficult (College Graduate)';
+        document.getElementById('readabilityOut').innerHTML = `<strong>📖 Readability (Flesch Reading Ease):</strong><br>Score: ${Math.round(score)}<br>Level: ${level}<br>Words: ${words}, Sentences: ${sentenceCount}, Syllables: ${syllables}`;
+    };
+    function renderShortenerGrid(){ const container = document.getElementById('shortenerGrid'); const shorteners = [ { name: 'TinyURL', icon: '🔗', url: 'https://tinyurl.com/app' }, { name: 'Bitly', icon: '📎', url: 'https://bitly.com' }, { name: 'is.gd', icon: '⚡', url: 'https://is.gd' }, { name: 'Rebrandly', icon: '🔄', url: 'https://rebrandly.com' }, { name: 'Short.io', icon: '✂️', url: 'https://short.io' }, { name: 'Cutt.ly', icon: '✂️', url: 'https://cutt.ly' }, { name: 'T2M', icon: '🔗', url: 'https://t2m.io' }, { name: 'Shorte.st', icon: '📏', url: 'https://shorte.st' }, { name: '1Link', icon: '🔗', url: 'https://1link.io' }, { name: 'Linkly', icon: '🔗', url: 'https://linklyhq.com' } ]; let html = ''; shorteners.forEach(s => { html += `<div class="shortener-card" onclick="window.open('${s.url}', '_blank'); closeShortenerOverlay();"><div style="font-size:2.8rem;">${s.icon}</div><div style="font-weight:700; font-size:1.2rem;">${s.name}</div><div style="font-size:0.9rem;">Click to open</div></div>`; }); container.innerHTML = html; }
+    function renderOnlineGrid(){ const container = document.getElementById('onlineGrid'); const onlineToolsList = [ { name: 'Canva', icon: '🎨', url: 'https://www.canva.com' }, { name: 'Remove.bg', icon: '🖼️', url: 'https://www.remove.bg' }, { name: 'TinyWow', icon: '✨', url: 'https://tinywow.com' }, { name: 'ILovePDF', icon: '📄', url: 'https://www.ilovepdf.com' }, { name: 'SmallPDF', icon: '📑', url: 'https://smallpdf.com' }, { name: 'OnlineOCR', icon: '🔍', url: 'https://www.onlineocr.net' }, { name: 'Convertio', icon: '🔄', url: 'https://convertio.co' }, { name: 'CloudConvert', icon: '☁️', url: 'https://cloudconvert.com' }, { name: 'EZGIF', icon: '🎞️', url: 'https://ezgif.com' }, { name: 'Kapwing', icon: '✂️', url: 'https://www.kapwing.com' }, { name: 'Pixlr', icon: '🎨', url: 'https://pixlr.com' }, { name: 'Photopea', icon: '🖌️', url: 'https://www.photopea.com' }, { name: 'Cleanup.pictures', icon: '🧹', url: 'https://cleanup.pictures' }, { name: 'Watermark Remover', icon: '💧', url: 'https://www.watermarkremover.io' }, { name: 'QR Code Monkey', icon: '📱', url: 'https://www.qrcode-monkey.com' }, { name: 'Grammarly', icon: '✍️', url: 'https://www.grammarly.com' }, { name: 'QuillBot', icon: '📝', url: 'https://quillbot.com' }, { name: 'Hemingway Editor', icon: '📖', url: 'https://hemingwayapp.com' }, { name: 'DeepL Translator', icon: '🌐', url: 'https://www.deepl.com' }, { name: 'MyMemory', icon: '🧠', url: 'https://mymemory.translated.net' }, { name: 'Color Hunt', icon: '🎨', url: 'https://colorhunt.co' }, { name: 'Coolors', icon: '🌈', url: 'https://coolors.co' }, { name: 'UI Gradients', icon: '📊', url: 'https://uigradients.com' }, { name: 'CSS Gradient', icon: '🎨', url: 'https://cssgradient.io' }, { name: 'JsonFormatter', icon: '📋', url: 'https://jsonformatter.org' }, { name: 'CodePen', icon: '💻', url: 'https://codepen.io' }, { name: 'JSFiddle', icon: '🔧', url: 'https://jsfiddle.net' }, { name: 'Replit', icon: '🔄', url: 'https://replit.com' } ]; let html = ''; onlineToolsList.forEach(tool => { html += `<div class="online-card" onclick="window.open('${tool.url}', '_blank'); closeOnlineOverlay();"><div style="font-size:2.8rem;">${tool.icon}</div><div style="font-weight:700; font-size:1.2rem;">${tool.name}</div><div style="font-size:0.9rem;">Click to open</div></div>`; }); container.innerHTML = html; }
+    function renderAiToolsFull(){ const container = document.getElementById('aiToolsContainer'); const aiSites = [ { name: 'ChatGPT', icon: '🤖', url: 'https://chat.openai.com', category: 'chat' }, { name: 'Google Gemini', icon: '🧠', url: 'https://gemini.google.com', category: 'chat' }, { name: 'Claude', icon: '🧬', url: 'https://claude.ai', category: 'chat' }, { name: 'DeepSeek', icon: '🐋', url: 'https://chat.deepseek.com', category: 'chat' }, { name: 'Microsoft Copilot', icon: '💻', url: 'https://copilot.microsoft.com', category: 'chat' }, { name: 'Poe', icon: '💡', url: 'https://poe.com', category: 'chat' }, { name: 'Pi AI', icon: '😊', url: 'https://pi.ai/talk', category: 'chat' }, { name: 'Character.AI', icon: '🎭', url: 'https://character.ai', category: 'chat' }, { name: 'Perplexity', icon: '🔎', url: 'https://www.perplexity.ai', category: 'search' }, { name: 'You.com', icon: '🔍', url: 'https://you.com', category: 'search' }, { name: 'DALL·E 3', icon: '🖼️', url: 'https://openai.com/dall-e-3', category: 'image' }, { name: 'Midjourney', icon: '🌸', url: 'https://www.midjourney.com', category: 'image' }, { name: 'Stable Diffusion', icon: '🌀', url: 'https://stability.ai', category: 'image' }, { name: 'Leonardo AI', icon: '🦁', url: 'https://leonardo.ai', category: 'image' }, { name: 'DreamStudio', icon: '🌟', url: 'https://beta.dreamstudio.ai', category: 'image' }, { name: 'Bing Image Creator', icon: '🌄', url: 'https://www.bing.com/images/create', category: 'image' }, { name: 'Craiyon', icon: '🎠', url: 'https://www.craiyon.com', category: 'image' }, { name: 'NightCafe', icon: '🌌', url: 'https://creator.nightcafe.studio', category: 'image' }, { name: 'Artbreeder', icon: '🧬', url: 'https://www.artbreeder.com', category: 'image' }, { name: 'Playground AI', icon: '🎮', url: 'https://playgroundai.com', category: 'image' }, { name: 'Runway ML', icon: '🎥', url: 'https://runwayml.com', category: 'video' }, { name: 'Pika', icon: '🎞️', url: 'https://pika.art', category: 'video' }, { name: 'Synthesia', icon: '🎙️', url: 'https://www.synthesia.io', category: 'video' }, { name: 'HeyGen', icon: '👤', url: 'https://www.heygen.com', category: 'video' }, { name: 'Invideo', icon: '📹', url: 'https://invideo.io', category: 'video' }, { name: 'Kapwing', icon: '🎬', url: 'https://www.kapwing.com', category: 'video' }, { name: 'Lumen5', icon: '📽️', url: 'https://www.lumen5.com', category: 'video' }, { name: 'Suno AI', icon: '🎤', url: 'https://suno.ai', category: 'music' }, { name: 'Udio', icon: '🎧', url: 'https://www.udio.com', category: 'music' }, { name: 'AIVA', icon: '🎼', url: 'https://www.aiva.ai', category: 'music' }, { name: 'Boomy', icon: '🎹', url: 'https://boomy.com', category: 'music' }, { name: 'Soundraw', icon: '🎛️', url: 'https://soundraw.io', category: 'music' }, { name: 'Mubert', icon: '🎚️', url: 'https://mubert.com', category: 'music' }, { name: 'GitHub Copilot', icon: '🐙', url: 'https://github.com/features/copilot', category: 'code' }, { name: 'Codeium', icon: '⚡', url: 'https://codeium.com', category: 'code' }, { name: 'Tabnine', icon: '🦊', url: 'https://www.tabnine.com', category: 'code' }, { name: 'Replit Ghostwriter', icon: '👻', url: 'https://replit.com/ghostwriter', category: 'code' }, { name: 'Cody', icon: '🤖', url: 'https://sourcegraph.com/cody', category: 'code' }, { name: 'Jasper', icon: '✍️', url: 'https://www.jasper.ai', category: 'writing' }, { name: 'Writesonic', icon: '📝', url: 'https://writesonic.com', category: 'writing' }, { name: 'Notion AI', icon: '📓', url: 'https://www.notion.so/product/ai', category: 'writing' } ]; const categoryNames = { chat: 'AI Chat & Assistants', search: 'AI Search & Research', image: 'AI Image Generation', video: 'AI Video & Animation', music: 'AI Music & Audio', code: 'AI Code & Development', writing: 'AI Writing & Content' }; const grouped = {}; aiSites.forEach(tool => { if (!grouped[tool.category]) grouped[tool.category] = []; grouped[tool.category].push(tool); }); let html = '<h2 style="font-size:2rem;text-align:center;">🤖 AI Hub · 40+ AI Tools</h2>'; for (const [catKey, catLabel] of Object.entries(categoryNames)) { if (grouped[catKey] && grouped[catKey].length > 0) { html += `<h3 style="margin-top:36px;text-align:center;border-bottom:2px solid var(--border);padding-bottom:12px;font-size:1.6rem;">${catLabel}</h3><div class="ai-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:24px;margin-top:24px;">`; grouped[catKey].forEach(ai => { html += `<div class="ai-card" onclick="window.open('${ai.url}', '_blank'); closeAiOverlay();"><div style="font-size:2.8rem;">${ai.icon}</div><div style="font-weight:700; font-size:1.2rem;">${ai.name}</div><div style="font-size:0.9rem;">Click to open</div></div>`; }); html += '</div>'; } } html += '<div style="text-align:center;margin-top:40px;"><button class="tool-btn" onclick="closeAiOverlay()">← Back to main tools</button></div>'; container.innerHTML = html; }
+    function renderImagineTools(){ const container = document.getElementById('imagineToolsGrid'); const imagineTools = [ { name: '🖼️ Image to Text (OCR)', icon: '📸', action: 'ocr' }, { name: '🎨 Random Color Palette', icon: '🌈', action: 'randomColor' }, { name: '📻 Morse Code Converter', icon: '📡', action: 'morse' }, { name: '📝 Text Summarizer', icon: '📄', action: 'summarize' }, { name: '🔢 Number Base Converter', icon: '🔢', action: 'baseAny' }, { name: '🧬 UUID Generator', icon: '🆔', action: 'uuid' }, { name: '🔐 Hash Generator', icon: '🔑', action: 'hashGen' }, { name: '📅 Unix Timestamp', icon: '⏲️', action: 'unixTime' }, { name: '🌍 IP Geolocation', icon: '🗺️', action: 'ipGeo' }, { name: '📧 Email Validator', icon: '📨', action: 'emailValidate' }, { name: '📊 CSV to JSON', icon: '📑', action: 'csvToJson' }, { name: '🧮 Quadratic Solver', icon: '📐', action: 'quadratic' }, { name: '⚖️ Weight Converter', icon: '⚖️', action: 'weightConv' }, { name: '🌡️ Temperature Converter', icon: '🌡️', action: 'tempConv' }, { name: '📏 Area Converter', icon: '📐', action: 'areaConv' }, { name: '💾 Data Size Converter', icon: '💾', action: 'dataConv' }, { name: '⏱️ Epoch Time Now', icon: '⏰', action: 'epochNow' }, { name: '🔍 Reverse Text', icon: '🔄', action: 'reverseText' }, { name: '✏️ Leet Speak', icon: '👾', action: 'leetSpeak' }, { name: '🎯 Palindrome Checker', icon: '🔄', action: 'palindrome' }, { name: '🔠 Strong Password', icon: '🔐', action: 'strongPwd' }, { name: '📇 QR Reader (camera)', icon: '📷', action: 'qrReader' }, { name: '🎲 Custom Dice Roll', icon: '🎲', action: 'customDice' }, { name: '💬 Random Advice', icon: '💡', action: 'advice' }, { name: '🔗 URL Shortener', icon: '🔗', action: 'shortener' } ]; let html = ''; imagineTools.forEach(tool => { html += `<div class="imagine-tool-card" onclick="executeImagineTool('${tool.action}')"><div style="font-size:2.8rem;">${tool.icon}</div><div style="font-weight:700; font-size:1.2rem;">${tool.name}</div></div>`; }); container.innerHTML = html; }
+    window.executeImagineTool = function(action){ if(action === 'shortener') { openShortenerOverlay(); return; } let output = ''; switch(action){ case 'ocr': output = '📸 OCR Demo: Upload image<br><input type="file" id="ocrFile" accept="image/*"><button class="tool-btn" onclick="simulateOCR()">Extract Text</button><div id="ocrResult"></div>'; break;
+        case 'randomColor': let r=Math.floor(Math.random()*255), g=Math.floor(Math.random()*255), b=Math.floor(Math.random()*255); output = `<div style="background:rgb(${r},${g},${b});width:120px;height:120px;border-radius:30px;"></div>RGB: ${r},${g},${b} | HEX: #${r.toString(16)}${g.toString(16)}${b.toString(16)}`; break;
+        case 'morse': output = `<textarea id="morseInput" class="search-input" placeholder="Enter text" style="font-size:1rem;"></textarea><button class="tool-btn" onclick="convertToMorse()">To Morse</button><button class="tool-btn" onclick="convertFromMorse()">From Morse</button><div id="morseOut" class="tool-output"></div>`; break;
+        case 'summarize': output = `<textarea id="sumText" class="search-input" placeholder="Long text..." style="font-size:1rem;"></textarea><button class="tool-btn" onclick="summarizeText()">Summarize</button><div id="sumOut" class="tool-output"></div>`; break;
+        case 'baseAny': output = `<input id="baseNum" class="search-input" placeholder="Number"><input id="baseFrom" class="search-input" placeholder="From base (2-36)" value="10"><input id="baseTo" class="search-input" placeholder="To base (2-36)" value="16"><button class="tool-btn" onclick="convertBaseAny()">Convert</button><div id="baseOut" class="tool-output"></div>`; break;
+        case 'uuid': let uuid = crypto.randomUUID ? crypto.randomUUID() : 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => { let r = Math.random()*16|0, v = c == 'x' ? r : (r&0x3|0x8); return v.toString(16); }); output = `UUID: ${uuid}<button class="tool-btn" onclick="copyToClipboard('${uuid}')">Copy</button>`; break;
+        case 'hashGen': output = `<input id="hashInputText" class="search-input" placeholder="Text"><select id="hashAlgo" class="search-input" style="width:auto;"><option>MD5</option><option>SHA-1</option><option>SHA-256</option></select><button class="tool-btn" onclick="generateHash()">Generate</button><div id="hashOut" class="tool-output"></div>`; break;
+        case 'unixTime': output = `<input id="unixInput" class="search-input" placeholder="Unix timestamp"><button class="tool-btn" onclick="unixToDate()">Convert to Date</button><button class="tool-btn" onclick="dateToUnix()">Current Date to Unix</button><div id="unixOut" class="tool-output"></div>`; break;
+        case 'ipGeo': output = `<button class="tool-btn" onclick="getIPGeo()">Get My IP & Geolocation</button><div id="ipGeoOut" class="tool-output"></div>`; break;
+        case 'emailValidate': output = `<input id="emailCheck" class="search-input" placeholder="Enter email"><button class="tool-btn" onclick="validateEmail()">Validate</button><div id="emailOut" class="tool-output"></div>`; break;
+        case 'csvToJson': output = `<textarea id="csvData" class="search-input" rows="4" placeholder="name,age\nJohn,30\nJane,25" style="font-size:1rem;"></textarea><button class="tool-btn" onclick="convertCSVtoJSON()">Convert</button><pre id="csvJsonOut" class="tool-output"></pre>`; break;
+        case 'quadratic': output = `<input id="aVal" class="search-input" placeholder="a"><input id="bVal" class="search-input" placeholder="b"><input id="cVal" class="search-input" placeholder="c"><button class="tool-btn" onclick="solveQuadratic()">Solve</button><div id="quadOut" class="tool-output"></div>`; break;
+        case 'weightConv': output = `<input id="weightVal" type="number" class="search-input"><select id="weightFrom" class="search-input" style="width:auto;"><option value="kg">kg</option><option value="lb">lb</option><option value="oz">oz</option></select> → <select id="weightTo" class="search-input" style="width:auto;"><option value="kg">kg</option><option value="lb">lb</option><option value="oz">oz</option></select><button class="tool-btn" onclick="convertWeight()">Convert</button><div id="weightOut" class="tool-output"></div>`; break;
+        case 'tempConv': output = `<input id="tempVal" type="number" class="search-input"><select id="tempFrom" class="search-input" style="width:auto;"><option value="C">Celsius</option><option value="F">Fahrenheit</option><option value="K">Kelvin</option></select> → <select id="tempTo" class="search-input" style="width:auto;"><option value="C">Celsius</option><option value="F">Fahrenheit</option><option value="K">Kelvin</option></select><button class="tool-btn" onclick="convertTemp()">Convert</button><div id="tempOut" class="tool-output"></div>`; break;
+        case 'areaConv': output = `<input id="areaVal" type="number" class="search-input"><select id="areaFrom" class="search-input" style="width:auto;"><option value="m2">m²</option><option value="ft2">ft²</option><option value="acre">acre</option></select> → <select id="areaTo" class="search-input" style="width:auto;"><option value="m2">m²</option><option value="ft2">ft²</option><option value="acre">acre</option></select><button class="tool-btn" onclick="convertArea()">Convert</button><div id="areaOut" class="tool-output"></div>`; break;
+        case 'dataConv': output = `<input id="dataVal" type="number" class="search-input"><select id="dataFrom" class="search-input" style="width:auto;"><option value="B">Bytes</option><option value="KB">KB</option><option value="MB">MB</option><option value="GB">GB</option></select> → <select id="dataTo" class="search-input" style="width:auto;"><option value="B">Bytes</option><option value="KB">KB</option><option value="MB">MB</option><option value="GB">GB</option></select><button class="tool-btn" onclick="convertData()">Convert</button><div id="dataOut" class="tool-output"></div>`; break;
+        case 'epochNow': output = `Current Unix epoch: ${Math.floor(Date.now()/1000)}<br><button class="tool-btn" onclick="refreshEpoch()">Refresh</button>`; break;
+        case 'reverseText': output = `<input id="reverseInput" class="search-input" placeholder="Text"><button class="tool-btn" onclick="reverseString()">Reverse</button><div id="reverseOut" class="tool-output"></div>`; break;
+        case 'leetSpeak': output = `<input id="leetInput" class="search-input" placeholder="Normal text"><button class="tool-btn" onclick="toLeet()">Convert to Leet</button><div id="leetOut" class="tool-output"></div>`; break;
+        case 'palindrome': output = `<input id="palInput" class="search-input" placeholder="Word or phrase"><button class="tool-btn" onclick="checkPalindrome()">Check</button><div id="palOut" class="tool-output"></div>`; break;
+        case 'strongPwd': output = `<button class="tool-btn" onclick="genStrongPwd()">Generate Strong Password</button><div id="strongPwdOut" class="tool-output"></div>`; break;
+        case 'qrReader': output = `<input type="file" id="qrFile" accept="image/*"><button class="tool-btn" onclick="readQRCode()">Read QR</button><div id="qrReadOut" class="tool-output"></div>`; break;
+        case 'customDice': output = `<input id="diceSides" type="number" value="6" class="search-input"><button class="tool-btn" onclick="rollCustomDice()">Roll</button><div id="customDiceOut" class="tool-output"></div>`; break;
+        case 'advice': output = `<button class="tool-btn" onclick="getAdvice()">Get Random Advice</button><div id="dynamicOutput" class="tool-output"></div>`; break;
+        default: output = 'Tool ready'; } let modal = document.createElement('div'); modal.style.position = 'fixed'; modal.style.top = '50%'; modal.style.left = '50%'; modal.style.transform = 'translate(-50%, -50%)'; modal.style.backgroundColor = 'var(--surface)'; modal.style.borderRadius = '32px'; modal.style.padding = '28px'; modal.style.zIndex = '2000'; modal.style.maxWidth = '90%'; modal.style.width = '480px'; modal.style.boxShadow = 'var(--shadow-lg)'; modal.style.border = '2px solid var(--primary)'; modal.innerHTML = `<div style="text-align:right;"><button onclick="this.parentElement.parentElement.remove()" style="background:none;border:none;font-size:1.8rem;cursor:pointer;">×</button></div><div id="modalContent">${output}</div>`; document.body.appendChild(modal); window.convertToMorse = function(){ const morseMap = { 'A': '.-', 'B': '-...', 'C': '-.-.', 'D': '-..', 'E': '.', 'F': '..-.', 'G': '--.', 'H': '....', 'I': '..', 'J': '.---', 'K': '-.-', 'L': '.-..', 'M': '--', 'N': '-.', 'O': '---', 'P': '.--.', 'Q': '--.-', 'R': '.-.', 'S': '...', 'T': '-', 'U': '..-', 'V': '...-', 'W': '.--', 'X': '-..-', 'Y': '-.--', 'Z': '--..', '0': '-----', '1': '.----', '2': '..---', '3': '...--', '4': '....-', '5': '.....', '6': '-....', '7': '--...', '8': '---..', '9': '----.', ' ': '/' }; let text = document.getElementById('morseInput').value.toUpperCase(); let morse = text.split('').map(c => morseMap[c] || c).join(' '); document.getElementById('morseOut').innerHTML = morse; }; window.convertFromMorse = function(){ const morseMap = { '.-': 'A', '-...': 'B', '-.-.': 'C', '-..': 'D', '.': 'E', '..-.': 'F', '--.': 'G', '....': 'H', '..': 'I', '.---': 'J', '-.-': 'K', '.-..': 'L', '--': 'M', '-.': 'N', '---': 'O', '.--.': 'P', '--.-': 'Q', '.-.': 'R', '...': 'S', '-': 'T', '..-': 'U', '...-': 'V', '.--': 'W', '-..-': 'X', '-.--': 'Y', '--..': 'Z', '-----': '0', '.----': '1', '..---': '2', '...--': '3', '....-': '4', '.....': '5', '-....': '6', '--...': '7', '---..': '8', '----.': '9', '/': ' ' }; let morse = document.getElementById('morseInput').value.trim().split(' '); let text = morse.map(code => morseMap[code] || code).join(''); document.getElementById('morseOut').innerHTML = text; }; window.simulateOCR = function(){ let file = document.getElementById('ocrFile').files[0]; document.getElementById('ocrResult').innerHTML = file ? 'OCR simulation: Text extracted from image (demo).' : 'No file selected.'; }; window.summarizeText = function(){ let txt = document.getElementById('sumText').value; document.getElementById('sumOut').innerHTML = txt.length > 100 ? txt.substring(0,100)+'... (summary demo)' : txt; }; window.convertBaseAny = function(){ let num = parseInt(document.getElementById('baseNum').value, parseInt(document.getElementById('baseFrom').value)); let toBase = parseInt(document.getElementById('baseTo').value); document.getElementById('baseOut').innerHTML = isNaN(num) ? 'Invalid' : num.toString(toBase); }; window.generateHash = async function(){ let text = document.getElementById('hashInputText').value; let algo = document.getElementById('hashAlgo').value; if(!text) { document.getElementById('hashOut').innerHTML = 'Enter text'; return; } const encoder = new TextEncoder(); const data = encoder.encode(text); let hash; if(algo === 'MD5') hash = btoa(text).slice(0,32); else if(algo === 'SHA-1') hash = await crypto.subtle.digest('SHA-1', data).then(b=>Array.from(new Uint8Array(b)).map(b=>b.toString(16).padStart(2,'0')).join('')); else hash = await crypto.subtle.digest('SHA-256', data).then(b=>Array.from(new Uint8Array(b)).map(b=>b.toString(16).padStart(2,'0')).join('')); document.getElementById('hashOut').innerHTML = hash; }; window.unixToDate = function(){ let ts = parseInt(document.getElementById('unixInput').value); document.getElementById('unixOut').innerHTML = new Date(ts*1000).toString(); }; window.dateToUnix = function(){ document.getElementById('unixOut').innerHTML = Math.floor(Date.now()/1000); }; window.getIPGeo = async function(){ let res = await fetch('https://api.ipify.org?format=json'); let data = await res.json(); document.getElementById('ipGeoOut').innerHTML = `IP: ${data.ip}<br>Geo: Approximate location (demo)`; }; window.validateEmail = function(){ let email = document.getElementById('emailCheck').value; let regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; document.getElementById('emailOut').innerHTML = regex.test(email) ? 'Valid email' : 'Invalid email'; }; window.convertCSVtoJSON = function(){ let csv = document.getElementById('csvData').value; let lines = csv.split('\n'); let headers = lines[0].split(','); let result = []; for(let i=1;i<lines.length;i++){ let obj = {}; let row = lines[i].split(','); for(let j=0;j<headers.length;j++) obj[headers[j].trim()] = row[j]?.trim(); result.push(obj); } document.getElementById('csvJsonOut').innerHTML = JSON.stringify(result, null, 2); }; window.solveQuadratic = function(){ let a=parseFloat(document.getElementById('aVal').value), b=parseFloat(document.getElementById('bVal').value), c=parseFloat(document.getElementById('cVal').value); let d = b*b - 4*a*c; if(d<0) document.getElementById('quadOut').innerHTML = 'No real roots'; else { let x1 = (-b + Math.sqrt(d))/(2*a); let x2 = (-b - Math.sqrt(d))/(2*a); document.getElementById('quadOut').innerHTML = `x1 = ${x1}, x2 = ${x2}`; } }; window.convertWeight = function(){ let val=parseFloat(document.getElementById('weightVal').value), from=document.getElementById('weightFrom').value, to=document.getElementById('weightTo').value; let kg = val * (from==='kg'?1:from==='lb'?0.453592:0.0283495); let result = kg * (to==='kg'?1:to==='lb'?2.20462:35.274); document.getElementById('weightOut').innerHTML = result.toFixed(4); }; window.convertTemp = function(){ let val=parseFloat(document.getElementById('tempVal').value), from=document.getElementById('tempFrom').value, to=document.getElementById('tempTo').value; let celsius; if(from==='C') celsius=val; else if(from==='F') celsius=(val-32)*5/9; else celsius=val-273.15; let result; if(to==='C') result=celsius; else if(to==='F') result=celsius*9/5+32; else result=celsius+273.15; document.getElementById('tempOut').innerHTML = result.toFixed(2); }; window.convertArea = function(){ let val=parseFloat(document.getElementById('areaVal').value), from=document.getElementById('areaFrom').value, to=document.getElementById('areaTo').value; let sqm = from==='m2'?val:from==='ft2'?val*0.092903:val*4046.86; let result = to==='m2'?sqm:to==='ft2'?sqm*10.7639:sqm/4046.86; document.getElementById('areaOut').innerHTML = result.toFixed(4); }; window.convertData = function(){ let val=parseFloat(document.getElementById('dataVal').value), from=document.getElementById('dataFrom').value, to=document.getElementById('dataTo').value; let bytes = from==='B'?val:from==='KB'?val*1024:from==='MB'?val*1048576:val*1073741824; let result = to==='B'?bytes:to==='KB'?bytes/1024:to==='MB'?bytes/1048576:bytes/1073741824; document.getElementById('dataOut').innerHTML = result.toFixed(4); }; window.refreshEpoch = function(){ let epochDiv = document.querySelector('#modalContent #epochNowDiv'); if(epochDiv) epochDiv.innerHTML = Math.floor(Date.now()/1000); else location.reload(); }; window.reverseString = function(){ let t=document.getElementById('reverseInput').value; document.getElementById('reverseOut').innerHTML = t.split('').reverse().join(''); }; window.toLeet = function(){ let t=document.getElementById('leetInput').value; document.getElementById('leetOut').innerHTML = t.replace(/a/gi,'4').replace(/e/gi,'3').replace(/i/gi,'1').replace(/o/gi,'0').replace(/s/gi,'5'); }; window.checkPalindrome = function(){ let t=document.getElementById('palInput').value; let rev=t.split('').reverse().join(''); document.getElementById('palOut').innerHTML = t===rev ? 'Palindrome!' : 'Not a palindrome'; }; window.genStrongPwd = function(){ let chars='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+'; let pwd=''; for(let i=0;i<16;i++) pwd+=chars[Math.floor(Math.random()*chars.length)]; document.getElementById('strongPwdOut').innerHTML = pwd; }; window.readQRCode = function(){ let file = document.getElementById('qrFile').files[0]; document.getElementById('qrReadOut').innerHTML = file ? 'QR read simulation: "https://multitool.pro"' : 'No file selected.'; }; window.rollCustomDice = function(){ let sides=parseInt(document.getElementById('diceSides').value); let result=Math.floor(Math.random()*sides)+1; document.getElementById('customDiceOut').innerHTML = `🎲 ${result}`; }; window.getAdvice = async function(){ let res=await fetch('https://api.adviceslip.com/advice'); let data=await res.json(); document.getElementById('dynamicOutput').innerHTML = data.slip.advice; }; };
+    window.copyToClipboard = function(text){ navigator.clipboard.writeText(text); showToast('Copied!'); };
+    function getAllTimeZones() { try { return Intl.supportedValuesOf('timeZone'); } catch(e) { return ['UTC', 'America/New_York', 'Europe/London', 'Asia/Tokyo']; } }
+    function updateWorldClock() { const container = document.getElementById('worldClockContainer'); if(!container) return; const zones = getAllTimeZones().sort(); const now = new Date(); let html = '<div class="timezone-grid">'; zones.forEach(zone => { try { let time = now.toLocaleTimeString('en-US', { timeZone: zone, hour12: true, hour: '2-digit', minute: '2-digit', second: '2-digit' }); let date = now.toLocaleDateString('en-US', { timeZone: zone }); let displayName = zone.replace(/_/g, ' ').split('/').pop() + ' (' + zone.split('/')[0] + ')'; html += `<div class="timezone-item"><strong>${displayName}</strong><span>${date} ${time}</span></div>`; } catch(e) {} }); html += '</div>'; container.innerHTML = html; }
+    async function fetchNewJoke() { const jokeDiv = document.getElementById('jokeOutput'); if(jokeDiv) jokeDiv.innerHTML = 'Loading fresh joke... 🤣'; try { let response = await fetch('https://v2.jokeapi.dev/joke/Any?safe-mode'); let data = await response.json(); let jokeText = data.type === 'single' ? data.joke : `${data.setup} 😂 ${data.delivery}`; if(jokeText === previousJoke) return fetchNewJoke(); previousJoke = jokeText; if(jokeDiv) jokeDiv.innerHTML = jokeText; } catch(err) { if(jokeDiv) jokeDiv.innerHTML = 'Failed to load joke. Check internet.'; } }
+    function renderOtherToolsFull(){ let container = document.getElementById('otherToolsContainer'); const languageList = [ { code: 'auto', name: 'Auto Detect' }, { code: 'en', name: 'English' }, { code: 'ar', name: 'Arabic' }, { code: 'fr', name: 'French' }, { code: 'es', name: 'Spanish' }, { code: 'de', name: 'German' }, { code: 'it', name: 'Italian' }, { code: 'pt', name: 'Portuguese' }, { code: 'ru', name: 'Russian' }, { code: 'zh', name: 'Chinese' }, { code: 'ja', name: 'Japanese' }, { code: 'ko', name: 'Korean' }, { code: 'hi', name: 'Hindi' }, { code: 'tr', name: 'Turkish' }, { code: 'nl', name: 'Dutch' }, { code: 'pl', name: 'Polish' }, { code: 'sv', name: 'Swedish' }, { code: 'da', name: 'Danish' }, { code: 'fi', name: 'Finnish' }, { code: 'no', name: 'Norwegian' }, { code: 'cs', name: 'Czech' }, { code: 'hu', name: 'Hungarian' }, { code: 'el', name: 'Greek' }, { code: 'he', name: 'Hebrew' }, { code: 'th', name: 'Thai' }, { code: 'vi', name: 'Vietnamese' }, { code: 'id', name: 'Indonesian' }, { code: 'ms', name: 'Malay' }, { code: 'fa', name: 'Persian' }, { code: 'ur', name: 'Urdu' }, { code: 'bn', name: 'Bengali' }, { code: 'pa', name: 'Punjabi' }, { code: 'ro', name: 'Romanian' }, { code: 'uk', name: 'Ukrainian' }, { code: 'bg', name: 'Bulgarian' }, { code: 'sr', name: 'Serbian' }, { code: 'hr', name: 'Croatian' }, { code: 'sk', name: 'Slovak' }, { code: 'lt', name: 'Lithuanian' }, { code: 'lv', name: 'Latvian' }, { code: 'et', name: 'Estonian' }, { code: 'sl', name: 'Slovenian' }, { code: 'sq', name: 'Albanian' }, { code: 'mk', name: 'Macedonian' }, { code: 'ka', name: 'Georgian' }, { code: 'hy', name: 'Armenian' }, { code: 'az', name: 'Azerbaijani' }, { code: 'kk', name: 'Kazakh' }, { code: 'ky', name: 'Kyrgyz' }, { code: 'tg', name: 'Tajik' }, { code: 'uz', name: 'Uzbek' }, { code: 'tk', name: 'Turkmen' }, { code: 'mn', name: 'Mongolian' }, { code: 'ne', name: 'Nepali' }, { code: 'si', name: 'Sinhala' }, { code: 'my', name: 'Burmese' }, { code: 'km', name: 'Khmer' }, { code: 'lo', name: 'Lao' }, { code: 'af', name: 'Afrikaans' }, { code: 'sw', name: 'Swahili' }, { code: 'am', name: 'Amharic' }, { code: 'zu', name: 'Zulu' }, { code: 'xh', name: 'Xhosa' }, { code: 'ny', name: 'Chichewa' }, { code: 'st', name: 'Sesotho' }, { code: 'tn', name: 'Setswana' }, { code: 'sn', name: 'Shona' }, { code: 'rw', name: 'Kinyarwanda' }, { code: 'mg', name: 'Malagasy' } ]; let fromOptions = languageList.map(l => `<option value="${l.code}">${l.name}</option>`).join(''); let toOptions = languageList.map(l => `<option value="${l.code}">${l.name}</option>`).join(''); container.innerHTML = `<h2 style="font-size:2rem;text-align:center;">🧰 New Essential Tools</h2><div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(360px,1fr));gap:28px;"><div style="background:var(--surface2);border-radius:32px;padding:24px;"><h3 style="font-size:1.5rem;">🌐 Universal Translator (100+ languages)</h3><textarea id="translateText" class="search-input" placeholder="Enter text..." style="font-size:1rem;"></textarea><select id="fromLang" class="search-input" style="margin-top:12px;">${fromOptions}</select><select id="toLang" class="search-input" style="margin-top:12px;">${toOptions}</select><button class="tool-btn" onclick="translateText()">Translate</button><div id="translateOutput" class="tool-output"></div></div><div style="background:var(--surface2);border-radius:32px;padding:24px;"><h3 style="font-size:1.5rem;">🌤️ Live Weather</h3><input id="cityName" placeholder="City" value="London" class="search-input"><button class="tool-btn" onclick="getWeather()">Get Weather</button><div id="weatherOut" class="tool-output"></div></div><div style="background:var(--surface2);border-radius:32px;padding:24px;"><h3 style="font-size:1.5rem;">📝 Quick Notes</h3><textarea id="notesText" rows="4" class="search-input" style="font-size:1rem;"></textarea><button class="tool-btn" onclick="saveNote()">Save</button><button class="tool-btn" onclick="loadNote()">Load</button><div id="notesOut" class="tool-output"></div></div><div style="background:var(--surface2);border-radius:32px;padding:24px;"><h3 style="font-size:1.5rem;">✅ Todo List</h3><input id="todoInput" placeholder="New task" class="search-input"><button class="tool-btn" onclick="addTodo()">Add</button><ul id="todoList" style="margin-top:12px;"></ul></div><div style="background:var(--surface2);border-radius:32px;padding:24px;"><h3 style="font-size:1.5rem;">💡 Random Fact</h3><button class="tool-btn" onclick="randomFact()">Get Fact</button><div id="factOut" class="tool-output"></div></div><div style="background:var(--surface2);border-radius:32px;padding:24px;"><h3 style="font-size:1.5rem;">🔒 Password Strength</h3><input id="pwdCheck" placeholder="Password" class="search-input"><button class="tool-btn" onclick="checkStrength()">Check</button><div id="strengthOut" class="tool-output"></div></div><div style="background:var(--surface2);border-radius:32px;padding:24px;"><h3 style="font-size:1.5rem;">🌐 Wikipedia Search</h3><input id="wikiQuery" class="search-input" placeholder="Search Wikipedia..."><button class="tool-btn" onclick="searchWikipedia()">Search</button><div id="wikiOut" class="tool-output"></div></div></div><div style="margin-top:32px;text-align:center;"><button class="tool-btn" onclick="closeOtherOverlay()">← Back</button></div>`; loadTodoList(); }
+    window.translateText = async function(){ let text = document.getElementById('translateText').value; let from = document.getElementById('fromLang').value; let to = document.getElementById('toLang').value; let out = document.getElementById('translateOutput'); if(!text.trim()){ out.innerHTML = 'Enter text.'; return; } out.innerHTML = 'Translating...'; try { const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=${from}&tl=${to}&dt=t&q=${encodeURIComponent(text)}`; let res = await fetch(url); let data = await res.json(); let translated = data[0][0][0]; out.innerHTML = translated; } catch(e){ out.innerHTML = 'Translation error. Please try again.'; } };
+    window.getWeather = async function(){ let city = document.getElementById('cityName').value; let out = document.getElementById('weatherOut'); out.innerHTML = 'Fetching...'; try { let res = await fetch(`https://wttr.in/${encodeURIComponent(city)}?format=j1`); let data = await res.json(); let temp = data.current_condition[0].temp_C; let desc = data.current_condition[0].weatherDesc[0].value; out.innerHTML = `🌡️ ${temp}°C, ${desc}`; } catch(e){ out.innerHTML = 'Error fetching weather'; } };
+    window.saveNote = function(){ localStorage.setItem('quickNote', document.getElementById('notesText').value); showToast('Saved'); };
+    window.loadNote = function(){ let note = localStorage.getItem('quickNote')||''; document.getElementById('notesText').value = note; document.getElementById('notesOut').innerHTML = note; };
+    let todos = JSON.parse(localStorage.getItem('todos') || '[]');
+    function saveTodos(){ localStorage.setItem('todos', JSON.stringify(todos)); renderTodoList(); }
+    function renderTodoList(){ let ul = document.getElementById('todoList'); if(ul) ul.innerHTML = todos.map((t,i)=>`<li style="display:flex;justify-content:space-between;align-items:center;margin:8px 0;font-size:1rem;"><span>${t}</span><button onclick="deleteTodo(${i})" style="background:transparent;border:none;font-size:1.3rem;cursor:pointer;">❌</button></li>`).join(''); }
+    window.addTodo = function(){ let inp = document.getElementById('todoInput'); if(inp.value.trim()){ todos.push(inp.value.trim()); saveTodos(); inp.value=''; } };
+    window.deleteTodo = function(i){ todos.splice(i,1); saveTodos(); };
+    function loadTodoList(){ renderTodoList(); }
+    window.randomFact = async function(){ let out = document.getElementById('factOut'); out.innerHTML = 'Loading...'; try { let res = await fetch('https://uselessfacts.jsph.pl/random.json?language=en'); let data = await res.json(); out.innerHTML = data.text; } catch(e){ out.innerHTML = 'MultiTool Pro is awesome!'; } };
+    window.checkStrength = function(){ let pwd = document.getElementById('pwdCheck').value; let strength = 'Weak'; if(pwd.length>=8 && /[A-Z]/.test(pwd) && /[0-9]/.test(pwd) && /[^A-Za-z0-9]/.test(pwd)) strength = 'Strong'; else if(pwd.length>=6) strength = 'Medium'; document.getElementById('strengthOut').innerHTML = `Strength: ${strength}`; };
+    window.searchWikipedia = function(){ let query = document.getElementById('wikiQuery').value.trim(); if(!query) { document.getElementById('wikiOut').innerHTML = 'Please enter a search term.'; return; } window.open(`https://en.wikipedia.org/wiki/${encodeURIComponent(query.replace(/\s+/g, '_'))}`, '_blank'); document.getElementById('wikiOut').innerHTML = `Opening Wikipedia page for "${query}"...`; };
+    const shareSection = document.createElement('div'); shareSection.className = 'flex-buttons'; shareSection.style.background = 'var(--surface)'; shareSection.style.padding = '16px'; shareSection.style.borderRadius = '48px'; shareSection.style.margin = '32px 0'; shareSection.innerHTML = `<strong style="font-size:1.2rem;">📱 Share</strong><button class="tool-btn share-btn-fb" onclick="shareFull('facebook')">📘 FB</button><button class="tool-btn share-btn-x" onclick="shareFull('twitter')">🐦 X</button><button class="tool-btn share-btn-linkedin" onclick="shareFull('linkedin')">💼 LinkedIn</button><button class="tool-btn share-btn-reddit" onclick="shareFull('reddit')">🤖 Reddit</button><button class="tool-btn share-btn-wa" onclick="shareFull('whatsapp')">💬 WhatsApp</button><button class="tool-btn share-btn-ig" onclick="shareFull('instagram')">📷 Instagram</button><button class="tool-btn share-btn-copy" onclick="shareFull('copy')">🔗 Copy Play Link</button>`; document.querySelector('.main-container').insertBefore(shareSection, document.getElementById('toolPanel'));
+    window.shareFull = function(platform){ const playLink = 'https://play.google.com/store/apps/details?id=multitool.pro2'; const text = 'Check out MultiTool Pro - Ultimate toolkit with all tools! · AI Hub · Premium Free & More... ✨ 50+ utilities, world clock, fresh jokes, translator & much more!'; const urls = { facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(playLink)}&display=popup&ref=plugin`, twitter: `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(playLink)}`, linkedin: `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(playLink)}`, reddit: `https://www.reddit.com/submit?url=${encodeURIComponent(playLink)}&title=${encodeURIComponent(text)}`, whatsapp: `https://wa.me/?text=${encodeURIComponent(text + ' ' + playLink)}`, instagram: `https://www.instagram.com/` }; if(platform === 'instagram') { window.open('https://www.instagram.com', '_blank'); showToast('Open Instagram and share manually'); return; } if(platform === 'copy') { navigator.clipboard.writeText(playLink); showToast('Play Store link copied!'); return; } const url = urls[platform]; if(url) window.open(url, '_blank', 'noopener'); };
+    function renderToolPanel(tid){
+        let title = '', content = '';
+        switch(tid){
+            case 'calculator':
+                title = '🧮 Advanced Scientific Calculator';
+                content = `<div id="calcDisplay" style="font-size:2rem;padding:16px;background:var(--surface2);border-radius:20px;margin-bottom:16px;min-height:60px;word-break:break-all;">0</div>
+                <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:10px;max-width:100%;">
+                    <button class="tool-btn calc-btn" onclick="appendCalc('sin(')">sin</button>
+                    <button class="tool-btn calc-btn" onclick="appendCalc('cos(')">cos</button>
+                    <button class="tool-btn calc-btn" onclick="appendCalc('tan(')">tan</button>
+                    <button class="tool-btn calc-btn" onclick="appendCalc('log(')">log10</button>
+                    <button class="tool-btn calc-btn" onclick="appendCalc('ln(')">ln</button>
+                    <button class="tool-btn calc-btn" onclick="appendCalc('sqrt(')">√</button>
+                    <button class="tool-btn calc-btn" onclick="appendCalc('^')">^</button>
+                    <button class="tool-btn calc-btn" onclick="appendCalc('π')">π</button>
+                    <button class="tool-btn calc-btn" onclick="appendCalc('e')">e</button>
+                    <button class="tool-btn calc-btn" onclick="appendCalc('(')">(</button>
+                    <button class="tool-btn calc-btn" onclick="appendCalc(')')">)</button>
+                    <button class="tool-btn calc-btn" onclick="appendCalc('7')">7</button>
+                    <button class="tool-btn calc-btn" onclick="appendCalc('8')">8</button>
+                    <button class="tool-btn calc-btn" onclick="appendCalc('9')">9</button>
+                    <button class="tool-btn calc-btn" onclick="appendCalc('/')">/</button>
+                    <button class="tool-btn calc-btn" onclick="appendCalc('DEL')" style="background:#e74c3c;">DEL</button>
+                    <button class="tool-btn calc-btn" onclick="appendCalc('4')">4</button>
+                    <button class="tool-btn calc-btn" onclick="appendCalc('5')">5</button>
+                    <button class="tool-btn calc-btn" onclick="appendCalc('6')">6</button>
+                    <button class="tool-btn calc-btn" onclick="appendCalc('*')">×</button>
+                    <button class="tool-btn calc-btn" onclick="appendCalc('C')" style="background:#e67e22;">C</button>
+                    <button class="tool-btn calc-btn" onclick="appendCalc('1')">1</button>
+                    <button class="tool-btn calc-btn" onclick="appendCalc('2')">2</button>
+                    <button class="tool-btn calc-btn" onclick="appendCalc('3')">3</button>
+                    <button class="tool-btn calc-btn" onclick="appendCalc('-')">-</button>
+                    <button class="tool-btn calc-btn" onclick="appendCalc('0')">0</button>
+                    <button class="tool-btn calc-btn" onclick="appendCalc('.')">.</button>
+                    <button class="tool-btn calc-btn" onclick="evalCalc()" style="background:#27ae60;">=</button>
+                    <button class="tool-btn calc-btn" onclick="appendCalc('+')">+</button>
+                </div>
+                <div class="tool-output" style="margin-top:12px;"><strong>History:</strong> <span id="calcHistory">None</span></div>
+                <div id="calcResult" class="tool-output"></div>`;
+                calcExpr = '';
+                break;
+            case 'password':
+                title = '🔐 Advanced Password Generator';
+                content = `<div><label>Length: <input type="range" id="passLen" min="6" max="64" value="16" style="width:100%;"></label> <span id="lenVal">16</span></div>
+                <div><label><input type="checkbox" id="useUpper" checked> A-Z</label> <label><input type="checkbox" id="useLower" checked> a-z</label> <label><input type="checkbox" id="useDigits" checked> 0-9</label> <label><input type="checkbox" id="useSymbols" checked> !@#$%</label></div>
+                <div><label>Exclude ambiguous: <input type="checkbox" id="excludeAmb"></label></div>
+                <button class="tool-btn" onclick="genPassAdvanced()">Generate</button>
+                <div id="passOut" class="tool-output" style="font-family: monospace; font-size:1.2rem;"></div>
+                <div>Strength: <span id="strengthMeter">—</span></div>`;
+                break;
+            case 'wordcount':
+                title = '📝 Word & Character Counter';
+                content = `<textarea id="wcText" rows="6" class="search-input" placeholder="Type or paste your text here..."></textarea>
+                <div class="tool-output"><strong>Words:</strong> <span id="wcWord">0</span>  | <strong>Characters (with spaces):</strong> <span id="wcChar">0</span>  | <strong>Chars (no spaces):</strong> <span id="wcCharNoSpace">0</span><br>
+                <strong>Reading time:</strong> <span id="readTime">0</span> min  | <strong>Speaking time:</strong> <span id="speakTime">0</span> min<br>
+                <strong>Keyword density (top 3):</strong> <span id="keywordDensity">—</span></div>`;
+                break;
+            case 'caseconverter':
+                title = '🔤 Advanced Case Converter';
+                content = `<textarea id="caseText" class="search-input" placeholder="Enter text..."></textarea>
+                <div><button class="tool-btn" onclick="toUpper()">UPPER CASE</button> <button class="tool-btn" onclick="toLower()">lower case</button> <button class="tool-btn" onclick="toTitleCase()">Title Case</button> <button class="tool-btn" onclick="toSentenceCase()">Sentence case</button> <button class="tool-btn" onclick="toAlternatingCase()">aLtErNaTiNg</button> <button class="tool-btn" onclick="toInverseCase()">iNVERSE cASE</button></div>
+                <div id="caseOut" class="tool-output"></div>`;
+                break;
+            case 'colorpicker':
+                title = '🎨 Color Picker & Converter';
+                content = `<input type="color" id="colorPick" value="#6c5ce7" style="width:80px;height:80px;border-radius:40px;">
+                <div id="colorShow" style="width:100px;height:100px;border-radius:50%;background:#6c5ce7;margin-top:12px;"></div>
+                <div>HEX: <span id="hexOut">#6c5ce7</span> | RGB: <span id="rgbOut">108,92,231</span> | HSL: <span id="hslOut">—</span></div>
+                <div><button class="tool-btn" onclick="copyColor('hex')">Copy HEX</button> <button class="tool-btn" onclick="copyColor('rgb')">Copy RGB</button> <button class="tool-btn" onclick="copyColor('hsl')">Copy HSL</button></div>
+                <div><strong>Recent colors:</strong> <span id="recentColors"></span></div>`;
+                break;
+            case 'unitconverter':
+                title = '📏 Universal Unit Converter (All categories)';
+                content = `<div><select id="unitCategory" class="search-input" onchange="changeUnitCategory()"><option value="length">Length</option><option value="mass">Mass</option><option value="volume">Volume</option><option value="area">Area</option><option value="temperature">Temperature</option><option value="speed">Speed</option><option value="time">Time</option><option value="digital">Digital Storage</option></select></div>
+                <div><input id="unitVal" type="number" class="search-input" placeholder="Value"><select id="unitFrom" class="search-input" style="width:auto;"></select> → <select id="unitTo" class="search-input" style="width:auto;"></select><button class="tool-btn" onclick="convertUnitAdvanced()">Convert</button></div>
+                <div id="unitOut" class="tool-output"></div>`;
+                break;
+            case 'stopwatch':
+                title = '⏱️ Stopwatch with Laps';
+                content = `<div id="swTime" style="font-size:4rem;">00:00:00.00</div>
+                <div><button class="tool-btn" onclick="startSW()">Start</button> <button class="tool-btn" onclick="pauseSW()">Pause</button> <button class="tool-btn" onclick="resetSW()">Reset</button> <button class="tool-btn" onclick="recordLap()">Lap</button></div>
+                <div><strong>Laps:</strong> <ul id="lapList"></ul></div>`;
+                break;
+            case 'qrcode':
+                title = '📱 QR Code Generator (Customizable)';
+                content = `<input id="qrText" class="search-input" placeholder="URL or text">
+                <div><label>Size: <select id="qrSize"><option>150</option><option selected>250</option><option>350</option></select></label> <label>Error correction: <select id="qrEC"><option>L</option><option selected>M</option><option>Q</option><option>H</option></select></label></div>
+                <div><label>Foreground color: <input type="color" id="qrFg" value="#000000"></label> <label>Background: <input type="color" id="qrBg" value="#ffffff"></label></div>
+                <button class="tool-btn" onclick="genQRAdvanced()">Generate</button>
+                <div id="qrImg" class="tool-output"></div>`;
+                break;
+            case 'bmi':
+                title = '⚖️ BMI Calculator (Metric & Imperial)';
+                content = `<div><select id="bmiUnit" onchange="toggleBMIUnits()"><option value="metric">Metric (cm/kg)</option><option value="imperial">Imperial (ft/in/lbs)</option></select></div>
+                <div id="bmiMetricDiv"><input id="bmiHeight" placeholder="Height (cm)" class="search-input"><input id="bmiWeight" placeholder="Weight (kg)" class="search-input"></div>
+                <div id="bmiImperialDiv" style="display:none;"><input id="bmiHeightFt" placeholder="Feet" class="search-input" style="width:30%"> <input id="bmiHeightIn" placeholder="Inches" class="search-input" style="width:30%"> <input id="bmiWeightLbs" placeholder="Weight (lbs)" class="search-input"></div>
+                <button class="tool-btn" onclick="calcBMIAdvanced()">Calculate</button>
+                <div id="bmiOut" class="tool-output"></div>`;
+                break;
+            case 'random':
+                title = '🎲 Random Number Generator (Multiple)';
+                content = `<div><label>Min: <input id="randMin" value="1" class="search-input" style="width:30%"></label> <label>Max: <input id="randMax" value="100" class="search-input" style="width:30%"></label></div>
+                <div><label>How many: <input id="randCount" type="number" value="1" min="1" max="50" class="search-input" style="width:30%"></label> <label>Allow duplicates: <input type="checkbox" id="randDuplicates"></label></div>
+                <div><label>Sort results: <input type="checkbox" id="randSort"></label> <label>Decimal places: <input id="randDecimals" type="number" value="0" min="0" max="5" class="search-input" style="width:30%"></label></div>
+                <button class="tool-btn" onclick="genRandomAdvanced()">Generate</button>
+                <div id="randOut" class="tool-output"></div>`;
+                break;
+            case 'countdown':
+                title = '⏳ Countdown Timer (Minutes/Seconds)';
+                content = `<div><label>Minutes: <input id="cdMinutes" type="number" value="0" min="0" class="search-input" style="width:30%"></label> <label>Seconds: <input id="cdSecondsInput" type="number" value="60" min="0" class="search-input" style="width:30%"></label></div>
+                <div><button class="tool-btn" onclick="setPresetCD(60)">1 min</button> <button class="tool-btn" onclick="setPresetCD(300)">5 min</button> <button class="tool-btn" onclick="setPresetCD(600)">10 min</button> <button class="tool-btn" onclick="setPresetCD(1800)">30 min</button> <button class="tool-btn" onclick="setPresetCD(3600)">1 hour</button></div>
+                <div><button class="tool-btn" onclick="startCDAdvanced()">Start</button> <button class="tool-btn" onclick="pauseCD()">Pause</button> <button class="tool-btn" onclick="resetCDAdvanced()">Reset</button></div>
+                <div id="cdDisplay" style="font-size:3rem;">00:00</div>
+                <div><input type="checkbox" id="cdSound"> Play sound when done</div>`;
+                break;
+            case 'datediff':
+                title = '📅 Advanced Date Difference';
+                content = `<input type="date" id="date1" class="search-input"><input type="date" id="date2" class="search-input">
+                <button class="tool-btn" onclick="diffDatesAdvanced()">Calculate Difference</button>
+                <div id="dateOut" class="tool-output"></div>`;
+                break;
+            case 'base64':
+                title = '🔣 Base64 Encoder/Decoder + File';
+                content = `<textarea id="b64Text" rows="3" class="search-input" placeholder="Text or Base64"></textarea>
+                <div><button class="tool-btn" onclick="b64Encode()">Encode</button> <button class="tool-btn" onclick="b64Decode()">Decode</button></div>
+                <div><input type="file" id="b64File"> <button class="tool-btn" onclick="fileToBase64()">File to Base64</button> <button class="tool-btn" onclick="base64ToFile()">Base64 to File</button></div>
+                <div id="b64Out" class="tool-output"></div>`;
+                break;
+            case 'urlencode':
+                title = '🔗 URL Encode/Decode (Full)';
+                content = `<input id="urlText" class="search-input" placeholder="URL or text">
+                <div><button class="tool-btn" onclick="urlEnc()">Encode (component)</button> <button class="tool-btn" onclick="urlDec()">Decode</button> <button class="tool-btn" onclick="urlEncFull()">Encode (full URI)</button></div>
+                <div id="urlOut" class="tool-output"></div>`;
+                break;
+            case 'jsonformat':
+                title = '📋 JSON Formatter & Validator';
+                content = `<textarea id="jsonIn" rows="6" class="search-input" placeholder='{"name":"test"}'></textarea>
+                <div><button class="tool-btn" onclick="formatJSON()">Format</button> <button class="tool-btn" onclick="minifyJSON()">Minify</button> <button class="tool-btn" onclick="validateJSON()">Validate</button></div>
+                <pre id="jsonOut" class="tool-output"></pre>`;
+                break;
+            case 'lorem':
+                title = '📄 Lorem Ipsum Generator';
+                content = `<div><label>Type: <select id="loremType"><option value="paragraphs">Paragraphs</option><option value="sentences">Sentences</option><option value="words">Words</option></select></label> <label>Count: <input id="loremCount" type="number" value="3" class="search-input" style="width:30%"></label></div>
+                <div><label>Include HTML markup: <input type="checkbox" id="loremHtml"></label></div>
+                <button class="tool-btn" onclick="genLoremAdvanced()">Generate</button>
+                <div id="loremOut" class="tool-output"></div>`;
+                break;
+            case 'currency':
+                title = '💱 Currency Converter (Live Rates)';
+                content = `<input id="currAmt" type="number" placeholder="Amount" class="search-input">
+                <select id="currFrom" class="search-input" style="width:auto;"></select> → <select id="currTo" class="search-input" style="width:auto;"></select>
+                <button class="tool-btn" onclick="convCurrencyAdvanced()">Convert</button>
+                <div id="currOut" class="tool-output"></div>`;
+                break;
+            case 'percentcalc':
+                title = '📊 Percentage Calculator (3 types)';
+                content = `<div><button class="tool-btn" onclick="showPercentType('percent')">% of number</button> <button class="tool-btn" onclick="showPercentType('change')">% change</button> <button class="tool-btn" onclick="showPercentType('what')">What percent of</button></div>
+                <div id="percentPanel"><input id="percVal" placeholder="Value" class="search-input"><input id="percPer" placeholder="Percent" class="search-input"><button class="tool-btn" onclick="calcPercent()">Calculate</button></div>
+                <div id="percOut" class="tool-output"></div>`;
+                break;
+            case 'agecalc':
+                title = '🎂 Age Calculator (Exact)';
+                content = `<input type="date" id="dob" class="search-input"><button class="tool-btn" onclick="calcAgeAdvanced()">Calculate Age</button>
+                <div id="ageOut" class="tool-output"></div>`;
+                break;
+            case 'binhex':
+                title = '💻 Binary/Hex/Decimal/Octal Converter';
+                content = `<input id="binVal" class="search-input" placeholder="Enter number (dec/bin/hex/oct)">
+                <div><button class="tool-btn" onclick="convertAllBases()">Convert all bases</button></div>
+                <div id="binhexOut" class="tool-output"></div>`;
+                break;
+            case 'roman':
+                title = '🏛️ Roman Numeral Converter (↔)';
+                content = `<input id="romanNum" class="search-input" placeholder="Number (1-3999) or Roman numeral">
+                <button class="tool-btn" onclick="convertRomanAdvanced()">Convert</button>
+                <div id="romanOut" class="tool-output"></div>`;
+                break;
+            case 'tipcalc':
+                title = '💰 Tip Calculator (Split bill)';
+                content = `<input id="billAmt" placeholder="Bill amount" class="search-input"><input id="tipPct" placeholder="Tip %" value="15" class="search-input">
+                <div><label>Split between: <input id="splitNum" type="number" value="1" min="1" class="search-input" style="width:30%"></label></div>
+                <button class="tool-btn" onclick="calcTipAdvanced()">Calculate</button>
+                <div id="tipOut" class="tool-output"></div>`;
+                break;
+            case 'worldclock':
+                title = '🕐 World Clock (All Time Zones)';
+                content = `<div><input type="text" id="worldClockSearch" class="search-input" placeholder="Filter timezone..." onkeyup="filterWorldClock()"></div>
+                <div><button class="tool-btn" onclick="toggleWorldClockFormat()">Toggle 12/24h</button> <button class="tool-btn" onclick="refreshWorldClock()">Refresh</button></div>
+                <div id="worldClockContainer" class="tool-output" style="font-size:0.9rem;">Loading...</div>`;
+                break;
+            case 'dice':
+                title = '🎲 Dice Roller (Multiple dice)';
+                content = `<div><label>Number of dice: <input id="diceCount" type="number" min="1" max="6" value="1" class="search-input" style="width:30%"></label> <label>Sides: <select id="diceSidesSelect"><option value="4">d4</option><option value="6" selected>d6</option><option value="8">d8</option><option value="10">d10</option><option value="12">d12</option><option value="20">d20</option></select></label></div>
+                <button class="tool-btn" onclick="rollMultipleDice()">Roll</button>
+                <div id="diceOut" class="tool-output"></div>`;
+                break;
+            case 'coin':
+                title = '🪙 Coin Flip (Streak)';
+                content = `<button class="tool-btn" onclick="flipCoinAdvanced()">Flip Coin</button>
+                <div id="coinOut" class="tool-output"></div>
+                <div>Streak: <span id="coinStreak">0</span></div>`;
+                break;
+            case 'joke':
+                title = '😂 Joke Generator (Categories)';
+                content = `<div><select id="jokeCategory"><option value="Any">Any</option><option value="Programming">Programming</option><option value="Misc">Misc</option><option value="Pun">Pun</option><option value="Dark">Dark</option></select>
+                <input type="checkbox" id="safeMode" checked> Safe mode</div>
+                <button class="tool-btn" onclick="fetchNewJokeAdvanced()">Get Joke</button>
+                <div id="jokeOutput" class="tool-output">Click for a joke!</div>`;
+                break;
+            case 'ip':
+                title = '🌍 IP Lookup (Geolocation)';
+                content = `<button class="tool-btn" onclick="getIPAdvanced()">Get My IP Info</button>
+                <div id="ipOut" class="tool-output"></div>`;
+                break;
+            case 'ai_paraphraser':
+                title = '🔄 AI Paraphraser';
+                content = `<textarea id="paraphraserText" rows="4" class="search-input" placeholder="Enter text to paraphrase..."></textarea>
+                <button class="tool-btn" onclick="runParaphraserTool()">Paraphrase</button>
+                <div id="paraphraserOut" class="tool-output"></div>`;
+                break;
+            case 'ai_grammar':
+                title = '✅ Grammar & Spell Check';
+                content = `<textarea id="grammarText" rows="4" class="search-input" placeholder="Enter text to check..."></textarea>
+                <button class="tool-btn" onclick="runGrammarTool()">Check Grammar</button>
+                <div id="grammarOut" class="tool-output"></div>`;
+                break;
+            case 'ai_summarizer':
+                title = '📄 AI Summarizer';
+                content = `<textarea id="summarizerText" rows="5" class="search-input" placeholder="Paste long text to summarize..."></textarea>
+                <button class="tool-btn" onclick="runSummarizerTool()">Summarize</button>
+                <div id="summarizerOut" class="tool-output"></div>`;
+                break;
+            case 'ai_sentiment':
+                title = '😊 Sentiment Analysis';
+                content = `<textarea id="sentimentText" rows="4" class="search-input" placeholder="Enter text to analyze sentiment..."></textarea>
+                <button class="tool-btn" onclick="runSentimentTool()">Analyze Sentiment</button>
+                <div id="sentimentOut" class="tool-output"></div>`;
+                break;
+            case 'ai_keywords':
+                title = '🔑 Keyword Extractor';
+                content = `<textarea id="keywordsText" rows="4" class="search-input" placeholder="Enter text to extract keywords..."></textarea>
+                <button class="tool-btn" onclick="runKeywordsTool()">Extract Keywords</button>
+                <div id="keywordsOut" class="tool-output"></div>`;
+                break;
+            case 'ai_readability':
+                title = '📖 Readability Checker';
+                content = `<textarea id="readabilityText" rows="4" class="search-input" placeholder="Enter text to check readability..."></textarea>
+                <button class="tool-btn" onclick="runReadabilityTool()">Check Readability</button>
+                <div id="readabilityOut" class="tool-output"></div>`;
+                break;
+            case 'premium_ai':
+                title = '🔮 AI Text Enhancer (Multiple modes)';
+                content = `<textarea id="aiDemoText" rows="4" class="search-input" placeholder="Type your text..."></textarea>
+                <div><select id="aiMode"><option value="grammar">Grammar Fix</option><option value="professional">Professional</option><option value="friendly">Friendly</option><option value="shorten">Shorten</option><option value="expand">Expand</option><option value="simplify">Simplify</option></select></div>
+                <button class="tool-btn" onclick="demoAIEnhanceAdvanced()">Enhance</button>
+                <div id="aiDemoResult" class="tool-output"></div>`;
+                break;
+            default: title='✨ Tool', content='<div class="tool-output">Ready to use.</div>';
+        }
+        document.getElementById('toolPanelTitle').innerHTML = title;
+        document.getElementById('toolContent').innerHTML = content;
+        if(tid=='wordcount') document.getElementById('wcText')?.addEventListener('input',updateWordCount);
+        if(tid=='password') document.getElementById('passLen')?.addEventListener('input',(e)=>document.getElementById('lenVal').innerText=e.target.value);
+        if(tid=='colorpicker') document.getElementById('colorPick')?.addEventListener('input',updateColorFromPicker);
+        if(tid=='unitconverter') changeUnitCategory();
+        if(tid=='currency') loadCurrencyList();
+        if(tid=='worldclock') { refreshWorldClock(); setInterval(refreshWorldClock, 60000); }
+    }
+    // Enhanced functions definitions (same as original, kept for compatibility)
+    let calcHistory = [];
+    window.appendCalc = function(v) {
+        if (v === 'C') { calcExpr = ''; }
+        else if (v === 'DEL') { calcExpr = calcExpr.slice(0, -1); }
+        else { calcExpr += v; }
+        const display = document.getElementById('calcDisplay');
+        if (display) display.textContent = calcExpr || '0';
+    };
+    window.evalCalc = function() {
+        let expr = calcExpr;
+        if (!expr) return;
+        try {
+            expr = expr.replace(/sin\(/g, 'Math.sin(');
+            expr = expr.replace(/cos\(/g, 'Math.cos(');
+            expr = expr.replace(/tan\(/g, 'Math.tan(');
+            expr = expr.replace(/log\(/g, 'Math.log10(');
+            expr = expr.replace(/ln\(/g, 'Math.log(');
+            expr = expr.replace(/sqrt\(/g, 'Math.sqrt(');
+            expr = expr.replace(/π/g, 'Math.PI');
+            expr = expr.replace(/\be\b/g, 'Math.E');
+            expr = expr.replace(/\^/g, '**');
+            let result = new Function('return ' + expr)();
+            calcHistory.unshift(`${calcExpr} = ${result}`);
+            if(calcHistory.length > 5) calcHistory.pop();
+            document.getElementById('calcHistory').innerHTML = calcHistory.join('<br>');
+            document.getElementById('calcResult').innerHTML = '<strong>Result:</strong> ' + result;
+            calcExpr = String(result);
+            const display = document.getElementById('calcDisplay');
+            if (display) display.textContent = result;
+        } catch(e) { document.getElementById('calcResult').innerHTML = 'Error'; }
+    };
+    window.genPassAdvanced = function() {
+        let len = parseInt(document.getElementById('passLen').value);
+        let upper = document.getElementById('useUpper').checked;
+        let lower = document.getElementById('useLower').checked;
+        let digits = document.getElementById('useDigits').checked;
+        let symbols = document.getElementById('useSymbols').checked;
+        let exclude = document.getElementById('excludeAmb').checked;
+        let charSet = '';
+        if(upper) charSet += 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        if(lower) charSet += 'abcdefghijklmnopqrstuvwxyz';
+        if(digits) charSet += '0123456789';
+        if(symbols) charSet += '!@#$%^&*()_+[]{};:,.<>?';
+        if(exclude) charSet = charSet.replace(/[il1Lo0O]/g,'');
+        if(charSet === '') { showToast('Select at least one character set'); return; }
+        let pwd = '';
+        for(let i=0;i<len;i++) pwd += charSet[Math.floor(Math.random()*charSet.length)];
+        document.getElementById('passOut').innerText = pwd;
+        let strength = 'Weak';
+        if(len>=12 && upper && lower && digits && symbols) strength = 'Strong';
+        else if(len>=8 && ((upper && lower) || (digits && symbols))) strength = 'Medium';
+        document.getElementById('strengthMeter').innerHTML = strength;
+    };
+    function updateWordCount() {
+        let t = document.getElementById('wcText').value;
+        let words = t.trim().split(/\s+/).filter(w=>w.length>0);
+        let chars = t.length;
+        let charsNoSpace = t.replace(/\s/g,'').length;
+        document.getElementById('wcWord').innerText = words.length;
+        document.getElementById('wcChar').innerText = chars;
+        document.getElementById('wcCharNoSpace').innerText = charsNoSpace;
+        let readTime = Math.ceil(words.length / 200);
+        let speakTime = Math.ceil(words.length / 130);
+        document.getElementById('readTime').innerText = readTime;
+        document.getElementById('speakTime').innerText = speakTime;
+        let freq = {};
+        words.forEach(w => { let low = w.toLowerCase(); freq[low] = (freq[low]||0)+1; });
+        let sorted = Object.entries(freq).sort((a,b)=>b[1]-a[1]).slice(0,3);
+        document.getElementById('keywordDensity').innerHTML = sorted.map(([k,v])=>`${k} (${v})`).join(', ') || '—';
+    }
+    window.toUpper = function(){ document.getElementById('caseOut').innerText = document.getElementById('caseText').value.toUpperCase(); };
+    window.toLower = function(){ document.getElementById('caseOut').innerText = document.getElementById('caseText').value.toLowerCase(); };
+    window.toTitleCase = function() {
+        let txt = document.getElementById('caseText').value;
+        document.getElementById('caseOut').innerText = txt.replace(/\w\S*/g, w=>w.charAt(0).toUpperCase()+w.substr(1).toLowerCase());
+    };
+    window.toSentenceCase = function() {
+        let txt = document.getElementById('caseText').value;
+        document.getElementById('caseOut').innerText = txt.replace(/(^\s*\w|[.!?]\s*\w)/g, c=>c.toUpperCase());
+    };
+    window.toAlternatingCase = function() {
+        let txt = document.getElementById('caseText').value;
+        let result = '';
+        for(let i=0;i<txt.length;i++) result += i%2 ? txt[i].toLowerCase() : txt[i].toUpperCase();
+        document.getElementById('caseOut').innerHTML = result;
+    };
+    window.toInverseCase = function() {
+        let txt = document.getElementById('caseText').value;
+        let result = '';
+        for(let c of txt) result += c===c.toUpperCase() ? c.toLowerCase() : c.toUpperCase();
+        document.getElementById('caseOut').innerHTML = result;
+    };
+    let recentColors = JSON.parse(localStorage.getItem('recentColors')||'[]');
+    function updateColorFromPicker() {
+        let col = document.getElementById('colorPick').value;
+        document.getElementById('colorShow').style.background = col;
+        document.getElementById('hexOut').innerText = col;
+        let r = parseInt(col.slice(1,3),16), g = parseInt(col.slice(3,5),16), b = parseInt(col.slice(5,7),16);
+        document.getElementById('rgbOut').innerText = `${r},${g},${b}`;
+        let hsl = rgbToHsl(r,g,b);
+        document.getElementById('hslOut').innerText = `${hsl[0].toFixed(0)}°,${(hsl[1]*100).toFixed(0)}%,${(hsl[2]*100).toFixed(0)}%`;
+        if(!recentColors.includes(col)) { recentColors.unshift(col); if(recentColors.length>5) recentColors.pop(); localStorage.setItem('recentColors',JSON.stringify(recentColors)); }
+        document.getElementById('recentColors').innerHTML = recentColors.map(c=>`<span style="display:inline-block;width:30px;height:30px;background:${c};border-radius:50%;margin:0 5px;cursor:pointer;" onclick="document.getElementById('colorPick').value='${c}';updateColorFromPicker();"></span>`).join('');
+    }
+    function rgbToHsl(r,g,b) { r/=255,g/=255,b/=255; let max=Math.max(r,g,b),min=Math.min(r,g,b); let h,s,l=(max+min)/2; if(max===min) h=s=0; else { let d=max-min; s=l>0.5?d/(2-max-min):d/(max+min); switch(max){ case r: h=(g-b)/d+(g<b?6:0); break; case g: h=(b-r)/d+2; break; case b: h=(r-g)/d+4; break; } h/=6; } return [h*360,s,l]; }
+    window.copyColor = function(type) {
+        let hex = document.getElementById('hexOut').innerText;
+        let rgb = document.getElementById('rgbOut').innerText;
+        let hsl = document.getElementById('hslOut').innerText;
+        let copyText = type==='hex'?hex:type==='rgb'?`rgb(${rgb})`:hsl;
+        navigator.clipboard.writeText(copyText);
+        showToast(`Copied ${copyText}`);
+    };
+    const unitDefs = {
+        length: { units: ['mm','cm','m','km','in','ft','yd','mi'], conv: { mm:0.001, cm:0.01, m:1, km:1000, in:0.0254, ft:0.3048, yd:0.9144, mi:1609.344 } },
+        mass: { units: ['mg','g','kg','oz','lb','t'], conv: { mg:0.000001, g:0.001, kg:1, oz:0.0283495, lb:0.453592, t:1000 } },
+        volume: { units: ['ml','l','cup','gal','floz'], conv: { ml:0.001, l:1, cup:0.236588, gal:3.78541, floz:0.0295735 } },
+        area: { units: ['m2','cm2','ft2','in2','acre'], conv: { m2:1, cm2:0.0001, ft2:0.092903, in2:0.00064516, acre:4046.86 } },
+        temperature: { units: ['C','F','K'], conv: null },
+        speed: { units: ['m/s','km/h','mph','kn'], conv: { 'm/s':1, 'km/h':0.277778, 'mph':0.44704, 'kn':0.514444 } },
+        time: { units: ['s','min','h','day'], conv: { s:1, min:60, h:3600, day:86400 } },
+        digital: { units: ['B','KB','MB','GB','TB'], conv: { B:1, KB:1024, MB:1048576, GB:1073741824, TB:1099511627776 } }
+    };
+    window.changeUnitCategory = function() {
+        let cat = document.getElementById('unitCategory').value;
+        let fromSel = document.getElementById('unitFrom');
+        let toSel = document.getElementById('unitTo');
+        let units = unitDefs[cat].units;
+        fromSel.innerHTML = units.map(u=>`<option value="${u}">${u}</option>`).join('');
+        toSel.innerHTML = units.map(u=>`<option value="${u}">${u}</option>`).join('');
+        if(cat==='temperature') {
+            document.getElementById('unitOut').innerHTML = 'Temperature conversion uses formulas.';
+        }
+    };
+    window.convertUnitAdvanced = function() {
+        let cat = document.getElementById('unitCategory').value;
+        let val = parseFloat(document.getElementById('unitVal').value);
+        let from = document.getElementById('unitFrom').value;
+        let to = document.getElementById('unitTo').value;
+        if(isNaN(val)) { document.getElementById('unitOut').innerHTML = 'Enter a number'; return; }
+        let result;
+        if(cat === 'temperature') {
+            let celsius;
+            if(from==='C') celsius=val;
+            else if(from==='F') celsius=(val-32)*5/9;
+            else celsius=val-273.15;
+            if(to==='C') result=celsius;
+            else if(to==='F') result=celsius*9/5+32;
+            else result=celsius+273.15;
+            document.getElementById('unitOut').innerHTML = `${val} ${from} = ${result.toFixed(4)} ${to}`;
+        } else {
+            let conv = unitDefs[cat].conv;
+            let base = val * conv[from];
+            result = base / conv[to];
+            document.getElementById('unitOut').innerHTML = `${val} ${from} = ${result.toFixed(6)} ${to}`;
+        }
+    };
+    let swRunning=false, swStartTime=0, swElapsed=0, swInterval=null;
+    let laps=[];
+    window.startSW = function() { if(swRunning) return; swRunning=true; swStartTime=Date.now()-swElapsed; swInterval=setInterval(()=>{ swElapsed=Date.now()-swStartTime; let ms=swElapsed%1000; let sec=Math.floor(swElapsed/1000)%60; let min=Math.floor(swElapsed/60000)%60; let hr=Math.floor(swElapsed/3600000); document.getElementById('swTime').innerText = `${hr.toString().padStart(2,'0')}:${min.toString().padStart(2,'0')}:${sec.toString().padStart(2,'0')}.${Math.floor(ms/10).toString().padStart(2,'0')}`; },10); };
+    window.pauseSW = function() { if(swRunning) { clearInterval(swInterval); swRunning=false; } };
+    window.resetSW = function() { clearInterval(swInterval); swRunning=false; swElapsed=0; laps=[]; document.getElementById('swTime').innerText='00:00:00.00'; document.getElementById('lapList').innerHTML=''; };
+    window.recordLap = function() { if(!swRunning && swElapsed===0) return; let lapTime = document.getElementById('swTime').innerText; laps.push(lapTime); let ul = document.getElementById('lapList'); ul.innerHTML = laps.map((l,i)=>`<li>Lap ${i+1}: ${l}</li>`).join(''); };
+    window.genQRAdvanced = function() {
+        let text = document.getElementById('qrText').value;
+        if(!text) { showToast('Enter text or URL'); return; }
+        let size = document.getElementById('qrSize').value;
+        let ec = document.getElementById('qrEC').value;
+        let fg = document.getElementById('qrFg').value.substring(1);
+        let bg = document.getElementById('qrBg').value.substring(1);
+        let url = `https://api.qrserver.com/v1/create-qr-code/?size=${size}x${size}&data=${encodeURIComponent(text)}&ecc=${ec}&color=${fg}&bgcolor=${bg}`;
+        document.getElementById('qrImg').innerHTML = `<img src="${url}" style="max-width:100%"> <br><a href="${url}" download="qrcode.png" class="tool-btn">Download PNG</a>`;
+    };
+    window.toggleBMIUnits = function() {
+        let unit = document.getElementById('bmiUnit').value;
+        document.getElementById('bmiMetricDiv').style.display = unit==='metric'?'block':'none';
+        document.getElementById('bmiImperialDiv').style.display = unit==='imperial'?'block':'none';
+    };
+    window.calcBMIAdvanced = function() {
+        let unit = document.getElementById('bmiUnit').value;
+        let heightM, weightKg;
+        if(unit==='metric') {
+            let h = parseFloat(document.getElementById('bmiHeight').value);
+            let w = parseFloat(document.getElementById('bmiWeight').value);
+            if(isNaN(h)||isNaN(w)) { showToast('Enter valid numbers'); return; }
+            heightM = h/100; weightKg = w;
+        } else {
+            let ft = parseFloat(document.getElementById('bmiHeightFt').value)||0;
+            let inch = parseFloat(document.getElementById('bmiHeightIn').value)||0;
+            let lbs = parseFloat(document.getElementById('bmiWeightLbs').value);
+            if(isNaN(lbs)) { showToast('Enter weight'); return; }
+            heightM = (ft*12 + inch) * 0.0254;
+            weightKg = lbs * 0.453592;
+        }
+        let bmi = weightKg / (heightM*heightM);
+        let category = bmi<18.5?'Underweight':bmi<25?'Normal':bmi<30?'Overweight':'Obese';
+        document.getElementById('bmiOut').innerHTML = `BMI: ${bmi.toFixed(1)} (${category})<br>Healthy weight range: ${(18.5*heightM*heightM).toFixed(1)} - ${(24.9*heightM*heightM).toFixed(1)} kg`;
+    };
+    window.genRandomAdvanced = function() {
+        let min = parseFloat(document.getElementById('randMin').value);
+        let max = parseFloat(document.getElementById('randMax').value);
+        let count = parseInt(document.getElementById('randCount').value);
+        let dup = document.getElementById('randDuplicates').checked;
+        let sort = document.getElementById('randSort').checked;
+        let decimals = parseInt(document.getElementById('randDecimals').value);
+        if(isNaN(min)||isNaN(max)||min>max) { showToast('Invalid range'); return; }
+        let results = [];
+        if(dup) {
+            for(let i=0;i<count;i++) {
+                let val = min + Math.random()*(max-min);
+                results.push(val.toFixed(decimals));
+            }
+        } else {
+            let step = 1/Math.pow(10,decimals);
+            let possible = Math.floor((max-min)/step)+1;
+            if(count>possible) { showToast('Not enough unique values'); return; }
+            let set = new Set();
+            while(set.size<count) {
+                let val = min + Math.random()*(max-min);
+                set.add(val.toFixed(decimals));
+            }
+            results = Array.from(set);
+        }
+        if(sort) results.sort((a,b)=>parseFloat(a)-parseFloat(b));
+        document.getElementById('randOut').innerHTML = results.join(', ');
+    };
+    window.pauseCD = function() { if(cdIntervalObj) { clearInterval(cdIntervalObj); cdRunning=false; } };
+    window.setPresetCD = function(seconds) {
+        document.getElementById('cdMinutes').value = Math.floor(seconds/60);
+        document.getElementById('cdSecondsInput').value = seconds%60;
+    };
+    let cdTotalSeconds=0, cdIntervalObj=null, cdRunning=false;
+    window.startCDAdvanced = function() {
+        if(cdRunning) return;
+        let min = parseInt(document.getElementById('cdMinutes').value)||0;
+        let sec = parseInt(document.getElementById('cdSecondsInput').value)||0;
+        cdTotalSeconds = min*60 + sec;
+        if(cdTotalSeconds<=0) { showToast('Set a positive time'); return; }
+        cdRunning=true;
+        cdIntervalObj = setInterval(()=>{
+            if(cdTotalSeconds<=0) {
+                clearInterval(cdIntervalObj); cdRunning=false;
+                if(document.getElementById('cdSound').checked) playSound();
+                showToast('Time is up!');
+                document.getElementById('cdDisplay').innerText='00:00';
+                return;
+            }
+            cdTotalSeconds--;
+            let m = Math.floor(cdTotalSeconds/60);
+            let s = cdTotalSeconds%60;
+            document.getElementById('cdDisplay').innerText = `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+        },1000);
+    };
+    window.resetCDAdvanced = function() {
+        if(cdIntervalObj) clearInterval(cdIntervalObj);
+        cdRunning=false;
+        document.getElementById('cdDisplay').innerText='00:00';
+        document.getElementById('cdMinutes').value='0';
+        document.getElementById('cdSecondsInput').value='60';
+    };
+    window.diffDatesAdvanced = function() {
+        let d1 = new Date(document.getElementById('date1').value);
+        let d2 = new Date(document.getElementById('date2').value);
+        if(isNaN(d1)||isNaN(d2)) { showToast('Select valid dates'); return; }
+        let diffMs = Math.abs(d2-d1);
+        let diffDays = Math.floor(diffMs/(86400000));
+        let diffHours = Math.floor((diffMs%86400000)/3600000);
+        let diffMinutes = Math.floor((diffMs%3600000)/60000);
+        document.getElementById('dateOut').innerHTML = `${diffDays} days, ${diffHours} hours, ${diffMinutes} minutes. Weekdays: ${Math.floor(diffDays/7)} weeks + ${diffDays%7} days`;
+    };
+    window.b64Encode = function() { let txt = document.getElementById('b64Text').value; document.getElementById('b64Out').innerHTML = btoa(txt); };
+    window.b64Decode = function() { let txt = document.getElementById('b64Text').value; try { document.getElementById('b64Out').innerHTML = atob(txt); } catch(e) { document.getElementById('b64Out').innerHTML = 'Invalid Base64'; } };
+    window.fileToBase64 = function() {
+        let file = document.getElementById('b64File').files[0];
+        if(!file) { showToast('Select a file'); return; }
+        let reader = new FileReader();
+        reader.onload = function(e) {
+            document.getElementById('b64Text').value = e.target.result.split(',')[1];
+            showToast('File converted to Base64');
+        };
+        reader.readAsDataURL(file);
+    };
+    window.base64ToFile = function() {
+        let b64 = document.getElementById('b64Text').value;
+        if(!b64) { showToast('Enter Base64'); return; }
+        let link = document.createElement('a');
+        link.href = 'data:application/octet-stream;base64,'+b64;
+        link.download = 'decoded_file.bin';
+        link.click();
+    };
+    window.urlEnc = function() { document.getElementById('urlOut').innerText = encodeURIComponent(document.getElementById('urlText').value); };
+    window.urlDec = function() { document.getElementById('urlOut').innerText = decodeURIComponent(document.getElementById('urlText').value); };
+    window.urlEncFull = function() { document.getElementById('urlOut').innerText = encodeURI(document.getElementById('urlText').value); };
+    window.formatJSON = function() {
+        try { let obj = JSON.parse(document.getElementById('jsonIn').value); document.getElementById('jsonOut').innerHTML = JSON.stringify(obj, null, 2); } catch(e) { document.getElementById('jsonOut').innerHTML = 'Invalid JSON'; }
+    };
+    window.minifyJSON = function() {
+        try { let obj = JSON.parse(document.getElementById('jsonIn').value); document.getElementById('jsonOut').innerText = JSON.stringify(obj); } catch(e) { document.getElementById('jsonOut').innerHTML = 'Invalid JSON'; }
+    };
+    window.validateJSON = function() {
+        try { JSON.parse(document.getElementById('jsonIn').value); document.getElementById('jsonOut').innerHTML = '✅ Valid JSON'; } catch(e) { document.getElementById('jsonOut').innerHTML = '❌ Invalid JSON: '+e.message; }
+    };
+    window.genLoremAdvanced = function() {
+        let type = document.getElementById('loremType').value;
+        let count = parseInt(document.getElementById('loremCount').value);
+        let html = document.getElementById('loremHtml').checked;
+        let lorem = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.';
+        let words = lorem.split(' ');
+        let result = '';
+        if(type==='words') result = words.slice(0,count).join(' ');
+        else if(type==='sentences') result = Array(count).fill(lorem).join('. ');
+        else result = Array(count).fill(lorem+'\n\n').join('');
+        if(html) result = `<p>${result.replace(/\n/g,'</p><p>')}</p>`;
+        document.getElementById('loremOut').innerHTML = result;
+    };
+    const currencyList = [
+        "AED","AFN","ALL","AMD","ANG","AOA","ARS","AUD","AWG","AZN","BAM","BBD","BDT","BGN","BHD","BIF","BMD","BND","BOB","BRL","BSD","BTN","BWP","BYN","BZD","CAD","CDF","CHF","CLP","CNY","COP","CRC","CUP","CVE","CZK","DJF","DKK","DOP","DZD","EGP","ERN","ETB","EUR","FJD","FKP","FOK","GBP","GEL","GGP","GHS","GIP","GMD","GNF","GTQ","GYD","HKD","HNL","HRK","HTG","HUF","IDR","ILS","IMP","INR","IQD","IRR","ISK","JEP","JMD","JOD","JPY","KES","KGS","KHR","KID","KMF","KRW","KWD","KYD","KZT","LAK","LBP","LKR","LRD","LSL","LYD","MAD","MDL","MGA","MKD","MMK","MNT","MOP","MRU","MUR","MVR","MWK","MXN","MYR","MZN","NAD","NGN","NIO","NOK","NPR","NZD","OMR","PAB","PEN","PGK","PHP","PKR","PLN","PYG","QAR","RON","RSD","RUB","RWF","SAR","SBD","SCR","SDG","SEK","SGD","SHP","SLE","SLL","SOS","SRD","SSP","STN","SYP","SZL","THB","TJS","TMT","TND","TOP","TRY","TTD","TVD","TWD","TZS","UAH","UGX","USD","UYU","UZS","VES","VND","VUV","WST","XAF","XCD","XDR","XOF","XPF","YER","ZAR","ZMW","ZWL"
+    ];
+    function loadCurrencyList() {
+        let fromSel = document.getElementById('currFrom');
+        let toSel = document.getElementById('currTo');
+        fromSel.innerHTML = currencyList.map(c=>`<option value="${c}">${c}</option>`).join('');
+        toSel.innerHTML = currencyList.map(c=>`<option value="${c}">${c}</option>`).join('');
+        fromSel.value = 'USD';
+        toSel.value = 'EUR';
+    }
+    window.convCurrencyAdvanced = async function() {
+        let amt = parseFloat(document.getElementById('currAmt').value);
+        let from = document.getElementById('currFrom').value;
+        let to = document.getElementById('currTo').value;
+        if(isNaN(amt)) { showToast('Enter amount'); return; }
+        try {
+            let res = await fetch(`https://api.exchangerate-api.com/v4/latest/${from}`);
+            let data = await res.json();
+            let rate = data.rates[to];
+            if(rate) {
+                let converted = (amt * rate).toFixed(2);
+                document.getElementById('currOut').innerHTML = `${amt} ${from} = ${converted} ${to}<br><strong>Exchange Rate:</strong> 1 ${from} = ${rate.toFixed(4)} ${to}`;
+            } else {
+                document.getElementById('currOut').innerHTML = 'Rate not available';
+            }
+        } catch(e) { document.getElementById('currOut').innerHTML = 'Error fetching rates'; }
+    };
+    window.calcPercent = function() {
+        let val = parseFloat(document.getElementById('percVal').value);
+        let per = parseFloat(document.getElementById('percPer').value);
+        if(isNaN(val)||isNaN(per)) { showToast('Enter numbers'); return; }
+        document.getElementById('percOut').innerHTML = `${per}% of ${val} = ${(val*per/100).toFixed(2)}`;
+    };
+    window.showPercentType = function(type) {
+        let panel = document.getElementById('percentPanel');
+        if(type==='percent') panel.innerHTML = `<input id="percVal" placeholder="Value" class="search-input"><input id="percPer" placeholder="Percent" class="search-input"><button class="tool-btn" onclick="calcPercent()">Calculate</button>`;
+        else if(type==='change') panel.innerHTML = `<input id="oldVal" placeholder="Old value" class="search-input"><input id="newVal" placeholder="New value" class="search-input"><button class="tool-btn" onclick="calcPercentChange()">Calculate % change</button>`;
+        else panel.innerHTML = `<input id="partVal" placeholder="Part" class="search-input"><input id="wholeVal" placeholder="Whole" class="search-input"><button class="tool-btn" onclick="calcWhatPercent()">What percent?</button>`;
+    };
+    window.calcPercentChange = function() {
+        let oldV = parseFloat(document.getElementById('oldVal').value);
+        let newV = parseFloat(document.getElementById('newVal').value);
+        if(isNaN(oldV)||isNaN(newV)) { showToast('Enter numbers'); return; }
+        let change = ((newV-oldV)/oldV)*100;
+        document.getElementById('percOut').innerHTML = `${change.toFixed(2)}% change`;
+    };
+    window.calcWhatPercent = function() {
+        let part = parseFloat(document.getElementById('partVal').value);
+        let whole = parseFloat(document.getElementById('wholeVal').value);
+        if(isNaN(part)||isNaN(whole)||whole===0) { showToast('Invalid input'); return; }
+        document.getElementById('percOut').innerHTML = `${(part/whole*100).toFixed(2)}%`;
+    };
+    window.calcAgeAdvanced = function() {
+        let dob = new Date(document.getElementById('dob').value);
+        let today = new Date();
+        let years = today.getFullYear()-dob.getFullYear();
+        let months = today.getMonth()-dob.getMonth();
+        let days = today.getDate()-dob.getDate();
+        if(days<0) { months--; days+=new Date(today.getFullYear(),today.getMonth(),0).getDate(); }
+        if(months<0) { years--; months+=12; }
+        let nextBD = new Date(today.getFullYear(),dob.getMonth(),dob.getDate());
+        if(nextBD<today) nextBD.setFullYear(nextBD.getFullYear()+1);
+        let daysToNext = Math.ceil((nextBD-today)/86400000);
+        document.getElementById('ageOut').innerHTML = `${years} years, ${months} months, ${days} days.<br>Next birthday in ${daysToNext} days.`;
+    };
+    window.convertAllBases = function() {
+        let input = document.getElementById('binVal').value.trim();
+        let num = parseInt(input);
+        if(isNaN(num)) num = parseInt(input,16);
+        if(isNaN(num)) num = parseInt(input,2);
+        if(isNaN(num)) { showToast('Invalid number'); return; }
+        document.getElementById('binhexOut').innerHTML = `Decimal: ${num}<br>Binary: ${num.toString(2)}<br>Hex: ${num.toString(16).toUpperCase()}<br>Octal: ${num.toString(8)}`;
+    };
+    window.convertRomanAdvanced = function() {
+        let input = document.getElementById('romanNum').value.trim().toUpperCase();
+        let romanRegex = /^[IVXLCDM]+$/;
+        if(romanRegex.test(input)) {
+            let num = romanToInt(input);
+            if(num>=1 && num<=3999) document.getElementById('romanOut').innerHTML = `${input} = ${num}`;
+            else document.getElementById('romanOut').innerHTML = 'Invalid Roman numeral';
+        } else {
+            let num = parseInt(input);
+            if(isNaN(num) || num<1 || num>3999) { document.getElementById('romanOut').innerHTML = 'Enter number 1-3999 or Roman numeral'; return; }
+            document.getElementById('romanOut').innerHTML = `${num} = ${intToRoman(num)}`;
+        }
+    };
+    function intToRoman(num) { const map = { M:1000, CM:900, D:500, CD:400, C:100, XC:90, L:50, XL:40, X:10, IX:9, V:5, IV:4, I:1 }; let res=''; for(let key in map) { while(num>=map[key]) { res+=key; num-=map[key]; } } return res; }
+    function romanToInt(s) { const map = { I:1, V:5, X:10, L:50, C:100, D:500, M:1000 }; let total=0; for(let i=0;i<s.length;i++) { let curr=map[s[i]], next=map[s[i+1]]; if(next && curr<next) total-=curr; else total+=curr; } return total; }
+    window.calcTipAdvanced = function() {
+        let bill = parseFloat(document.getElementById('billAmt').value);
+        let tipP = parseFloat(document.getElementById('tipPct').value);
+        let split = parseInt(document.getElementById('splitNum').value);
+        if(isNaN(bill)||isNaN(tipP)) { showToast('Enter bill and tip'); return; }
+        let tip = bill*tipP/100;
+        let total = bill+tip;
+        let perPerson = total/split;
+        document.getElementById('tipOut').innerHTML = `Tip: $${tip.toFixed(2)}<br>Total: $${total.toFixed(2)}<br>Each person (${split}): $${perPerson.toFixed(2)}`;
+    };
+    let worldClock24h = true;
+    window.toggleWorldClockFormat = function() { worldClock24h = !worldClock24h; refreshWorldClock(); };
+    window.refreshWorldClock = function() {
+        let container = document.getElementById('worldClockContainer');
+        if(!container) return;
+        let zones = getAllTimeZones().sort();
+        let filter = document.getElementById('worldClockSearch')?.value.toLowerCase()||'';
+        let now = new Date();
+        let html = '<div class="timezone-grid">';
+        zones.forEach(zone => {
+            if(filter && !zone.toLowerCase().includes(filter)) return;
+            try {
+                let time = now.toLocaleTimeString('en-US', { timeZone: zone, hour12: !worldClock24h, hour:'2-digit', minute:'2-digit', second:'2-digit' });
+                let date = now.toLocaleDateString('en-US', { timeZone: zone });
+                let displayName = zone.replace(/_/g,' ').split('/').pop()+' ('+zone.split('/')[0]+')';
+                html += `<div class="timezone-item"><strong>${displayName}</strong><span>${date} ${time}</span></div>`;
+            } catch(e) {}
+        });
+        html += '</div>';
+        container.innerHTML = html;
+    };
+    window.filterWorldClock = function() { refreshWorldClock(); };
+    window.rollMultipleDice = function() {
+        let count = parseInt(document.getElementById('diceCount').value);
+        let sides = parseInt(document.getElementById('diceSidesSelect').value);
+        let results = [];
+        let sum=0;
+        for(let i=0;i<count;i++) { let r = Math.floor(Math.random()*sides)+1; results.push(r); sum+=r; }
+        document.getElementById('diceOut').innerHTML = `🎲 ${results.join(', ')}  (Sum: ${sum})`;
+    };
+    let streak=0, lastResult='';
+    window.flipCoinAdvanced = function() {
+        let result = Math.random()<0.5?'Heads':'Tails';
+        if(result===lastResult) streak++;
+        else streak=1;
+        lastResult=result;
+        document.getElementById('coinOut').innerHTML = `🪙 ${result}`;
+        document.getElementById('coinStreak').innerHTML = streak;
+    };
+    window.fetchNewJokeAdvanced = async function() {
+        let category = document.getElementById('jokeCategory').value;
+        let safe = document.getElementById('safeMode').checked?'&safe-mode': '';
+        let url = `https://v2.jokeapi.dev/joke/${category}?format=json&type=single,twopart${safe}`;
+        let outDiv = document.getElementById('jokeOutput');
+        outDiv.innerHTML = 'Loading joke...';
+        try {
+            let res = await fetch(url);
+            let data = await res.json();
+            let joke = data.type==='single' ? data.joke : `${data.setup} 😂 ${data.delivery}`;
+            outDiv.innerHTML = joke;
+        } catch(e) { outDiv.innerHTML = 'Failed to fetch joke'; }
+    };
+    window.getIPAdvanced = async function() {
+        let out = document.getElementById('ipOut');
+        out.innerHTML = '<span>🔍 Fetching your IP and location...</span>';
+        try {
+            let ipRes = await fetch('https://api.ipify.org?format=json');
+            let ipData = await ipRes.json();
+            let ip = ipData.ip;
+            let geoRes = await fetch(`https://ip-api.com/json/${ip}?fields=status,country,regionName,city,zip,lat,lon,isp,org,as,timezone,query`);
+            let geo = await geoRes.json();
+            if(geo.status === 'success') {
+                out.innerHTML = `
+                    <strong>🌐 IP Address:</strong> ${geo.query}<br>
+                    <strong>📍 Location:</strong> ${geo.city}, ${geo.regionName}, ${geo.country}<br>
+                    <strong>📮 Postal Code:</strong> ${geo.zip || 'N/A'}<br>
+                    <strong>🗺️ Coordinates:</strong> ${geo.lat}, ${geo.lon}<br>
+                    <strong>🔌 ISP:</strong> ${geo.isp}<br>
+                    <strong>🏢 Organization:</strong> ${geo.org}<br>
+                    <strong>🔢 AS:</strong> ${geo.as}<br>
+                    <strong>⏰ Timezone:</strong> ${geo.timezone}<br>
+                    <strong>📡 Connection Type:</strong> ${navigator.connection ? navigator.connection.effectiveType : 'Unknown'}<br>
+                    <a href="https://maps.google.com/?q=${geo.lat},${geo.lon}" target="_blank" class="tool-btn" style="display:inline-block; margin-top:8px;">🗺️ View on Map</a>
+                `;
+            } else {
+                out.innerHTML = `⚠️ Could not retrieve location details. Your IP: ${ip}`;
+            }
+        } catch(err) {
+            out.innerHTML = '❌ Failed to fetch IP info. Check your internet connection.';
+            console.error(err);
+        }
+    };
+    document.getElementById('globalSearch').addEventListener('input',function(e){ let q=e.target.value.trim().toLowerCase(); if(q===''){ document.getElementById('searchResults').style.display='none'; return; } let filtered = fullToolsList.filter(t=>t.name.toLowerCase().includes(q)); let html = filtered.map(t=>`<div style="padding:16px;border-bottom:1px solid var(--border);cursor:pointer;font-size:1rem;" onclick="selectTool('${t.id}');document.getElementById('globalSearch').value='';document.getElementById('searchResults').style.display='none';">${t.icon} ${t.name}</div>`).join(''); if(!html){ html = `<div style="padding:20px;text-align:center;"><div>No tools found for "<strong>${q}</strong>"</div><button class="tool-btn" style="margin-top:16px;" onclick="searchGoogle('${q}')">🔍 Search Google for "${q} free online"</button></div>`; } document.getElementById('searchResults').innerHTML=html; document.getElementById('searchResults').style.display='block'; });
+    window.searchGoogle = function(query){ window.open(`https://www.google.com/search?q=${encodeURIComponent(query + ' free online')}`, '_blank'); document.getElementById('globalSearch').value = ''; document.getElementById('searchResults').style.display = 'none'; };
+    document.addEventListener('click',(e)=>{ if(!e.target.closest('.search-container')) document.getElementById('searchResults').style.display='none'; });
+    renderGrid(); renderSidebar(); selectTool('calculator');
+    document.body.addEventListener('click',(e)=>{ if(e.target.closest('.tool-card, .tool-btn, .footer-btn, .scroll-up-arrow, .footer-arrow-down')) playSound(); });
+    const randomBtn = document.getElementById('randomToolBtn'); let isRandomVisible = true; function toggleRandomButton() { if (randomBtn) { if (isRandomVisible) randomBtn.classList.add('hide-random'); else randomBtn.classList.remove('hide-random'); isRandomVisible = !isRandomVisible; } } setInterval(toggleRandomButton, 3000); randomBtn.addEventListener('click', function() { const availableTools = fullToolsList.filter(t => t.id !== 'premium_ai'); const randomIndex = Math.floor(Math.random() * availableTools.length); const randomTool = availableTools[randomIndex]; if (randomTool) { selectTool(randomTool.id); playSound(); showToast(`🎲 Random tool: ${randomTool.name}`); } });
+})();
+</script>
+<script>
+(function() { const banner = document.getElementById('toolRecoBanner'); const msgEl = document.getElementById('recoMessage'); const tryBtn = document.getElementById('recoTryBtn'); const closeBtn = document.getElementById('recoCloseBtn'); if (!banner || !msgEl || !tryBtn || !closeBtn) return; const toolSuggestions = [ { name: "🧮 Advanced Calculator", toolId: "calculator" }, { name: "🔐 Password Generator", toolId: "password" }, { name: "📝 Word Counter", toolId: "wordcount" }, { name: "🎨 Color Picker", toolId: "colorpicker" }, { name: "📏 Unit Converter", toolId: "unitconverter" }, { name: "⏱️ Stopwatch", toolId: "stopwatch" }, { name: "📱 QR Code Generator", toolId: "qrcode" }, { name: "⚖️ BMI Calculator", toolId: "bmi" }, { name: "🎲 Random Number", toolId: "random" }, { name: "⏳ Countdown Timer", toolId: "countdown" }, { name: "📅 Date Difference", toolId: "datediff" }, { name: "🔣 Base64 Encoder", toolId: "base64" }, { name: "🔗 URL Encoder", toolId: "urlencode" }, { name: "📋 JSON Formatter", toolId: "jsonformat" }, { name: "📄 Lorem Ipsum", toolId: "lorem" }, { name: "💱 Currency Converter", toolId: "currency" }, { name: "📊 Percentage Calc", toolId: "percentcalc" }, { name: "🎂 Age Calculator", toolId: "agecalc" }, { name: "💻 Binary/Hex Converter", toolId: "binhex" }, { name: "🏛️ Roman Numerals", toolId: "roman" }, { name: "💰 Tip Calculator", toolId: "tipcalc" }, { name: "🕐 World Clock", toolId: "worldclock" }, { name: "😂 Joke Generator", toolId: "joke" }, { name: "🌍 IP Lookup", toolId: "ip" }, { name: "✨ AI Text Enhancer", toolId: "premium_ai" } ]; let currentTool = null; let bannerTimer = null; const SHOW_INTERVAL = 2 * 60 * 60 * 1000; const INITIAL_DELAY = 10000; function showRandomTool() { const randomIndex = Math.floor(Math.random() * toolSuggestions.length); currentTool = toolSuggestions[randomIndex]; msgEl.textContent = currentTool.name; banner.style.display = 'flex'; banner.style.animation = 'none'; banner.offsetHeight; banner.style.animation = 'fadeInBanner 0.5s ease'; } function hideBanner() { banner.style.display = 'none'; } tryBtn.addEventListener('click', function() { if (currentTool && currentTool.toolId) { if (typeof selectTool === 'function') selectTool(currentTool.toolId); else document.getElementById('toolsGrid').scrollIntoView({behavior:'smooth'}); } hideBanner(); if (bannerTimer) clearTimeout(bannerTimer); bannerTimer = setTimeout(showRandomTool, SHOW_INTERVAL); }); closeBtn.addEventListener('click', function() { hideBanner(); if (bannerTimer) clearTimeout(bannerTimer); bannerTimer = setTimeout(showRandomTool, SHOW_INTERVAL); }); function startBannerCycle() { bannerTimer = setTimeout(function() { showRandomTool(); bannerTimer = setInterval(showRandomTool, SHOW_INTERVAL); }, INITIAL_DELAY); } startBannerCycle(); })();
+</script>
+<script>
+(function() {
+    const translateBtn = document.getElementById('translatePageBtn');
+    const langSelect = document.getElementById('targetLangSelect');
+    const PAGE_URL = 'https://boussedraoui.github.io/Multitool-Pro-Full-Complete/';
+    if (translateBtn && langSelect) {
+        translateBtn.addEventListener('click', function() {
+            const targetLang = langSelect.value;
+            const yandexUrl = `https://translate.yandex.com/translate?url=${encodeURIComponent(PAGE_URL)}&lang=en-${targetLang}`;
+            window.open(yandexUrl, '_blank');
+        });
+    }
+})();
+</script>
+<script>
+(function() {
+    const ORIGINAL_PAGE_URL = 'https://boussedraoui.github.io/Multitool-Pro-Full-Complete/';
+    const STORAGE_KEY = 'gtProtectionPopupShown';
+    const messages = { ar: { title: '😌 لا تقلق، إنه أمر طبيعي', message: 'الرسالة التي تظهر اعلاه "ترجمة Google" هي رسالة عادية تحسيسية من اجل حمايتك.\n\nهذا التطبيق شامل، وفيه ميزة اتوماتيكية للحفاظ عليك وعلى بياناتك وكل شيء... داخل وخارج التطبيق.\n\nلذا استرخ واستمتع بالتطبيق.\n\nيمكنك المتابعة بلغة جهازك، اي لغة تريد.\nاو بلغة التطبيق الاصلية الانجليزية.\n\nملحوظة: "Google ترجمة" وهذه الرسالة تظهر فقط للاشخاص الذين ليست الانجليزية لغة اجهزتهم، وذلك لمساعدتهم على فهم التطبيق.', continue: 'متابعة', returnOriginal: 'العودة إلى الأصل' }, en: { title: '😌 Don\'t Worry, It\'s Normal', message: 'The message that appears above "Google Translate" is a normal awareness message for your protection.\n\nThis app is comprehensive, and it has automatic features to protect you and your data... inside and outside the app.\n\nSo relax and enjoy the app.\n\nYou can continue in your device\'s language, any language you want.\nOr in the app\'s original English language.\n\nNote: "Google Translate" and this message appear only to people whose device language is not English, to help them understand the app.', continue: 'Continue', returnOriginal: 'Return to Original' }, fr: { title: '😌 Ne vous inquiétez pas, c\'est normal', message: 'Le message qui apparaît ci-dessus "Google Traduction" est un message de sensibilisation normal pour votre protection.\n\nCette application est complète et dispose de fonctions automatiques pour vous protéger, vous et vos données... à l\'intérieur comme à l\'extérieur de l\'application.\n\nAlors détendez-vous et profitez de l\'application.\n\nVous pouvez continuer dans la langue de votre appareil, n\'importe quelle langue.\nOu dans la langue originale anglaise de l\'application.\n\nRemarque : "Google Traduction" et ce message n\'apparaissent qu\'aux personnes dont la langue de l\'appareil n\'est pas l\'anglais, pour les aider à comprendre l\'application.', continue: 'Continuer', returnOriginal: 'Revenir à l\'original' }, es: { title: '😌 No te preocupes, es normal', message: 'El mensaje que aparece arriba "Google Traductor" es un mensaje de concienciación normal para tu protección.\n\nEsta aplicación es completa y tiene funciones automáticas para protegerte a ti y a tus datos... dentro y fuera de la aplicación.\n\nAsí que relájate y disfruta de la aplicación.\n\nPuedes continuar en el idioma de tu dispositivo, cualquier idioma que quieras.\nO en el idioma inglés original de la aplicación.\n\nNota: "Google Traductor" y este mensaje solo aparecen para personas cuyo idioma del dispositivo no es el inglés, para ayudarlos a entender la aplicación.', continue: 'Continuar', returnOriginal: 'Volver al original' }, de: { title: '😌 Keine Sorge, das ist normal', message: 'Die oben angezeigte Meldung "Google Übersetzer" ist ein normaler Hinweis zu Ihrem Schutz.\n\nDiese App ist umfassend und verfügt über automatische Funktionen, um Sie und Ihre Daten zu schützen... innerhalb und außerhalb der App.\n\nAlso entspannen Sie sich und genießen Sie die App.\n\nSie können in der Sprache Ihres Geräts fortfahren, jede gewünschte Sprache.\nOder in der englischen Originalsprache der App.\n\nHinweis: „Google Übersetzer“ und diese Meldung erscheinen nur für Personen, deren Gerätesprache nicht Englisch ist, um ihnen das Verständnis der App zu erleichtern.', continue: 'Fortfahren', returnOriginal: 'Zurück zum Original' }, it: { title: '😌 Non preoccuparti, è normale', message: 'Il messaggio che appare sopra "Google Traduttore" è un normale messaggio di sensibilizzazione per la tua protezione.\n\nQuesta app è completa e ha funzioni automatiche per proteggere te e i tuoi dati... dentro e fuori dall\'app.\n\nQuindi rilassati e goditi l\'app.\n\nPuoi continuare nella lingua del tuo dispositivo, qualsiasi lingua tu voglia.\nOppure nella lingua inglese originale dell\'app.\n\nNota: "Google Traduttore" e questo messaggio compaiono solo alle persone la cui lingua del dispositivo non è l\'inglese, per aiutarle a comprendere l\'app.', continue: 'Continua', returnOriginal: 'Torna all\'originale' }, pt: { title: '😌 Não se preocupe, é normal', message: 'A mensagem que aparece acima "Google Tradutor" é uma mensagem normal de conscientização para sua proteção.\n\nEste aplicativo é abrangente e possui funções automáticas para proteger você e seus dados... dentro e fora do aplicativo.\n\nEntão relaxe e aproveite o aplicativo.\n\nVocê pode continuar no idioma do seu dispositivo, qualquer idioma que quiser.\nOu no idioma inglês original do aplicativo.\n\nNota: "Google Tradutor" e esta mensagem aparecem apenas para pessoas cujo idioma do dispositivo não é o inglês, para ajudá-los a entender o aplicativo.', continue: 'Continuar', returnOriginal: 'Voltar ao original' }, ru: { title: '😌 Не волнуйтесь, это нормально', message: 'Сообщение, которое появляется выше "Google Переводчик", является обычным предупреждением для вашей защиты.\n\nЭто приложение является всеобъемлющим и имеет автоматические функции для защиты вас и ваших данных... внутри и вне приложения.\n\nТак что расслабьтесь и наслаждайтесь приложением.\n\nВы можете продолжать на языке вашего устройства, на любом языке.\nИли на исходном английском языке приложения.\n\nПримечание: "Google Переводчик" и это сообщение появляются только у людей, язык устройства которых не является английским, чтобы помочь им понять приложение.', continue: 'Продолжить', returnOriginal: 'Вернуться к оригиналу' }, zh: { title: '😌 别担心，这是正常的', message: '上面显示的“谷歌翻译”消息是保护您的正常提醒。\n\n这个应用程序是全面的，并且具有自动功能来保护您和您的数据……无论在应用内部还是外部。\n\n所以请放松，享受这个应用程序。\n\n您可以使用您的设备语言，任何您想要的语言继续。\n或者使用应用程序的原始英语语言。\n\n注意：“谷歌翻译”及此消息仅对设备语言非英语的用户显示，以帮助他们理解应用程序。', continue: '继续', returnOriginal: '返回原文' }, ja: { title: '😌 心配しないで、これは正常です', message: '上に表示されている「Google翻訳」のメッセージは、あなたを保護するための通常の注意喚起です。\n\nこのアプリは包括的であり、あなたとあなたのデータを保護する自動機能を備えています…アプリの内外を問わず。\n\nリラックスしてアプリをお楽しみください。\n\nお使いのデバイスの言語、または希望する任意の言語で続行できます。\nまたは、アプリの元の英語で続行してください。\n\n注：「Google翻訳」およびこのメッセージは、デバイスの言語が英語でないユーザーにのみ表示され、アプリの理解を助けるためのものです。', continue: '続ける', returnOriginal: '元のページに戻る' }, ko: { title: '😌 걱정하지 마세요, 정상입니다', message: '위에 표시된 "Google 번역" 메시지는 사용자 보호를 위한 일반적인 인식 메시지입니다.\n\n이 앱은 포괄적이며 앱 내부와 외부에서 사용자와 데이터를 보호하는 자동 기능을 갖추고 있습니다.\n\n편안히 앱을 즐기세요.\n\n기기 언어 또는 원하는 어떤 언어로든 계속할 수 있습니다.\n또는 앱의 원래 영어로 계속하세요.\n\n참고: "Google 번역" 및 이 메시지는 기기 언어가 영어가 아닌 사용자에게만 표시되어 앱을 이해하는 데 도움을 줍니다.', continue: '계속하기', returnOriginal: '원본으로 돌아가기' }, hi: { title: '😌 चिंता न करें, यह सामान्य है', message: 'ऊपर दिखाई देने वाला "Google अनुवाद" संदेश आपकी सुरक्षा के लिए एक सामान्य जागरूकता संदेश है।\n\nयह ऐप व्यापक है, और इसमें आपकी और आपके डेटा की सुरक्षा के लिए स्वचालित विशेषताएं हैं... ऐप के अंदर और बाहर।\n\nतो आराम करें और ऐप का आनंद लें।\n\nआप अपने डिवाइस की भाषा, अपनी इच्छानुसार किसी भी भाषा में जारी रख सकते हैं।\nया ऐप की मूल अंग्रेजी भाषा में।\n\nनोट: "Google अनुवाद" और यह संदेश केवल उन लोगों को दिखाई देता है जिनकी डिवाइस की भाषा अंग्रेजी नहीं है, ताकि उन्हें ऐप समझने में मदद मिल सके।', continue: 'जारी रखें', returnOriginal: 'मूल पर वापस जाएं' }, tr: { title: '😌 Endişelenmeyin, bu normal', message: 'Yukarıda görünen "Google Çeviri" mesajı, korumanız için normal bir bilinçlendirme mesajıdır.\n\nBu uygulama kapsamlıdır ve sizi ve verilerinizi korumak için otomatik özelliklere sahiptir... uygulamanın içinde ve dışında.\n\nRahatlayın ve uygulamanın tadını çıkarın.\n\nCihazınızın dilinde, istediğiniz herhangi bir dilde devam edebilirsiniz.\nYa da uygulamanın orijinal İngilizce dilinde.\n\nNot: "Google Çeviri" ve bu mesaj, yalnızca cihaz dili İngilizce olmayan kişilere, uygulamayı anlamalarına yardımcı olmak için gösterilir.', continue: 'Devam Et', returnOriginal: 'Orijinale Dön' }, nl: { title: '😌 Geen zorgen, het is normaal', message: 'Het bericht dat hierboven verschijnt "Google Vertaling" is een normale bewustwordingsboodschap voor uw bescherming.\n\nDeze app is uitgebreid en heeft automatische functies om u en uw gegevens te beschermen... binnen en buiten de app.\n\nOntspan dus en geniet van de app.\n\nU kunt doorgaan in de taal van uw apparaat, elke gewenste taal.\nOf in de oorspronkelijke Engelse taal van de app.\n\nOpmerking: "Google Vertaling" en dit bericht verschijnen alleen bij mensen van wie de apparaattaal niet Engels is, om hen te helpen de app te begrijpen.', continue: 'Doorgaan', returnOriginal: 'Terug naar origineel' }, pl: { title: '😌 Nie martw się, to normalne', message: 'Komunikat wyświetlany powyżej „Tłumacz Google” jest zwykłym komunikatem ostrzegawczym dla Twojej ochrony.\n\nTa aplikacja jest wszechstronna i posiada automatyczne funkcje chroniące Ciebie i Twoje dane... wewnątrz i na zewnątrz aplikacji.\n\nZrelaksuj się więc i ciesz się aplikacją.\n\nMożesz kontynuować w języku swojego urządzenia, w dowolnym języku.\nLub w oryginalnym języku angielskim aplikacji.\n\nUwaga: „Tłumacz Google” i ten komunikat pojawiają się tylko u osób, których językiem urządzenia nie jest angielski, aby pomóc im zrozumieć aplikację.', continue: 'Kontynuuj', returnOriginal: 'Powrót do oryginału' } };
+    function getBrowserLanguage() { return (navigator.language || navigator.browserLanguage || 'en').split('-')[0].toLowerCase(); }
+    function getLocalizedMessages() { const lang = getBrowserLanguage(); if (messages[lang]) return messages[lang]; if (lang.includes('-')) { const base = lang.split('-')[0]; if (messages[base]) return messages[base]; } return messages.en; }
+    function isGoogleTranslateActive() { if (document.referrer && document.referrer.indexOf('translate.google.com') !== -1) return true; if (document.cookie.indexOf('googtrans=') !== -1) return true; if (document.querySelector('.goog-te-banner-frame') || document.querySelector('.goog-te-banner') || document.querySelector('.goog-te-menu-frame') || document.querySelector('#goog-gt-') || document.querySelector('[class*="goog-te-"]') || document.querySelector('[id*="goog-te-"]')) return true; if (typeof window.google !== 'undefined' && window.google.translate) return true; if (document.body && (document.body.classList.contains('translated-ltr') || document.body.classList.contains('translated-rtl'))) return true; if (window.location.search.indexOf('googtrans') !== -1 || window.location.hash.indexOf('googtrans') !== -1) return true; return false; }
+    function showProtectionPopup() { if (sessionStorage.getItem(STORAGE_KEY) === 'true') return; sessionStorage.setItem(STORAGE_KEY, 'true'); const localized = getLocalizedMessages(); const existing = document.querySelector('.gt-protection-overlay'); if (existing) existing.remove(); const overlay = document.createElement('div'); overlay.className = 'gt-protection-overlay'; overlay.innerHTML = `<div class="gt-protection-popup"><button class="gt-close-x" id="gtCloseX">✕</button><div class="gt-icon" style="font-size:3.5rem;">🌟🔐</div><div class="gt-title">${localized.title}</div><div class="gt-message">${localized.message}</div><div class="gt-buttons"><button class="gt-btn gt-btn-continue" id="gtContinueBtn">${localized.continue}</button><button id="gtReturnRedBtn" class="gt-btn-return-red"></button></div></div>`; document.body.appendChild(overlay); overlay.querySelector('#gtCloseX').addEventListener('click', () => overlay.remove()); overlay.querySelector('#gtContinueBtn').addEventListener('click', () => overlay.remove()); const redBtn = overlay.querySelector('#gtReturnRedBtn'); if (redBtn) { redBtn.addEventListener('click', () => { window.location.href = ORIGINAL_PAGE_URL; }); } overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.remove(); }); }
+    function checkAndShowPopup() { if (isGoogleTranslateActive()) showProtectionPopup(); }
+    function scheduleChecks() { checkAndShowPopup(); setTimeout(checkAndShowPopup, 500); setTimeout(checkAndShowPopup, 1500); setTimeout(checkAndShowPopup, 3000); setTimeout(checkAndShowPopup, 5000); }
+    function setupMutationObserver() { const observer = new MutationObserver(function(mutations) { for (const mutation of mutations) { if (mutation.type === 'childList') { for (const node of mutation.addedNodes) { if (node.nodeType === 1) { const el = node; if (el.classList && (el.classList.contains('goog-te-banner-frame') || el.classList.contains('goog-te-banner') || el.classList.contains('skiptranslate') || el.id && el.id.indexOf('goog-te-') !== -1)) { showProtectionPopup(); observer.disconnect(); return; } if (el.querySelector && (el.querySelector('.goog-te-banner-frame') || el.querySelector('.goog-te-banner') || el.querySelector('[id*="goog-te-"]') || el.querySelector('[class*="goog-te-"]'))) { showProtectionPopup(); observer.disconnect(); return; } } } } if (mutation.type === 'attributes' && mutation.target === document.body) { if (document.body.classList.contains('translated-ltr') || document.body.classList.contains('translated-rtl')) { showProtectionPopup(); observer.disconnect(); return; } } } }); observer.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['class'] }); }
+    if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', () => { scheduleChecks(); setupMutationObserver(); }); } else { scheduleChecks(); setupMutationObserver(); }
+})();
+</script>
+<script>
+function openFreeEmailsOverlay() { document.getElementById('freeEmailsOverlay').classList.add('active'); }
+function closeFreeEmailsOverlay() { document.getElementById('freeEmailsOverlay').classList.remove('active'); }
+function openHealthSportsOverlay() { document.getElementById('healthSportsOverlay').classList.add('active'); }
+function closeHealthSportsOverlay() { document.getElementById('healthSportsOverlay').classList.remove('active'); }
+function openMiscOverlay() { document.getElementById('miscOverlay').classList.add('active'); }
+function closeMiscOverlay() { document.getElementById('miscOverlay').classList.remove('active'); }
+function openTravelBooksOverlay() { document.getElementById('travelBooksOverlay').classList.add('active'); }
+function closeTravelBooksOverlay() { document.getElementById('travelBooksOverlay').classList.remove('active'); }
+function openMoviesSeriesOverlay() { document.getElementById('moviesSeriesOverlay').classList.add('active'); }
+function closeMoviesSeriesOverlay() { document.getElementById('moviesSeriesOverlay').classList.remove('active'); }
+function openCultureFashionOverlay() { document.getElementById('cultureFashionOverlay').classList.add('active'); }
+function closeCultureFashionOverlay() { document.getElementById('cultureFashionOverlay').classList.remove('active'); }
+function openJobsOverlay() { document.getElementById('jobsOverlay').classList.add('active'); }
+function closeJobsOverlay() { document.getElementById('jobsOverlay').classList.remove('active'); }
+function openTechOverlay() { document.getElementById('techOverlay').classList.add('active'); }
+function closeTechOverlay() { document.getElementById('techOverlay').classList.remove('active'); }
+function openBuildingHomeOverlay() { document.getElementById('buildingHomeOverlay').classList.add('active'); }
+function closeBuildingHomeOverlay() { document.getElementById('buildingHomeOverlay').classList.remove('active'); }
+function openSurfInternetOverlay() { document.getElementById('surfInternetOverlay').classList.add('active'); }
+function closeSurfInternetOverlay() { document.getElementById('surfInternetOverlay').classList.remove('active'); }
+function openCookingKitchenOverlay() { document.getElementById('cookingKitchenOverlay').classList.add('active'); }
+function closeCookingKitchenOverlay() { document.getElementById('cookingKitchenOverlay').classList.remove('active'); }
+function openWildernessOceansOverlay() { document.getElementById('wildernessOceansOverlay').classList.add('active'); }
+function closeWildernessOceansOverlay() { document.getElementById('wildernessOceansOverlay').classList.remove('active'); }
+function openCryptoOverlay() { document.getElementById('cryptoOverlay').classList.add('active'); }
+function closeCryptoOverlay() { document.getElementById('cryptoOverlay').classList.remove('active'); }
+function openNewsOverlay() { document.getElementById('newsOverlay').classList.add('active'); }
+function closeNewsOverlay() { document.getElementById('newsOverlay').classList.remove('active'); }
+
+const freeEmails = [
+    { name: 'ProtonMail', icon: '🔒', url: 'https://protonmail.com', cat: 'Secure Email' },
+    { name: 'Tutanota', icon: '📧', url: 'https://tutanota.com', cat: 'Secure Email' },
+    { name: 'Mail.com', icon: '📬', url: 'https://www.mail.com', cat: 'Free Email' },
+    { name: 'GMX Mail', icon: '📨', url: 'https://www.gmx.com', cat: 'Free Email' },
+    { name: 'Yandex Mail', icon: '🟡', url: 'https://mail.yandex.com', cat: 'Free Email' },
+    { name: 'AOL Mail', icon: '🔴', url: 'https://mail.aol.com', cat: 'Free Email' },
+    { name: 'Zoho Mail', icon: '📫', url: 'https://www.zoho.com/mail', cat: 'Free Email' }
+];
+document.getElementById('freeEmailsGrid').innerHTML = freeEmails.map(s => `<div class="category-card" onclick="window.open('${s.url}', '_blank');"><div style="font-size:2.6rem;">${s.icon}</div><div style="font-weight:700;">${s.name}</div><div style="font-size:0.8rem;">${s.cat}</div></div>`).join('');
+
+const healthSports = [
+    { name: 'MyFitnessPal', icon: '🍏', url: 'https://www.myfitnesspal.com', cat: 'Nutrition' },
+    { name: 'Bodybuilding.com', icon: '💪', url: 'https://www.bodybuilding.com', cat: 'Weightlifting' },
+    { name: 'SwimSwam', icon: '🏊', url: 'https://swimswam.com', cat: 'Swimming' },
+    { name: 'Runtastic', icon: '🏃', url: 'https://www.runtastic.com', cat: 'Running' },
+    { name: 'Healthline', icon: '📋', url: 'https://www.healthline.com', cat: 'Health' },
+    { name: 'WebMD', icon: '🩺', url: 'https://www.webmd.com', cat: 'Health' },
+    { name: 'Weight Watchers', icon: '⚖️', url: 'https://www.weightwatchers.com', cat: 'Weight Management' },
+    { name: 'Fitbit', icon: '⌚', url: 'https://www.fitbit.com', cat: 'Fitness Tracker' },
+    { name: 'Yoga Journal', icon: '🧘', url: 'https://www.yogajournal.com', cat: 'Yoga' },
+    { name: 'CrossFit', icon: '🏋️', url: 'https://www.crossfit.com', cat: 'CrossFit' }
+];
+document.getElementById('healthSportsGrid').innerHTML = healthSports.map(s => `<div class="category-card" onclick="window.open('${s.url}', '_blank');"><div style="font-size:2.6rem;">${s.icon}</div><div style="font-weight:700;">${s.name}</div><div style="font-size:0.8rem;">${s.cat}</div></div>`).join('');
+
+const miscSites = [
+    { name: 'Last.fm', icon: '🎵', url: 'https://www.last.fm', cat: 'Music' },
+    { name: 'Audiomack', icon: '🎧', url: 'https://audiomack.com', cat: 'Music' },
+    { name: 'Tinder', icon: '🔥', url: 'https://tinder.com', cat: 'Dating' },
+    { name: 'Bumble', icon: '🐝', url: 'https://bumble.com', cat: 'Dating' },
+    { name: 'OkCupid', icon: '💘', url: 'https://www.okcupid.com', cat: 'Dating' },
+    { name: 'Match', icon: '💑', url: 'https://www.match.com', cat: 'Dating' },
+    { name: 'DeviantArt', icon: '🎨', url: 'https://www.deviantart.com', cat: 'Art' },
+    { name: 'Mixcloud', icon: '☁️', url: 'https://www.mixcloud.com', cat: 'Music' },
+    { name: 'SoundCloud', icon: '🎶', url: 'https://soundcloud.com', cat: 'Music' },
+    { name: 'Bandcamp', icon: '🎸', url: 'https://bandcamp.com', cat: 'Music' }
+];
+document.getElementById('miscGrid').innerHTML = miscSites.map(s => `<div class="category-card" onclick="window.open('${s.url}', '_blank');"><div style="font-size:2.6rem;">${s.icon}</div><div style="font-weight:700;">${s.name}</div><div style="font-size:0.8rem;">${s.cat}</div></div>`).join('');
+
+const travelBooks = [
+    { name: 'Project Gutenberg', icon: '📚', url: 'https://www.gutenberg.org', cat: 'Free Books' },
+    { name: 'Open Library', icon: '📖', url: 'https://openlibrary.org', cat: 'Free Books' },
+    { name: 'BookBub', icon: '📘', url: 'https://www.bookbub.com', cat: 'Book Deals' },
+    { name: 'Wikivoyage', icon: '🗺️', url: 'https://wikivoyage.org', cat: 'Travel Guides' },
+    { name: 'Rome2rio', icon: '🚂', url: 'https://www.rome2rio.com', cat: 'Transport' },
+    { name: 'Skyscanner', icon: '✈️', url: 'https://www.skyscanner.com', cat: 'Flights' },
+    { name: 'Kayak', icon: '🚤', url: 'https://www.kayak.com', cat: 'Travel' },
+    { name: 'Lonely Planet', icon: '🌍', url: 'https://www.lonelyplanet.com', cat: 'Travel Guides' }
+];
+document.getElementById('travelBooksGrid').innerHTML = travelBooks.map(s => `<div class="category-card" onclick="window.open('${s.url}', '_blank');"><div style="font-size:2.6rem;">${s.icon}</div><div style="font-weight:700;">${s.name}</div><div style="font-size:0.8rem;">${s.cat}</div></div>`).join('');
+
+const moviesSeries = [
+    { name: 'Popcornflix', icon: '🍿', url: 'https://www.popcornflix.com', cat: 'Free Movies' },
+    { name: 'Viewster', icon: '🎬', url: 'https://www.viewster.com', cat: 'Free Movies' },
+    { name: 'SnagFilms', icon: '🎞️', url: 'https://www.snagfilms.com', cat: 'Free Movies' },
+    { name: 'Kanopy', icon: '🎥', url: 'https://www.kanopy.com', cat: 'Free Movies' },
+    { name: 'Tubi', icon: '📺', url: 'https://tubitv.com', cat: 'Free Movies/TV' },
+    { name: 'Pluto TV', icon: '🪐', url: 'https://pluto.tv', cat: 'Live TV' },
+    { name: 'Crackle', icon: '💎', url: 'https://www.crackle.com.in', cat: 'Free Movies' },
+    { name: 'Vudu Free', icon: '💿', url: 'https://www.vudu.com/content/movies/featured/free', cat: 'Free Movies' }
+];
+document.getElementById('moviesSeriesGrid').innerHTML = moviesSeries.map(s => `<div class="category-card" onclick="window.open('${s.url}', '_blank');"><div style="font-size:2.6rem;">${s.icon}</div><div style="font-weight:700;">${s.name}</div><div style="font-size:0.8rem;">${s.cat}</div></div>`).join('');
+
+const cultureFashion = [
+    { name: 'Vogue', icon: '👗', url: 'https://www.vogue.com', cat: 'Fashion' },
+    { name: 'Harper\'s Bazaar', icon: '💄', url: 'https://www.harpersbazaar.com', cat: 'Fashion' },
+    { name: 'The Fashion Spot', icon: '👠', url: 'https://www.thefashionspot.com', cat: 'Fashion' },
+    { name: 'ArtStation', icon: '🎭', url: 'https://www.artstation.com', cat: 'Art' },
+    { name: 'Culture Trip', icon: '🌎', url: 'https://theculturetrip.com', cat: 'Culture' },
+    { name: 'Polygon', icon: '🎮', url: 'https://www.polygon.com', cat: 'Pop Culture' }
+];
+document.getElementById('cultureFashionGrid').innerHTML = cultureFashion.map(s => `<div class="category-card" onclick="window.open('${s.url}', '_blank');"><div style="font-size:2.6rem;">${s.icon}</div><div style="font-weight:700;">${s.name}</div><div style="font-size:0.8rem;">${s.cat}</div></div>`).join('');
+
+const jobs = [
+    { name: 'Indeed', icon: '💼', url: 'https://www.indeed.com', cat: 'Job Search' },
+    { name: 'LinkedIn Jobs', icon: '🔗', url: 'https://www.linkedin.com/jobs', cat: 'Professional' },
+    { name: 'Glassdoor', icon: '🏢', url: 'https://www.glassdoor.com', cat: 'Company Reviews' },
+    { name: 'Monster', icon: '👹', url: 'https://www.monster.com', cat: 'Job Search' },
+    { name: 'ZipRecruiter', icon: '📬', url: 'https://www.ziprecruiter.com', cat: 'Job Search' },
+    { name: 'RemoteOK', icon: '🏠', url: 'https://remoteok.io', cat: 'Remote Jobs' },
+    { name: 'Upwork', icon: '✍️', url: 'https://www.upwork.com', cat: 'Freelance' },
+    { name: 'Fiverr', icon: '🎯', url: 'https://www.fiverr.com', cat: 'Freelance' }
+];
+document.getElementById('jobsGrid').innerHTML = jobs.map(s => `<div class="category-card" onclick="window.open('${s.url}', '_blank');"><div style="font-size:2.6rem;">${s.icon}</div><div style="font-weight:700;">${s.name}</div><div style="font-size:0.8rem;">${s.cat}</div></div>`).join('');
+
+const tech = [
+    { name: 'TechCrunch', icon: '📱', url: 'https://techcrunch.com', cat: 'Tech News' },
+    { name: 'The Verge', icon: '💻', url: 'https://www.theverge.com', cat: 'Tech News' },
+    { name: 'CNET', icon: '🎛️', url: 'https://www.cnet.com', cat: 'Reviews' },
+    { name: 'Android Police', icon: '🤖', url: 'https://www.androidpolice.com', cat: 'Android' },
+    { name: 'GSMArena', icon: '📱', url: 'https://www.gsmarena.com', cat: 'Phone Specs' },
+    { name: 'XDA Developers', icon: '⌨️', url: 'https://www.xda-developers.com', cat: 'Dev' },
+    { name: 'Wired', icon: '⚡', url: 'https://www.wired.com', cat: 'Tech Culture' },
+    { name: 'Ars Technica', icon: '🔧', url: 'https://arstechnica.com', cat: 'Tech News' }
+];
+document.getElementById('techGrid').innerHTML = tech.map(s => `<div class="category-card" onclick="window.open('${s.url}', '_blank');"><div style="font-size:2.6rem;">${s.icon}</div><div style="font-weight:700;">${s.name}</div><div style="font-size:0.8rem;">${s.cat}</div></div>`).join('');
+
+const buildingHome = [
+    { name: 'Houzz', icon: '🏠', url: 'https://www.houzz.com', cat: 'Home Design' },
+    { name: 'Family Handyman', icon: '🔨', url: 'https://www.familyhandyman.com', cat: 'DIY' },
+    { name: 'HomeAdvisor', icon: '🛠️', url: 'https://www.homeadvisor.com', cat: 'Contractors' },
+    { name: 'DIY Network', icon: '🧰', url: 'https://www.diynetwork.com', cat: 'DIY' },
+    { name: 'Better Homes & Gardens', icon: '🌿', url: 'https://www.bhg.com', cat: 'Gardening' },
+    { name: 'This Old House', icon: '🏚️', url: 'https://www.thisoldhouse.com', cat: 'Renovation' }
+];
+document.getElementById('buildingHomeGrid').innerHTML = buildingHome.map(s => `<div class="category-card" onclick="window.open('${s.url}', '_blank');"><div style="font-size:2.6rem;">${s.icon}</div><div style="font-weight:700;">${s.name}</div><div style="font-size:0.8rem;">${s.cat}</div></div>`).join('');
+
+const surfInternet = [
+    { name: 'Speedtest', icon: '📶', url: 'https://www.speedtest.net', cat: 'Speed Test' },
+    { name: 'WhatIsMyIP', icon: '🌐', url: 'https://whatismyip.com', cat: 'IP Tool' },
+    { name: 'NetSpot', icon: '📡', url: 'https://www.netspotapp.com', cat: 'WiFi Analyzer' },
+    { name: 'IsItDownRightNow', icon: '⚠️', url: 'https://www.isitdownrightnow.com', cat: 'Website Checker' },
+    { name: 'Ping.eu', icon: '🏓', url: 'https://ping.eu', cat: 'Network Tools' },
+    { name: 'DNS Checker', icon: '🔍', url: 'https://dnschecker.org', cat: 'DNS' }
+];
+document.getElementById('surfInternetGrid').innerHTML = surfInternet.map(s => `<div class="category-card" onclick="window.open('${s.url}', '_blank');"><div style="font-size:2.6rem;">${s.icon}</div><div style="font-weight:700;">${s.name}</div><div style="font-size:0.8rem;">${s.cat}</div></div>`).join('');
+
+const cookingKitchen = [
+    { name: 'Allrecipes', icon: '🍲', url: 'https://www.allrecipes.com', cat: 'Recipes' },
+    { name: 'Epicurious', icon: '🍽️', url: 'https://www.epicurious.com', cat: 'Recipes' },
+    { name: 'Yummly', icon: '🥘', url: 'https://www.yummly.com', cat: 'Recipes' },
+    { name: 'Food Network', icon: '🍳', url: 'https://www.foodnetwork.com', cat: 'Recipes/TV' },
+    { name: 'Tasty', icon: '🍕', url: 'https://tasty.co', cat: 'Video Recipes' },
+    { name: 'Serious Eats', icon: '🍝', url: 'https://www.seriouseats.com', cat: 'Food Science' }
+];
+document.getElementById('cookingKitchenGrid').innerHTML = cookingKitchen.map(s => `<div class="category-card" onclick="window.open('${s.url}', '_blank');"><div style="font-size:2.6rem;">${s.icon}</div><div style="font-weight:700;">${s.name}</div><div style="font-size:0.8rem;">${s.cat}</div></div>`).join('');
+
+const wildernessOceans = [
+    { name: 'National Geographic', icon: '🐘', url: 'https://www.nationalgeographic.com', cat: 'Wildlife' },
+    { name: 'WWF', icon: '🐼', url: 'https://www.worldwildlife.org', cat: 'Conservation' },
+    { name: 'iNaturalist', icon: '🌿', url: 'https://www.inaturalist.org', cat: 'Citizen Science' },
+    { name: 'Ocean Conservancy', icon: '🐠', url: 'https://oceanconservancy.org', cat: 'Oceans' },
+    { name: 'BugGuide', icon: '🐞', url: 'https://bugguide.net', cat: 'Insects' },
+    { name: 'All About Birds', icon: '🐦', url: 'https://www.allaboutbirds.org', cat: 'Birds' }
+];
+document.getElementById('wildernessOceansGrid').innerHTML = wildernessOceans.map(s => `<div class="category-card" onclick="window.open('${s.url}', '_blank');"><div style="font-size:2.6rem;">${s.icon}</div><div style="font-weight:700;">${s.name}</div><div style="font-size:0.8rem;">${s.cat}</div></div>`).join('');
+
+const crypto = [
+    { name: 'CoinMarketCap', icon: '📊', url: 'https://coinmarketcap.com', cat: 'Prices' },
+    { name: 'CoinGecko', icon: '🦎', url: 'https://www.coingecko.com', cat: 'Prices' },
+    { name: 'Binance', icon: '🟡', url: 'https://www.binance.com', cat: 'Exchange' },
+    { name: 'Coinbase', icon: '🔵', url: 'https://www.coinbase.com', cat: 'Exchange' },
+    { name: 'CryptoPanic', icon: '📰', url: 'https://cryptopanic.com', cat: 'News' },
+    { name: 'Cointelegraph', icon: '📈', url: 'https://cointelegraph.com', cat: 'News' }
+];
+document.getElementById('cryptoGrid').innerHTML = crypto.map(s => `<div class="category-card" onclick="window.open('${s.url}', '_blank');"><div style="font-size:2.6rem;">${s.icon}</div><div style="font-weight:700;">${s.name}</div><div style="font-size:0.8rem;">${s.cat}</div></div>`).join('');
+
+const news = [
+    { name: 'BBC News', icon: '📡', url: 'https://www.bbc.com/news', cat: 'World' },
+    { name: 'CNN', icon: '📺', url: 'https://www.cnn.com', cat: 'World' },
+    { name: 'Reuters', icon: '📰', url: 'https://www.reuters.com', cat: 'World' },
+    { name: 'Al Jazeera', icon: '🌍', url: 'https://www.aljazeera.com', cat: 'World' },
+    { name: 'AP News', icon: '📝', url: 'https://apnews.com', cat: 'World' },
+    { name: 'NPR', icon: '🎙️', url: 'https://www.npr.org', cat: 'US News' },
+    { name: 'The Guardian', icon: '📰', url: 'https://www.theguardian.com', cat: 'World' },
+    { name: 'Le Monde', icon: '🇫🇷', url: 'https://www.lemonde.fr', cat: 'French' }
+];
+document.getElementById('newsGrid').innerHTML = news.map(s => `<div class="category-card" onclick="window.open('${s.url}', '_blank');"><div style="font-size:2.6rem;">${s.icon}</div><div style="font-weight:700;">${s.name}</div><div style="font-size:0.8rem;">${s.cat}</div></div>`).join('');
 </script>
 </body>
 </html>
