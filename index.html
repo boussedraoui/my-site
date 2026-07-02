@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -208,6 +207,12 @@
         .tool-card { background: var(--surface); border-radius: 32px; padding: 20px 10px; text-align: center; cursor: pointer; border: 2px solid transparent; transition: all 0.25s ease; box-shadow: var(--shadow); position: relative; }
         .tool-card:hover { transform: translateY(-8px); border-color: var(--primary); box-shadow: var(--shadow-lg); }
         .tool-card .tool-name { font-size: 1.2rem; font-weight: 700; margin-top: 12px; }
+        .tool-card.large { grid-column: span 2; background: linear-gradient(135deg, var(--primary), var(--accent)); color: white; border: none; }
+        .tool-card.large .tool-name { font-size: 1.8rem; font-weight: 800; }
+        .tool-card.online-tools { grid-column: 1 / -1; background: linear-gradient(135deg, #f093fb, #f5576c); color: white; border: none; margin-top: 0; }
+        .tool-card.online-tools .tool-name { font-size: 2rem; font-weight: 800; }
+        .tool-card.browsers-card { grid-column: 1 / -1; background: linear-gradient(135deg, #00b4db, #0083b0); color: white; border: none; margin-top: 28px; }
+        .tool-card.browsers-card .tool-name { font-size: 2rem; font-weight: 800; }
         .tool-panel { background: var(--surface); border-radius: 40px; padding: 32px 28px; margin: 32px 0 40px; box-shadow: var(--shadow-lg); border: 1px solid var(--border); overflow: hidden; }
         .tool-btn { background: var(--primary); border: none; padding: 14px 28px; border-radius: 60px; font-weight: 700; color: white; cursor: pointer; transition: 0.2s; margin: 8px; display: inline-block; font-size: 1rem; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
         .tool-btn:hover { background: var(--primary-dark); transform: scale(0.97); }
@@ -402,14 +407,32 @@
         <div class="love-phrase"><div class="premium-container"><span class="premium-ribbon">💎 100% FREE PREMIUM</span><div class="orbiting-love"><div class="love-text">I 💗 TOOLS</div></div></div></div>
     </div>
     <div class="search-container"><input type="text" id="globalSearch" class="search-input" placeholder="🔍 Search any tool... calculator, world clock, translator..."><div id="searchResults" class="search-results" style="display:none;"></div></div>
-    
-    <!-- ===== TOOLS GRID ===== -->
     <div class="tools-grid" id="toolsGrid"></div>
-    
-    <!-- ===== FLEX BUTTONS (kept) ===== -->
+    <div style="display:flex;justify-content:center;margin:20px 0 30px;"><button class="sites-wide-btn" style="background:linear-gradient(135deg,#ff7e5f,#feb47b);" onclick="openMediaOverlay()">📺 MEDIA (Video Platforms)</button></div>
     <div class="flex-buttons"><button class="tool-btn" onclick="openOtherTools()">🧰 All other tools</button><button class="tool-btn" onclick="openAiTools()">🤖 AI Hub</button><button class="tool-btn" onclick="openSearchOverlay()">🔍 Search engines</button></div>
-    
-    <!-- ===== TOOL PANEL ===== -->
+    <div style="display:flex;justify-content:center;margin:20px 0 30px;"><button class="sites-wide-btn" onclick="openSitesOverlay()">🌐 SITES (Popular Websites)</button></div>
+    <div style="display:flex;justify-content:center;margin:20px 0 30px;"><button class="sites-wide-btn" style="background:linear-gradient(135deg,#0f3443,#34e89e);" onclick="openTvRadioOverlay()">📺📻 TV / RADIO</button></div>
+    <div style="display:flex;justify-content:center;margin:20px 0 30px;"><div class="tool-card browsers-card" onclick="openBrowsersOverlay()" style="max-width:100%;width:100%;"><div style="font-size:2.8rem;">🌐🧭</div><div class="tool-name">Browsers</div><div style="font-size:1rem;margin-top:8px;">Browse websites inside the app · All major browsers</div></div></div>
+    <div style="display:flex;justify-content:center;margin:20px 0 30px;"><div class="tool-card large" onclick="openConvertOverlay()" style="max-width:100%;width:100%;background:linear-gradient(135deg,#fa8231,#f7b731);"><div style="font-size:2.8rem;">🔄📄🖼️</div><div class="tool-name">CONVERT Edit Word, Image, PDF...</div><div style="font-size:1rem;margin-top:8px;">All‑in‑one conversion & editing tools</div></div></div>
+    <div style="display:flex;justify-content:center;margin:20px 0 30px;"><div class="tool-card large" onclick="openAllAiTranslatorOverlay()" style="max-width:100%;width:100%;background:linear-gradient(135deg,#00b894,#00cec9);"><div style="font-size:2.8rem;">🌐🔤🤖</div><div class="tool-name">All AI Translator</div><div style="font-size:1rem;margin-top:8px;">Best AI translation tools & apps</div></div></div>
+    <div style="display:flex;justify-content:center;margin:20px 0 30px;"><div class="tool-card large" onclick="openGamesOverlay()" style="max-width:100%;width:100%;background:linear-gradient(135deg,#e84393,#fd79a8);"><div style="font-size:2.8rem;">🎮🕹️👾</div><div class="tool-name">GAMES</div><div style="font-size:1rem;margin-top:8px;">All gaming websites & platforms</div></div></div>
+    <div style="display:flex;justify-content:center;margin:20px 0 30px;"><div class="tool-card large" onclick="openMoneyOverlay()" style="max-width:100%;width:100%;background:linear-gradient(135deg,#1abc9c,#2ecc71);"><div style="font-size:2.8rem;">💵📈💰</div><div class="tool-name">MONEY & INVESTMENTS</div><div style="font-size:1rem;margin-top:8px;">Insurance, Loans, Finance & Investment Sites</div></div></div>
+    <div style="display:flex;justify-content:center;margin:20px 0 30px;"><div class="tool-card large" onclick="openRemoteToolsOverlay()" style="max-width:100%;width:100%;background:linear-gradient(135deg,#8e44ad,#c0392b);"><div style="font-size:2.8rem;">🖥️🔒📱</div><div class="tool-name">RDP, VPN & Web Preview</div><div style="font-size:1rem;margin-top:8px;">Remote Desktop, Proxy, Device Preview – open in new tab</div></div></div>
+    <div style="display:flex;justify-content:center;margin:20px 0 30px;"><div class="tool-card large" onclick="openFreeEmailsOverlay()" style="max-width:100%;width:100%;background:linear-gradient(135deg,#1e3c72,#2a5298);"><div style="font-size:2.8rem;">📧</div><div class="tool-name">Free Emails</div><div style="font-size:1rem;margin-top:8px;">Secure & free email providers</div></div></div>
+    <div style="display:flex;justify-content:center;margin:20px 0 30px;"><div class="tool-card large" onclick="openHealthSportsOverlay()" style="max-width:100%;width:100%;background:linear-gradient(135deg,#43c6ac,#191654);"><div style="font-size:2.8rem;">🏋️🥗</div><div class="tool-name">Health and Sports</div><div style="font-size:1rem;margin-top:8px;">Fitness, nutrition, weightlifting, swimming, yoga</div></div></div>
+    <div style="display:flex;justify-content:center;margin:20px 0 30px;"><div class="tool-card large" onclick="openMiscOverlay()" style="max-width:100%;width:100%;background:linear-gradient(135deg,#f7971e,#ffd200);"><div style="font-size:2.8rem;">🎵💘🎨</div><div class="tool-name">Miscellaneous</div><div style="font-size:1rem;margin-top:8px;">Music, dating, art, podcasts, and more</div></div></div>
+    <div style="display:flex;justify-content:center;margin:20px 0 30px;"><div class="tool-card large" onclick="openTravelBooksOverlay()" style="max-width:100%;width:100%;background:linear-gradient(135deg,#0ba360,#3cba92);"><div style="font-size:2.8rem;">✈️📚</div><div class="tool-name">Travel and Books</div><div style="font-size:1rem;margin-top:8px;">Free books, travel guides, flights</div></div></div>
+    <div style="display:flex;justify-content:center;margin:20px 0 30px;"><div class="tool-card large" onclick="openMoviesSeriesOverlay()" style="max-width:100%;width:100%;background:linear-gradient(135deg,#ff4b2b,#ff416c);"><div style="font-size:2.8rem;">🎬🍿</div><div class="tool-name">Movies, Series and Shows</div><div style="font-size:1rem;margin-top:8px;">Free streaming platforms, all languages</div></div></div>
+    <div style="display:flex;justify-content:center;margin:20px 0 30px;"><div class="tool-card large" onclick="openCultureFashionOverlay()" style="max-width:100%;width:100%;background:linear-gradient(135deg,#bc4e9c,#f80759);"><div style="font-size:2.8rem;">👗🎭</div><div class="tool-name">Culture and Fashion</div><div style="font-size:1rem;margin-top:8px;">Fashion, art, culture magazines</div></div></div>
+    <div style="display:flex;justify-content:center;margin:20px 0 30px;"><div class="tool-card large" onclick="openJobsOverlay()" style="max-width:100%;width:100%;background:linear-gradient(135deg,#0099ff,#6a11cb);"><div style="font-size:2.8rem;">💼📌</div><div class="tool-name">Jobs</div><div style="font-size:1rem;margin-top:8px;">Job portals, remote work, freelance</div></div></div>
+    <div style="display:flex;justify-content:center;margin:20px 0 30px;"><div class="tool-card large" onclick="openTechOverlay()" style="max-width:100%;width:100%;background:linear-gradient(135deg,#00c6fb,#005bea);"><div style="font-size:2.8rem;">💻📱</div><div class="tool-name">TECH</div><div style="font-size:1rem;margin-top:8px;">Tech news, reviews, gadgets, programming</div></div></div>
+    <div style="display:flex;justify-content:center;margin:20px 0 30px;"><div class="tool-card large" onclick="openBuildingHomeOverlay()" style="max-width:100%;width:100%;background:linear-gradient(135deg,#a8c0ff,#3f2b96);"><div style="font-size:2.8rem;">🏠🔨</div><div class="tool-name">Building & Home Life</div><div style="font-size:1rem;margin-top:8px;">DIY, home improvement, gardening</div></div></div>
+    <div style="display:flex;justify-content:center;margin:20px 0 30px;"><div class="tool-card large" onclick="openSurfInternetOverlay()" style="max-width:100%;width:100%;background:linear-gradient(135deg,#00d2ff,#3a7bd5);"><div style="font-size:2.8rem;">🌊📡</div><div class="tool-name">SURF Internet</div><div style="font-size:1rem;margin-top:8px;">Speed test, IP tools, network utilities</div></div></div>
+    <div style="display:flex;justify-content:center;margin:20px 0 30px;"><div class="tool-card large" onclick="openCookingKitchenOverlay()" style="max-width:100%;width:100%;background:linear-gradient(135deg,#ffb88c,#de6262);"><div style="font-size:2.8rem;">🍳🥘</div><div class="tool-name">Cooking & Kitchen</div><div style="font-size:1rem;margin-top:8px;">Recipes, meal planning, cooking tips</div></div></div>
+    <div style="display:flex;justify-content:center;margin:20px 0 30px;"><div class="tool-card large" onclick="openWildernessOceansOverlay()" style="max-width:100%;width:100%;background:linear-gradient(135deg,#11998e,#38ef7d);"><div style="font-size:2.8rem;">🐋🌿</div><div class="tool-name">Wilderness and Oceans</div><div style="font-size:1rem;margin-top:8px;">Wildlife, marine life, nature conservation</div></div></div>
+    <div style="display:flex;justify-content:center;margin:20px 0 30px;"><div class="tool-card large" onclick="openCryptoOverlay()" style="max-width:100%;width:100%;background:linear-gradient(135deg,#f2994a,#f2c94c);"><div style="font-size:2.8rem;">₿📈</div><div class="tool-name">Crypto</div><div style="font-size:1rem;margin-top:8px;">Crypto exchanges, news, portfolio trackers</div></div></div>
+    <div style="display:flex;justify-content:center;margin:20px 0 30px;"><div class="tool-card large" onclick="openNewsOverlay()" style="max-width:100%;width:100%;background:linear-gradient(135deg,#1c92d2,#f2fcfe);"><div style="font-size:2.8rem;">📰🌍</div><div class="tool-name">NEWS</div><div style="font-size:1rem;margin-top:8px;">World news, politics, technology, business</div></div></div>
+
     <div class="tool-panel" id="toolPanel"><h2 id="toolPanelTitle" style="font-size:1.8rem; margin-bottom:16px;">✨ Select a tool</h2><div id="toolContent"></div></div>
     <div class="rate-us-container"><button class="tool-btn" onclick="rateApp()" style="font-size:1.2rem;">⭐ Rate us</button></div>
 </main>
@@ -423,7 +446,7 @@
 </footer>
 <div id="toast" class="toast"></div>
 
-<!-- ========== BOTTOM SLIDING NEWS TICKER ========== -->
+<!-- ========== BOTTOM SLIDING NEWS TICKER (RESTORED) ========== -->
 <div class="ultra-ticker-wrapper">
     <div class="ticker-container">
         <div class="ticker-content">
@@ -456,7 +479,7 @@
     </div>
 </div>
 
-<!-- ========== SMART CHATBOT (AI ASSISTANT) ========== -->
+<!-- ========== SMART CHATBOT (FIXED: WORKING BUTTONS) ========== -->
 <div id="smartChatWidget" class="chat-widget">
     <div class="chat-button" id="chatButton">
         💬 <span class="chat-badge">AI</span>
@@ -482,6 +505,7 @@
 </div>
 
 <style>
+/* Chat widget styles – ensures footer is not hidden */
 .chat-widget {
     position: fixed;
     bottom: 30px;
@@ -672,9 +696,246 @@
 </style>
 
 <script>
-// ================================================================
-//  MULTITOOL PRO – FULL ORIGINAL SCRIPT (removed large cards)
-// ================================================================
+// ==================== FIXED CHATBOT: GLOBAL COMMAND DISPATCHER (BUTTONS WORK) ====================
+(function() {
+    let isChatOpen = false;
+    let isFullscreen = false;
+    let recognition = null;
+    const chatPanel = document.getElementById('chatPanel');
+    const chatButton = document.getElementById('chatButton');
+    const chatCloseBtn = document.getElementById('chatCloseBtn');
+    const chatFullscreenBtn = document.getElementById('chatFullscreenBtn');
+    const chatInput = document.getElementById('chatInput');
+    const chatSendBtn = document.getElementById('chatSendBtn');
+    const chatMessages = document.getElementById('chatMessages');
+    const voiceBtn = document.getElementById('chatVoiceBtn');
+    const voiceStatus = document.getElementById('voiceStatus');
+    
+    // All individual tools (exactly as in your app)
+    const allIndividualTools = [
+        { id: 'calculator', name: 'Advanced Calculator', keywords: ['calculator','calc','math','sin','cos','tan','log','sqrt'] },
+        { id: 'password', name: 'Password Generator', keywords: ['password','generate password','secure password'] },
+        { id: 'wordcount', name: 'Word Counter', keywords: ['word count','character count','reading time'] },
+        { id: 'caseconverter', name: 'Case Converter', keywords: ['case converter','uppercase','lowercase','title case'] },
+        { id: 'colorpicker', name: 'Color Picker', keywords: ['color picker','pick color','hex','rgb'] },
+        { id: 'unitconverter', name: 'Unit Converter', keywords: ['unit converter','convert length','mass','volume','temperature'] },
+        { id: 'stopwatch', name: 'Stopwatch', keywords: ['stopwatch','lap timer','time elapsed'] },
+        { id: 'qrcode', name: 'QR Code Generator', keywords: ['qr code','generate qr','qr generator'] },
+        { id: 'bmi', name: 'BMI Calculator', keywords: ['bmi','body mass index','weight','height'] },
+        { id: 'random', name: 'Random Number Generator', keywords: ['random number','random generator','pick random'] },
+        { id: 'countdown', name: 'Countdown Timer', keywords: ['countdown','timer','set timer'] },
+        { id: 'datediff', name: 'Date Difference', keywords: ['date difference','days between dates','weekdays'] },
+        { id: 'base64', name: 'Base64 Encoder/Decoder', keywords: ['base64','encode base64','decode base64'] },
+        { id: 'urlencode', name: 'URL Encode/Decode', keywords: ['url encode','url decode','encode uri'] },
+        { id: 'jsonformat', name: 'JSON Formatter', keywords: ['json','json formatter','pretty print'] },
+        { id: 'lorem', name: 'Lorem Ipsum Generator', keywords: ['lorem ipsum','placeholder text','dummy text'] },
+        { id: 'currency', name: 'Currency Converter', keywords: ['currency converter','exchange rate','convert money'] },
+        { id: 'percentcalc', name: 'Percentage Calculator', keywords: ['percentage','percent','percentage change'] },
+        { id: 'agecalc', name: 'Age Calculator', keywords: ['age calculator','calculate age','birthday'] },
+        { id: 'binhex', name: 'Binary/Hex/Decimal/Octal Converter', keywords: ['binary','hex','octal','decimal'] },
+        { id: 'roman', name: 'Roman Numeral Converter', keywords: ['roman numeral','convert roman'] },
+        { id: 'tipcalc', name: 'Tip Calculator', keywords: ['tip calculator','split bill','tip'] },
+        { id: 'worldclock', name: 'World Clock', keywords: ['world clock','time zone','current time'] },
+        { id: 'dice', name: 'Dice Roller', keywords: ['dice','roll dice','d6','d20'] },
+        { id: 'coin', name: 'Coin Flip', keywords: ['coin flip','flip coin','heads tails'] },
+        { id: 'joke', name: 'Joke Generator', keywords: ['joke','funny','laugh','humor'] },
+        { id: 'ip', name: 'IP Lookup', keywords: ['ip address','ip lookup','geolocation','my ip'] },
+        { id: 'ai_paraphraser', name: 'AI Paraphraser', keywords: ['paraphrase','rewrite','rephrase'] },
+        { id: 'ai_grammar', name: 'Grammar & Spell Check', keywords: ['grammar check','spell check','fix grammar'] },
+        { id: 'ai_summarizer', name: 'AI Summarizer', keywords: ['summarize','text summary','summarizer'] },
+        { id: 'ai_sentiment', name: 'Sentiment Analysis', keywords: ['sentiment','emotion'] },
+        { id: 'ai_keywords', name: 'Keyword Extractor', keywords: ['keywords','extract keywords'] },
+        { id: 'ai_readability', name: 'Readability Checker', keywords: ['readability','flesch'] },
+        { id: 'premium_ai', name: 'AI Text Enhancer', keywords: ['enhance text','improve writing','polish'] }
+    ];
+    
+    // All category overlays (the big buttons)
+    const categoryOverlays = [
+        { action: 'openConvertOverlay', name: 'CONVERT Tools (PDF, Word, Image, Video)', keywords: ['convert','pdf','word','image','video','audio','editor','converter','pdf tools','edit pdf'] },
+        { action: 'openBrowsersOverlay', name: 'Browsers (In‑App Web Browser)', keywords: ['browser','web browser','surf web','open website'] },
+        { action: 'openAllAiTranslatorOverlay', name: 'All AI Translator (Google Translate, Lernix, Reverso)', keywords: ['translate','translation','google translate','language translator'] },
+        { action: 'openGamesOverlay', name: 'GAMES (Steam, Roblox, Poki, etc.)', keywords: ['games','gaming','play games','steam','roblox'] },
+        { action: 'openMoneyOverlay', name: 'MONEY & INVESTMENTS (Insurance, Loans, Crypto)', keywords: ['money','investments','insurance','loan','finance','crypto'] },
+        { action: 'openRemoteToolsOverlay', name: 'RDP, VPN & Web Preview Tools', keywords: ['rdp','vpn','remote desktop','proxy','website preview'] },
+        { action: 'openOnlineOverlay', name: 'Online Tools (Canva, Remove.bg, SmallPDF, etc.)', keywords: ['online tools','canva','remove bg','smallpdf','ilovepdf','grammarly','quillbot'] },
+        { action: 'openImagineOverlay', name: 'IMAGINE (25 Unique Tools)', keywords: ['imagine','ocr','morse','uuid','hash','unix timestamp'] },
+        { action: 'openShortenerOverlay', name: 'URL Shorteners', keywords: ['url shortener','tinyurl','bitly','short link'] },
+        { action: 'openOtherTools', name: 'All Other Tools (Notes, Weather, Todo, Translator, Wikipedia)', keywords: ['notes','weather','todo','random fact','password strength','wikipedia'] },
+        { action: 'openAiTools', name: 'AI Hub (ChatGPT, Gemini, Claude, etc.)', keywords: ['ai','chatgpt','gemini','claude','copilot','midjourney','dall e'] },
+        { action: 'openMediaOverlay', name: 'MEDIA & Video Platforms (Netflix, YouTube, Twitch)', keywords: ['media','video','netflix','youtube','twitch'] },
+        { action: 'openSitesOverlay', name: 'Popular Websites (Reddit, Pinterest, WhatsApp Web)', keywords: ['popular sites','reddit','pinterest','whatsapp web'] },
+        { action: 'openTvRadioOverlay', name: 'TV / RADIO (Free TV channels & Radio stations)', keywords: ['tv','radio','live tv','radio stations','tunein'] },
+        { action: 'openFreeEmailsOverlay', name: 'Free Email Services', keywords: ['free email','protonmail','tutanota'] },
+        { action: 'openHealthSportsOverlay', name: 'Health and Sports', keywords: ['health','sports','fitness','myfitnesspal'] },
+        { action: 'openMiscOverlay', name: 'Miscellaneous (Music, Dating, Art)', keywords: ['music','dating','art'] },
+        { action: 'openTravelBooksOverlay', name: 'Travel and Books', keywords: ['travel','books','flights'] },
+        { action: 'openMoviesSeriesOverlay', name: 'Movies, Series and Shows', keywords: ['movies','series','shows'] },
+        { action: 'openCultureFashionOverlay', name: 'Culture and Fashion', keywords: ['fashion','culture','vogue'] },
+        { action: 'openJobsOverlay', name: 'Jobs', keywords: ['jobs','career','indeed'] },
+        { action: 'openTechOverlay', name: 'TECH', keywords: ['tech','technology','techcrunch'] },
+        { action: 'openBuildingHomeOverlay', name: 'Building & Home Life', keywords: ['home','diy','houzz'] },
+        { action: 'openSurfInternetOverlay', name: 'SURF Internet (Speedtest, IP tools)', keywords: ['surf internet','speed test','whatismyip'] },
+        { action: 'openCookingKitchenOverlay', name: 'Cooking & Kitchen', keywords: ['cooking','kitchen','recipes'] },
+        { action: 'openWildernessOceansOverlay', name: 'Wilderness and Oceans', keywords: ['wildlife','oceans','nature'] },
+        { action: 'openCryptoOverlay', name: 'Crypto', keywords: ['crypto','bitcoin','ethereum'] },
+        { action: 'openNewsOverlay', name: 'NEWS', keywords: ['news','bbc','cnn'] }
+    ];
+    
+    const allFeatures = [...allIndividualTools, ...categoryOverlays];
+    
+    function searchFeatures(query) {
+        const q = query.toLowerCase().trim();
+        if (!q) return [];
+        const results = [];
+        for (const feat of allFeatures) {
+            let score = 0;
+            if (feat.name.toLowerCase().includes(q)) score += 15;
+            if (q.includes(feat.name.toLowerCase())) score += 10;
+            if (feat.keywords) {
+                for (const kw of feat.keywords) {
+                    if (q.includes(kw.toLowerCase())) score += 5;
+                    if (kw.toLowerCase().includes(q)) score += 3;
+                }
+            }
+            if (q.length === 1) {
+                if (feat.name.toLowerCase().startsWith(q)) score += 2;
+                if (feat.name.toLowerCase().includes(q)) score += 1;
+            }
+            if (score > 0) results.push({ ...feat, score });
+        }
+        results.sort((a,b) => b.score - a.score);
+        return results.slice(0, 12);
+    }
+    
+    function featureToButton(feat) {
+        let command = '';
+        if (feat.id) command = `tool:${feat.id}`;
+        else if (feat.action) command = `action:${feat.action}`;
+        return `<button class="chat-btn" data-command="${command}">🔧 ${feat.name}</button>`;
+    }
+    
+    function handleChatButtonClick(e) {
+        const btn = e.target.closest('.chat-btn');
+        if (!btn) return;
+        const cmd = btn.getAttribute('data-command');
+        if (!cmd) return;
+        // Close chat panel first
+        const panel = document.getElementById('chatPanel');
+        if (panel && panel.classList.contains('active')) panel.classList.remove('active');
+        // Execute command
+        if (cmd.startsWith('tool:')) {
+            const toolId = cmd.substring(5);
+            if (typeof window.selectTool === 'function') window.selectTool(toolId);
+        } else if (cmd.startsWith('action:')) {
+            const actionName = cmd.substring(7);
+            if (typeof window[actionName] === 'function') window[actionName]();
+        }
+        // Scroll to tool panel for better UX
+        const toolPanel = document.getElementById('toolPanel');
+        if (toolPanel) toolPanel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+    document.addEventListener('click', handleChatButtonClick);
+    
+    function generateResponse(userMsg) {
+        const q = userMsg.toLowerCase().trim();
+        if (q.match(/^(hi|hello|hey|greetings|good morning|good afternoon|good evening)$/i)) {
+            return "👋 Hello! I know **every single tool** in MultiTool Pro. Just tell me what you need – a tool, a category, a site... I'll give you working buttons. Try `pdf`, `games`, `weather`, or even a letter like `p`.";
+        }
+        if (q.length <= 2) {
+            const matches = searchFeatures(q);
+            if (matches.length === 0) return `🔍 No results for "${q}". Try a longer word like "pdf" or "calculator".`;
+            let response = `✨ **Found ${matches.length} result(s) for "${q}":**\n\n`;
+            for (let m of matches) response += featureToButton(m);
+            response += `\n\n💡 You can also use the main search bar or big category buttons.`;
+            return response;
+        }
+        const matches = searchFeatures(q);
+        if (matches.length > 0) {
+            let response = `🔍 **Found ${matches.length} match(es) for "${userMsg}":**\n\n`;
+            for (let m of matches) response += featureToButton(m);
+            if (q.includes('pdf')) response += `\n\n📄 **PDF tools** are inside the **CONVERT** overlay – click the button above.`;
+            if (q.includes('weather')) response += `\n\n🌤️ **Weather** tool is inside "All other tools" (the 🧰 button on main page).`;
+            return response;
+        }
+        return `🤔 I couldn't find a direct match for "${userMsg}". But MultiTool Pro has **ALL tools imaginable**! Try these:\n\n` +
+               `<button class="chat-btn" data-command="action:openConvertOverlay">🔄 CONVERT Tools (PDF, Word, Image)</button>\n` +
+               `<button class="chat-btn" data-command="action:openGamesOverlay">🎮 GAMES</button>\n` +
+               `<button class="chat-btn" data-command="action:openOnlineOverlay">🌐 Online Tools</button>\n` +
+               `<button class="chat-btn" data-command="action:openAiTools">🤖 AI Hub</button>\n` +
+               `<button class="chat-btn" data-command="action:openBrowsersOverlay">🌐 Browsers</button>\n` +
+               `\nOr just ask for "calculator", "qr code", "world clock", "translate", "news", "tv", etc.`;
+    }
+    
+    // Chat UI logic
+    function openChat() { chatPanel.classList.add('active'); chatPanel.style.display = 'flex'; isChatOpen = true; }
+    function closeChat() { chatPanel.classList.remove('active'); chatPanel.style.display = 'none'; isChatOpen = false; if (isFullscreen) toggleFullscreenMode(); }
+    chatButton.addEventListener('click', () => { if (chatPanel.classList.contains('active')) closeChat(); else openChat(); });
+    chatCloseBtn.addEventListener('click', closeChat);
+    chatFullscreenBtn.addEventListener('click', toggleFullscreenMode);
+    function toggleFullscreenMode() {
+        isFullscreen = !isFullscreen;
+        if (isFullscreen) { chatPanel.classList.add('fullscreen'); chatFullscreenBtn.textContent = '🗖'; }
+        else { chatPanel.classList.remove('fullscreen'); chatFullscreenBtn.textContent = '⛶'; }
+    }
+    function addMessage(text, isUser) {
+        const div = document.createElement('div');
+        div.className = `chat-message ${isUser ? 'user' : 'bot'}`;
+        if (!isUser) div.innerHTML = text;
+        else div.textContent = text;
+        chatMessages.appendChild(div);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+        return div;
+    }
+    async function getAIResponseWithDelay(msg) {
+        await new Promise(r => setTimeout(r, 600 + Math.random() * 800));
+        return generateResponse(msg);
+    }
+    async function sendUserMessage() {
+        let msg = chatInput.value.trim();
+        if (!msg) return;
+        addMessage(msg, true);
+        chatInput.value = '';
+        const thinkingDiv = addMessage('🤔 Thinking...', false);
+        try {
+            const reply = await getAIResponseWithDelay(msg);
+            thinkingDiv.remove();
+            addMessage(reply, false);
+        } catch (err) {
+            thinkingDiv.remove();
+            addMessage("⚠️ Sorry, an error occurred. Please try again.", false);
+        }
+    }
+    chatSendBtn.addEventListener('click', sendUserMessage);
+    chatInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') sendUserMessage(); });
+    
+    // Voice recognition
+    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        recognition = new SpeechRecognition();
+        recognition.continuous = false;
+        recognition.interimResults = false;
+        recognition.lang = 'en-US';
+        recognition.onstart = () => { voiceStatus.textContent = '🎙️ Listening...'; voiceBtn.style.background = '#ff5555'; };
+        recognition.onend = () => { voiceStatus.textContent = ''; voiceBtn.style.background = '#4c9aff'; };
+        recognition.onresult = (event) => {
+            const transcript = event.results[0][0].transcript;
+            chatInput.value = transcript;
+            voiceStatus.textContent = `✅ Recognized: "${transcript}"`;
+            setTimeout(() => { if(voiceStatus) voiceStatus.textContent = ''; }, 2000);
+            sendUserMessage();
+        };
+        recognition.onerror = (e) => { voiceStatus.textContent = '❌ Voice error'; voiceBtn.style.background = '#4c9aff'; setTimeout(() => { if(voiceStatus) voiceStatus.textContent = ''; }, 2000); };
+        voiceBtn.addEventListener('click', () => { if (recognition) recognition.start(); });
+    } else {
+        voiceBtn.disabled = true;
+        voiceStatus.textContent = 'No voice support';
+    }
+})();
+</script>
+
+<!-- ========== ORIGINAL SCRIPT (all existing functions preserved – only the chatbot replaced) ========== -->
+<script>
+// ==================== ORIGINAL SCRIPT (all existing functions preserved – only the chatbot replaced) ====================
 (function(){
     let darkMode = localStorage.getItem('theme') === 'dark';
     if(darkMode) document.documentElement.setAttribute('data-theme','dark');
@@ -838,23 +1099,11 @@
         {id:'ai_keywords', icon:'🔑', name:'Keyword Extractor'},
         {id:'ai_readability', icon:'📖', name:'Readability Checker'},
         {id:'premium_ai', icon:'🔮', name:'✨ AI Text Enhancer'} ];
-    // metaSearchTools is kept but not rendered as large cards – they are accessed via flex buttons and overlays
     const metaSearchTools = [ {id:'media_overlay', icon:'📺', name:'📺 Media & Video Platforms'}, {id:'sites_overlay', icon:'🌐', name:'🌐 Popular Sites'}, {id:'tvradio_overlay', icon:'📺📻', name:'📺📻 TV / RADIO'}, {id:'browsers_overlay', icon:'🌐🧭', name:'🌐 Browsers (In‑App)'}, {id:'convert_overlay', icon:'🔄📄', name:'🔄 CONVERT (Word, Image, PDF)'}, {id:'aitranslator_overlay', icon:'🌐🔤', name:'🌐 All AI Translator'}, {id:'games_overlay', icon:'🎮', name:'🎮 GAMES'}, {id:'money_overlay', icon:'💵', name:'💵 MONEY & INVESTMENTS'}, {id:'remote_overlay', icon:'🖥️🔒', name:'🖥️ RDP, VPN & Web Preview'}, {id:'imagine_overlay', icon:'✨🧠', name:'✨ IMAGINE (25+ New Tools)'}, {id:'online_overlay', icon:'🌐', name:'🌐 Online Tools (30+ Free)'}, {id:'shortener_overlay', icon:'🔗', name:'🔗 URL Shorteners'}, {id:'other_tools_overlay', icon:'🧰', name:'🧰 All other tools (Notes, Weather, Todo)'}, {id:'ai_hub_overlay', icon:'🤖', name:'🤖 AI Hub (ChatGPT, Gemini, etc.)'} ];
     const allTools = [...originalTools, ...metaSearchTools];
     const fullToolsList = allTools;
     const metaIds = new Set(metaSearchTools.map(t => t.id));
-    // RENDER GRID – only small tools, NO large cards (IMAGINE and Online Tools removed)
-    function renderGrid(){ 
-        let grid = document.getElementById('toolsGrid'); 
-        let html = ''; 
-        for(let i=0; i<fullToolsList.length; i++){ 
-            let t = fullToolsList[i]; 
-            if(metaIds.has(t.id)) continue; 
-            // Render every small tool as a normal card
-            html += `<div class="tool-card" data-tool="${t.id}" onclick="selectTool('${t.id}')"><div style="font-size:2.8rem;">${t.icon}</div><div class="tool-name">${t.name}</div></div>`; 
-        } 
-        grid.innerHTML = html; 
-    }
+    function renderGrid(){ let grid = document.getElementById('toolsGrid'); let html = ''; for(let i=0; i<fullToolsList.length; i++){ let t = fullToolsList[i]; if(metaIds.has(t.id)) continue; if(t.id === 'premium_ai'){ html += `<div class="tool-card" data-tool="${t.id}" onclick="selectTool('${t.id}')"><div style="font-size:2.8rem;">${t.icon}</div><div class="tool-name">${t.name}</div></div>`; html += `<div class="tool-card large" onclick="openImagineOverlay()"><div style="font-size:2.8rem;">✨🧠✨</div><div class="tool-name">IMAGINE</div><div style="font-size:0.95rem;margin-top:6px;">25+ new tools</div></div>`; html += `<div class="tool-card online-tools" onclick="openOnlineOverlay()"><div style="font-size:2.8rem;">🌐💻🌍</div><div class="tool-name">Online Tools</div><div style="font-size:0.95rem;margin-top:6px;">30+ free online utilities</div></div>`; } else { html += `<div class="tool-card" data-tool="${t.id}" onclick="selectTool('${t.id}')"><div style="font-size:2.8rem;">${t.icon}</div><div class="tool-name">${t.name}</div></div>`; } } grid.innerHTML = html; }
     function renderSidebar(){ let sidebar = document.getElementById('sidebarList'); let sidebarTools = fullToolsList.filter(t => !metaIds.has(t.id)); sidebar.innerHTML = sidebarTools.map(t => `<div class="sidebar-item" onclick="selectTool('${t.id}'); closeSidebar();"><span style="font-size:1.6rem;">${t.icon}</span> <span style="font-size:1rem;">${t.name}</span></div>`).join(''); let imagineItem = document.createElement('div'); imagineItem.className = 'sidebar-item'; imagineItem.innerHTML = '<span style="font-size:1.6rem;">✨🧠✨</span> <span style="font-size:1rem;">IMAGINE (New Tools)</span>'; imagineItem.onclick = () => { closeSidebar(); openImagineOverlay(); }; sidebar.appendChild(imagineItem); let shortenerItem = document.createElement('div'); shortenerItem.className = 'sidebar-item'; shortenerItem.innerHTML = '<span style="font-size:1.6rem;">🔗</span> <span style="font-size:1rem;">URL Shorteners</span>'; shortenerItem.onclick = () => { closeSidebar(); openShortenerOverlay(); }; sidebar.appendChild(shortenerItem); let onlineItem = document.createElement('div'); onlineItem.className = 'sidebar-item'; onlineItem.innerHTML = '<span style="font-size:1.6rem;">🌐</span> <span style="font-size:1rem;">Online Tools</span>'; onlineItem.onclick = () => { closeSidebar(); openOnlineOverlay(); }; sidebar.appendChild(onlineItem); let sitesItem = document.createElement('div'); sitesItem.className = 'sidebar-item'; sitesItem.innerHTML = '<span style="font-size:1.6rem;">🌍</span> <span style="font-size:1rem;">SITES (Popular)</span>'; sitesItem.onclick = () => { closeSidebar(); openSitesOverlay(); }; sidebar.appendChild(sitesItem); let mediaItem = document.createElement('div'); mediaItem.className = 'sidebar-item'; mediaItem.innerHTML = '<span style="font-size:1.6rem;">📺</span> <span style="font-size:1rem;">MEDIA (Video)</span>'; mediaItem.onclick = () => { closeSidebar(); openMediaOverlay(); }; sidebar.appendChild(mediaItem); let tvRadioItem = document.createElement('div'); tvRadioItem.className = 'sidebar-item'; tvRadioItem.innerHTML = '<span style="font-size:1.6rem;">📺📻</span> <span style="font-size:1rem;">TV / RADIO</span>'; tvRadioItem.onclick = () => { closeSidebar(); openTvRadioOverlay(); }; sidebar.appendChild(tvRadioItem); let browsersItem = document.createElement('div'); browsersItem.className = 'sidebar-item'; browsersItem.innerHTML = '<span style="font-size:1.6rem;">🌐🧭</span> <span style="font-size:1rem;">Browsers (In‑App)</span>'; browsersItem.onclick = () => { closeSidebar(); openBrowsersOverlay(); }; sidebar.appendChild(browsersItem); let convertItem = document.createElement('div'); convertItem.className = 'sidebar-item'; convertItem.innerHTML = '<span style="font-size:1.6rem;">🔄📄🖼️</span> <span style="font-size:1rem;">CONVERT Edit Word, Image, PDF…</span>'; convertItem.onclick = () => { closeSidebar(); openConvertOverlay(); }; sidebar.appendChild(convertItem); let translatorItem = document.createElement('div'); translatorItem.className = 'sidebar-item'; translatorItem.innerHTML = '<span style="font-size:1.6rem;">🌐🔤🤖</span> <span style="font-size:1rem;">All AI Translator</span>'; translatorItem.onclick = () => { closeSidebar(); openAllAiTranslatorOverlay(); }; sidebar.appendChild(translatorItem); let gamesItem = document.createElement('div'); gamesItem.className = 'sidebar-item'; gamesItem.innerHTML = '<span style="font-size:1.6rem;">🎮</span> <span style="font-size:1rem;">GAMES</span>'; gamesItem.onclick = () => { closeSidebar(); openGamesOverlay(); }; sidebar.appendChild(gamesItem); let moneyItem = document.createElement('div'); moneyItem.className = 'sidebar-item'; moneyItem.innerHTML = '<span style="font-size:1.6rem;">💵</span> <span style="font-size:1rem;">MONEY & INVESTMENTS</span>'; moneyItem.onclick = () => { closeSidebar(); openMoneyOverlay(); }; sidebar.appendChild(moneyItem); let remoteItem = document.createElement('div'); remoteItem.className = 'sidebar-item'; remoteItem.innerHTML = '<span style="font-size:1.6rem;">🖥️🔒📱</span> <span style="font-size:1rem;">RDP, VPN & Web Preview</span>'; remoteItem.onclick = () => { closeSidebar(); openRemoteToolsOverlay(); }; sidebar.appendChild(remoteItem); }
     window.selectTool = function(toolId){
         if (toolId === 'media_overlay') { openMediaOverlay(); return; }
